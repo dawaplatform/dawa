@@ -1,0 +1,10 @@
+# Ignore artifacts:
+build
+.next
+node_modules
+
+# Ignore public files
+public
+
+# Ignore generated files
+coverage

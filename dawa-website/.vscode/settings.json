@@ -1,0 +1,49 @@
+{
+  // Use Prettier for formatting
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  // TypeScript settings
+  "typescript.tsdk": "node_modules/typescript/lib",
+
+  // Tailwind CSS IntelliSense
+  "tailwindCSS.experimental.classRegex": [
+    "tw`([^`]*)",
+    "tw=\"([^\"]*)",
+    "tw={\"([^\"}]*)",
+    "tw\\.\\w+`([^`]*)"
+  ],
+
+  // ESLint integration
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
+  },
+
+  // Tab and indentation settings
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+
+  // Files and editor settings
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/.git": true,
+    "**/.next": true,
+    "**/.DS_Store": true
+  },
+  "files.associations": {
+    "*.js": "javascript",
+    "*.ts": "typescript",
+    "*.tsx": "typescriptreact"
+  },
+
+  // Enable IntelliSense and suggestions for Next.js and React
+  "javascript.suggest.autoImports": true,
+  "typescript.suggest.autoImports": true
+}

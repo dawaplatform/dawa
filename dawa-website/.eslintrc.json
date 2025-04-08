@@ -1,0 +1,23 @@
+{
+  "extends": ["next/core-web-vitals", "plugin:prettier/recommended"],
+  "plugins": ["prettier", "unused-imports", "simple-import-sort"]
+  // "rules": {
+  //   "prettier/prettier": "error",
+  //   "no-unused-vars": [
+  //     "warn",
+  //     { "varsIgnorePattern": "^_", "argsIgnorePattern": "^_" }
+  //   ],
+  //   "unused-imports/no-unused-imports": "warn",
+  //   "unused-imports/no-unused-vars": [
+  //     "warn",
+  //     {
+  //       "vars": "all",
+  //       "varsIgnorePattern": "^_",
+  //       "args": "after-used",
+  //       "argsIgnorePattern": "^_"
+  //     }
+  //   ],
+  //   "simple-import-sort/imports": "warn",
+  //   "simple-import-sort/exports": "warn"
+  // }
+}
