@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -19,6 +19,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
+  SheetFooter,
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -60,6 +61,19 @@ const SendMessageDialog: React.FC<SendMessageDialogProps> = ({
     resolver: yupResolver(schema),
   });
 
+  // Create a ref for the Textarea so we can force blur on mobile when dialog opens.
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  // Destructure the register ref for 'message'
+  const { ref: messageRef, ...messageRest } = register('message');
+
+  // When the dialog/sheet opens on mobile, ensure the textarea is not auto-focused.
+  useEffect(() => {
+    if (isMobile && open && textareaRef.current) {
+      textareaRef.current.blur();
+    }
+  }, [isMobile, open]);
+
   const onSubmit = async (data: SendMessageFormValues) => {
     try {
       await sendMessage({
@@ -78,16 +92,23 @@ const SendMessageDialog: React.FC<SendMessageDialogProps> = ({
     }
   };
 
-  // Shared form content
-  const FormContent = () => (
+  // Shared form content. It conditionally renders the submit button.
+  const FormContent = ({ includeFooter }: { includeFooter: boolean }) => (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-4">
       <div className="space-y-2">
         <Label htmlFor="message">Your Message</Label>
         <Textarea
           id="message"
-          {...register('message')}
+          {...messageRest}
           rows={4}
           className="resize-none"
+          ref={(e) => {
+            messageRef(e);
+            // Cast textareaRef to a mutable ref object
+            (
+              textareaRef as React.MutableRefObject<HTMLTextAreaElement | null>
+            ).current = e;
+          }}
         />
         {errors.message && (
           <p className="text-red-500 text-sm">{errors.message.message}</p>
@@ -98,20 +119,23 @@ const SendMessageDialog: React.FC<SendMessageDialogProps> = ({
           {typeof error === 'string' ? error : error.message}
         </p>
       )}
-      <DialogFooter>
-        <Button
-          type="submit"
-          className="bg-primary_1 hover:bg-primary_1/90"
-          disabled={isSending}
-        >
-          {isSending ? 'Sending...' : 'Send Message'}
-        </Button>
-      </DialogFooter>
+      {includeFooter && (
+        <DialogFooter>
+          <Button
+            type="submit"
+            className="bg-primary_1 hover:bg-primary_1/90"
+            disabled={isSending}
+          >
+            {isSending ? 'Sending...' : 'Send Message'}
+          </Button>
+        </DialogFooter>
+      )}
     </form>
   );
 
   if (isMobile) {
-    // Mobile view: use bottom Sheet
+    // Mobile view: use bottom Sheet. Do not include footer in the form,
+    // instead use the SheetFooter for the submit button.
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent
@@ -125,15 +149,24 @@ const SendMessageDialog: React.FC<SendMessageDialogProps> = ({
             </SheetDescription>
           </SheetHeader>
           <div className="flex-1">
-            {/* Allows scrolling if content grows */}
-            <FormContent />
+            <FormContent includeFooter={false} />
           </div>
+          <SheetFooter>
+            <Button
+              type="button"
+              className="bg-primary_1 hover:bg-primary_1/90"
+              onClick={handleSubmit(onSubmit)}
+              disabled={isSending}
+            >
+              {isSending ? 'Sending...' : 'Send Message'}
+            </Button>
+          </SheetFooter>
         </SheetContent>
       </Sheet>
     );
   }
 
-  // Desktop view: use Dialog
+  // Desktop view: use Dialog with form including footer.
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -143,7 +176,7 @@ const SendMessageDialog: React.FC<SendMessageDialogProps> = ({
             Send a message to the seller about this product.
           </DialogDescription>
         </DialogHeader>
-        <FormContent />
+        <FormContent includeFooter={true} />
       </DialogContent>
     </Dialog>
   );

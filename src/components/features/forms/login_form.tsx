@@ -97,7 +97,7 @@ const LoginForm: React.FC = () => {
   }, [errorMessage]);
 
   return (
-    <div className="flex-1">
+    <div className="flex-1 md:p-4">
       <h2 className="text-2xl font-semibold mb-2 text-center">Login</h2>
       <p className="text-gray-500 mb-6 text-center">
         Welcome back! Please login to your account.

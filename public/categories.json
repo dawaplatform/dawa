@@ -443,7 +443,7 @@
   {
     "id": 14,
     "category_name": "Agriculture & Food",
-    "category_item_count": 6,
+    "category_item_count": 8,
     "subcategories": [
       {
         "id": 71,
@@ -453,7 +453,7 @@
       {
         "id": 72,
         "subcategory_name": "Livestock & Poultry",
-        "subcategory_item_count": 1
+        "subcategory_item_count": 2
       },
       {
         "id": 73,
@@ -468,7 +468,7 @@
       {
         "id": 75,
         "subcategory_name": "Meals & Drinks",
-        "subcategory_item_count": 1
+        "subcategory_item_count": 2
       },
       {
         "id": 76,

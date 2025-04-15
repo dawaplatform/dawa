@@ -40,7 +40,9 @@ const ForgotPasswordForm: React.FC = () => {
       sessionStorage.setItem('resetEmail', data.email);
       router.push('/change-password');
     } catch (error: any) {
-      setApiError(error.message || 'Something went wrong. Please try again.');
+      setApiError(
+        error.response.data.detail || 'Something went wrong. Please try again.',
+      );
     }
   };
 

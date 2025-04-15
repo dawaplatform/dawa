@@ -3,8 +3,8 @@ import LoginForm from '@/components/features/forms/login_form';
 
 const LoginPage: React.FC = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8">
-      <div className="w-full max-w-md md:max-w-5xl bg-white md:rounded-2xl overflow-hidden md:shadow-md md:border md:border-primary_1 flex flex-col md:flex-row">
+    <div className="flex items-center justify-center px-4 py-8">
+      <div className="w-full max-w-md md:max-w-5xl md:bg-white md:rounded-2xl overflow-hidden md:shadow-md md:border md:border-primary_1 flex flex-col md:flex-row">
         {/* Login form always visible */}
         <LoginForm />
         {/* Background image displayed on desktop */}

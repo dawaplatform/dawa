@@ -67,7 +67,7 @@ const ProductPage: React.FC = () => {
     <div className="space-y-3">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-primary_1">Trending Products</h2>
-        <div className="flex items-center gap-2">
+        <div className="hidden items-center gap-2 md:flex">
           <Button
             variant={viewType === 'grid' ? 'default' : 'outline'}
             size="icon"

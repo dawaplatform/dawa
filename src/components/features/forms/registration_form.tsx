@@ -129,7 +129,7 @@ const RegistrationForm: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col w-full md:w-[60%] md:px-10 md:py-12 bg-white md:shadow-lg md:rounded-lg">
+    <div className="flex flex-col w-full md:w-[60%] md:px-10 md:py-12 md:shadow-lg md:rounded-lg">
       <h2 className="text-2xl font-semibold mb-2 text-center text-black">
         Create an Account
       </h2>

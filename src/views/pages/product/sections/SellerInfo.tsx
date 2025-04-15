@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { FaStore } from 'react-icons/fa';
 import { Star } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -9,8 +10,14 @@ import { setSelectedUserId } from '@/redux-store/slices/myshop/selectedUserSlice
 import { Button } from '@/components/ui/button';
 import CustomImage from '@/components/shared/CustomImage';
 import { SellerType } from '@/views/pages/product/types/product';
+import { toast } from 'sonner';
 
-// ShadCN AlertDialog components
+import { useSendMessage } from '@/@core/hooks/useProductData';
+import { useProfile } from '@/contexts/profile-context';
+import { useAuth } from '@/@core/hooks/use-auth';
+import { openAuthDialog } from '@/redux-store/slices/authDialog/authDialogSlice';
+
+// ShadCN AlertDialog components (desktop)
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -21,11 +28,16 @@ import {
   AlertDialogFooter,
 } from '@/components/ui/alert-dialog';
 
-import { useSendMessage } from '@/@core/hooks/useProductData';
-import { toast } from 'sonner';
-import { useProfile } from '@/contexts/profile-context';
-import { useAuth } from '@/@core/hooks/use-auth';
-import { openAuthDialog } from '@/redux-store/slices/authDialog/authDialogSlice';
+// ShadCN Sheet components (mobile)
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+} from '@/components/ui/sheet';
 
 function getValidImageUrl(
   url: string | null | undefined,
@@ -56,13 +68,21 @@ export const SellerInfo: React.FC<SellerInfoProps> = ({
   const { user } = useAuth();
   const router = useRouter();
   const dispatch = useDispatch();
-
-  // Get user profile from useProfile.
   const { userProfile } = useProfile();
   const { sendMessage, isSending } = useSendMessage();
 
-  // Local state to control the callback dialog.
+  // Local state to control the callback dialog/sheet.
   const [openCallbackDialog, setOpenCallbackDialog] = useState(false);
+  // Detect mobile device: width < 768px.
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 767px)');
+    setIsMobile(mediaQuery.matches);
+    const handleChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
 
   // Compute initial image src.
   const initialSrc = getValidImageUrl(
@@ -96,7 +116,6 @@ export const SellerInfo: React.FC<SellerInfoProps> = ({
   const handleConfirmCallback = async () => {
     try {
       const phoneNumber = userProfile?.contact || 'N/A';
-
       const productInfo = productName
         ? ` regarding your product "${productName}"`
         : '';
@@ -105,13 +124,11 @@ export const SellerInfo: React.FC<SellerInfoProps> = ({
 I'm interested${productInfo} and would like to discuss further details. Could you please call me at ${phoneNumber} when you have a moment?
 
 Thanks`;
-
       await sendMessage({
         receiver_id: Number(seller.seller_id),
         item_id: Number(productId),
         message,
       });
-
       toast.success('Your request for a callback has been sent successfully!');
     } catch (err) {
       console.error('Error requesting callback:', err);
@@ -124,12 +141,12 @@ Thanks`;
   return (
     <div className="bg-white p-4 rounded-md shadow-sm flex items-start gap-4">
       {/* Seller Profile Picture */}
-      <div className="relative w-20 h-20 rounded-full overflow-hidden">
+      <div className="relative w-16 h-16 md:w-20  md:h-20 rounded-full overflow-hidden">
         <CustomImage
           src={imgSrc}
           alt={seller.seller_name}
           fill
-          style={{ objectFit: 'cover' }}
+          style={{ objectFit: 'cover', width: '100%', height: '100%' }}
           onError={handleImageError}
         />
       </div>
@@ -167,73 +184,140 @@ Thanks`;
             View Store
           </Button>
 
-          {/* ShadCN AlertDialog for Request Callback */}
-          <AlertDialog
-            open={openCallbackDialog}
-            onOpenChange={setOpenCallbackDialog}
-          >
-            <AlertDialogTrigger asChild>
-              <Button
-                type="button"
-                variant="default"
-                size="sm"
-                className="bg-primary_1 text-white hover:bg-primary_1/90"
-                onClick={() => setOpenCallbackDialog(true)}
-              >
-                Request Callback
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                {user ? (
-                  <>
-                    <AlertDialogTitle>Request Callback</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure you want to request a callback from{' '}
-                      {seller.seller_name}?
-                      {productName &&
-                        ` regarding the product "${productName}"?`}
-                    </AlertDialogDescription>
-                  </>
-                ) : (
-                  <>
-                    <AlertDialogTitle>Login Required</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      You must be logged in to request a callback. Please login
-                      to continue.
-                    </AlertDialogDescription>
-                  </>
-                )}
-              </AlertDialogHeader>
-              <AlertDialogFooter>
+          {isMobile ? (
+            <Sheet
+              open={openCallbackDialog}
+              onOpenChange={setOpenCallbackDialog}
+            >
+              <SheetTrigger asChild>
                 <Button
-                  variant="outline"
-                  onClick={() => setOpenCallbackDialog(false)}
+                  type="button"
+                  variant="default"
+                  size="sm"
+                  className="bg-primary_1 text-white hover:bg-primary_1/90"
                 >
-                  Cancel
+                  Request Callback
                 </Button>
-                {user ? (
+              </SheetTrigger>
+              <SheetContent side="bottom" className="rounded-t-3xl">
+                <SheetHeader>
+                  {user ? (
+                    <>
+                      <SheetTitle>Request Callback</SheetTitle>
+                      <SheetDescription>
+                        Are you sure you want to request a callback from{' '}
+                        {seller.seller_name}
+                        {productName &&
+                          ` regarding the product "${productName}"?`}
+                      </SheetDescription>
+                    </>
+                  ) : (
+                    <>
+                      <SheetTitle>Login Required</SheetTitle>
+                      <SheetDescription>
+                        You must be logged in to request a callback. Please
+                        login to continue.
+                      </SheetDescription>
+                    </>
+                  )}
+                </SheetHeader>
+                <SheetFooter>
                   <Button
-                    variant="default"
-                    onClick={handleConfirmCallback}
-                    disabled={isSending}
+                    variant="outline"
+                    onClick={() => setOpenCallbackDialog(false)}
                   >
-                    {isSending ? 'Sending...' : 'Yes, Request Callback'}
+                    Cancel
                   </Button>
-                ) : (
+                  {user ? (
+                    <Button
+                      variant="default"
+                      onClick={handleConfirmCallback}
+                      disabled={isSending}
+                    >
+                      {isSending ? 'Sending...' : 'Yes, Request Callback'}
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="default"
+                      onClick={() => {
+                        dispatch(openAuthDialog());
+                        setOpenCallbackDialog(false);
+                      }}
+                    >
+                      Login
+                    </Button>
+                  )}
+                </SheetFooter>
+              </SheetContent>
+            </Sheet>
+          ) : (
+            <AlertDialog
+              open={openCallbackDialog}
+              onOpenChange={setOpenCallbackDialog}
+            >
+              <AlertDialogTrigger asChild>
+                <Button
+                  type="button"
+                  variant="default"
+                  size="sm"
+                  className="bg-primary_1 text-white hover:bg-primary_1/90"
+                  onClick={() => setOpenCallbackDialog(true)}
+                >
+                  Request Callback
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  {user ? (
+                    <>
+                      <AlertDialogTitle>Request Callback</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to request a callback from{' '}
+                        {seller.seller_name}
+                        {productName &&
+                          ` regarding the product "${productName}"?`}
+                      </AlertDialogDescription>
+                    </>
+                  ) : (
+                    <>
+                      <AlertDialogTitle>Login Required</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        You must be logged in to request a callback. Please
+                        login to continue.
+                      </AlertDialogDescription>
+                    </>
+                  )}
+                </AlertDialogHeader>
+                <AlertDialogFooter>
                   <Button
-                    variant="default"
-                    onClick={() => {
-                      dispatch(openAuthDialog());
-                      setOpenCallbackDialog(false);
-                    }}
+                    variant="outline"
+                    onClick={() => setOpenCallbackDialog(false)}
                   >
-                    Login
+                    Cancel
                   </Button>
-                )}
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+                  {user ? (
+                    <Button
+                      variant="default"
+                      onClick={handleConfirmCallback}
+                      disabled={isSending}
+                    >
+                      {isSending ? 'Sending...' : 'Yes, Request Callback'}
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="default"
+                      onClick={() => {
+                        dispatch(openAuthDialog());
+                        setOpenCallbackDialog(false);
+                      }}
+                    >
+                      Login
+                    </Button>
+                  )}
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
         </div>
       </div>
     </div>

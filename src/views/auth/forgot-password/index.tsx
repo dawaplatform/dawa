@@ -3,8 +3,8 @@ import Link from 'next/link';
 
 const ForgotPasswordPage = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8">
-      <div className="w-full max-w-lg bg-white rounded-xl shadow-md border border-primary_1 px-8 py-12">
+    <div className="flex items-center justify-center px-4 py-8">
+      <div className="w-full max-w-lg md:bg-white md:rounded-xl md:shadow-md md:border md:border-primary_1 md:px-8 md:py-12">
         <h2 className="text-3xl font-bold text-gray-800 mb-4 text-center">
           Forgot Password
         </h2>

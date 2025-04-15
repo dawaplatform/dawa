@@ -1,7 +1,14 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  MouseEvent as ReactMouseEvent,
+} from 'react';
 import Link from 'next/link';
+import { usePopper } from 'react-popper';
 import { ChevronRight } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
@@ -33,28 +40,56 @@ function transformCategory(rawCat: any): Category {
       ? rawCat.subcategories.map((sub: any) => ({
           id: sub.id,
           subcategory_name: sub.subcategory_name,
-          name: sub.subcategory_name, // display name
-          count: sub.subcategory_item_count || 0, // use subcategory_item_count from JSON
-          icon: sub.icon || '', // fallback icon if provided
-          href: `/cat/${slugify(rawCat.category_name)}/${slugify(
-            sub.subcategory_name,
-          )}`,
+          name: sub.subcategory_name,
+          count: sub.subcategory_item_count || 0,
+          icon: sub.icon || '',
+          href: `/cat/${slugify(rawCat.category_name)}/${slugify(sub.subcategory_name)}`,
         }))
       : [],
   };
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ onSelect }) => {
-  // Local state for categories loaded from JSON.
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Local state for hovered category.
+  // Track the currently hovered category (for showing subcategories).
   const [hoveredCategory, setHoveredCategory] = useState<Category | null>(null);
-  // Track if screen is large (>= 1024px).
-  const [isLargeScreen, setIsLargeScreen] = useState<boolean>(false);
 
-  // Fetch categories from the JSON file.
+  // Refs for Popper and container
+  const [referenceElement, setReferenceElement] = useState<HTMLElement | null>(
+    null,
+  );
+  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(
+    null,
+  );
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Initialize Popper (position the subcategories panel to the right)
+  const { styles, attributes, update } = usePopper(
+    referenceElement,
+    popperElement,
+    {
+      placement: 'right-start',
+      modifiers: [
+        {
+          name: 'preventOverflow',
+          options: {
+            boundary: 'clippingParents',
+          },
+        },
+        {
+          name: 'offset',
+          options: {
+            // Horizontal gap between categories and subcategories
+            offset: [12, 0],
+          },
+        },
+      ],
+    },
+  );
+
+  // Fetch categories from JSON
   useEffect(() => {
     fetch('/categories.json')
       .then((res) => res.json())
@@ -66,37 +101,45 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelect }) => {
       .catch(() => setIsLoading(false));
   }, []);
 
-  // Update screen size state.
-  useEffect(() => {
-    const handleResize = () => {
-      setIsLargeScreen(window.innerWidth >= 1024);
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // When an item is selected, call onSelect if provided.
+  // Handle category item clicks
   const handleItemClick = useCallback(() => {
     if (onSelect) onSelect();
   }, [onSelect]);
 
-  // On large screens, set the hovered category.
-  const handleCategoryMouseEnter = useCallback(
-    (category: Category) => {
-      if (isLargeScreen) {
-        setHoveredCategory(category);
-      }
+  // When hovering a category, show subcategories in Popper
+  const handleMouseEnterCategory = useCallback(
+    (cat: Category, e: ReactMouseEvent<HTMLElement>) => {
+      setHoveredCategory(cat);
+      setReferenceElement(e.currentTarget as HTMLElement);
+      // Recalculate Popper’s position
+      if (update) setTimeout(() => update(), 0);
     },
-    [isLargeScreen],
+    [update],
   );
 
-  // Clear hovered category when mouse leaves.
-  const handleSidebarMouseLeave = useCallback(() => {
+  // Hide the subcategory panel if the mouse leaves the popper
+  const handleMouseLeavePopper = useCallback(() => {
     setHoveredCategory(null);
+    setReferenceElement(null);
   }, []);
 
-  // Render a single category item.
+  // Close subcategories if click is outside the container
+  const handleClickOutside = useCallback((event: MouseEvent) => {
+    if (
+      containerRef.current &&
+      !containerRef.current.contains(event.target as Node)
+    ) {
+      setHoveredCategory(null);
+      setReferenceElement(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [handleClickOutside]);
+
+  // Render each category item
   const renderCategoryItem = useCallback(
     (category: Category) => {
       const Icon =
@@ -104,55 +147,59 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelect }) => {
       const isActive = hoveredCategory?.id === category.id;
 
       return (
-        <Link
+        <div
           key={category.id}
-          href={`/cat/${slugify(category.category_name)}`}
-          onClick={handleItemClick}
+          onMouseEnter={(e) => handleMouseEnterCategory(category, e)}
         >
-          <div
-            className={`py-2 px-1 rounded-md cursor-pointer transition-colors duration-200 flex items-center justify-between ${
-              isActive
-                ? 'bg-gray-100 text-primary_1'
-                : 'hover:bg-gray-50 hover:text-primary_1'
-            }`}
-            onMouseEnter={() => handleCategoryMouseEnter(category)}
+          <Link
+            href={`/cat/${slugify(category.category_name)}`}
+            onClick={handleItemClick}
           >
-            <div className="flex items-center gap-2 w-full truncate">
-              <div className="bg-primary_2 p-1 mr-2 rounded-md">
-                <Icon className="h-5 w-5" />
+            <div
+              className={`py-2 px-3 rounded-md cursor-pointer transition-colors duration-200 flex items-center justify-between
+                ${
+                  isActive
+                    ? 'bg-gray-100 text-primary_1 shadow-sm'
+                    : 'hover:bg-gray-50 hover:text-primary_1'
+                }
+              `}
+            >
+              <div className="flex items-center gap-2 truncate">
+                <div className="bg-primary_2 p-1 rounded">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <div className="flex flex-col truncate">
+                  <span className="text-sm font-medium truncate max-w-[160px]">
+                    {category.category_name}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {category.category_item_count} ads
+                  </span>
+                </div>
               </div>
-              <div className="flex flex-col truncate">
-                <span className="text-sm font-medium truncate max-w-[180px]">
-                  {category.category_name}
-                </span>
-                <span className="text-xs text-gray-500">
-                  {category.category_item_count} ads
-                </span>
-              </div>
+              <ChevronRight className="h-4 w-4 text-gray-500" />
             </div>
-            {isLargeScreen && (
-              <ChevronRight className="h-4 w-4 text-gray-500 flex-shrink-0" />
-            )}
-          </div>
-        </Link>
+          </Link>
+        </div>
       );
     },
-    [hoveredCategory, isLargeScreen, handleItemClick, handleCategoryMouseEnter],
+    [hoveredCategory, handleMouseEnterCategory, handleItemClick],
   );
 
-  // Render a single subcategory item.
+  // Render each subcategory item
   const renderSubcategoryItem = useCallback(
     (subcat: Subcategory) => {
       const IconComponent =
         (subcategoryIconMap[
           subcat.subcategory_name
         ] as React.ComponentType<any>) || UniversalFallbackIcon;
+
       return (
         <Link key={subcat.id} href={subcat.href} onClick={handleItemClick}>
-          <div className="p-3 rounded-md cursor-pointer hover:bg-gray-50 transition-colors duration-200 flex items-center">
-            <IconComponent className="h-4 w-4 mr-2" />
+          <div className="py-2 px-3 rounded-md cursor-pointer hover:bg-gray-50 transition-colors duration-200 flex items-center">
+            <IconComponent className="h-5 w-5 mr-2" />
             <div className="flex flex-col">
-              <span className="text-sm font-medium truncate max-w-[180px]">
+              <span className="text-sm font-medium truncate max-w-[160px]">
                 {subcat.subcategory_name}
               </span>
               <span className="text-xs text-gray-500">{subcat.count} ads</span>
@@ -164,42 +211,51 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelect }) => {
     [handleItemClick],
   );
 
+  // Early returns for loading or empty states
   if (isLoading) return <SidebarSkeleton />;
   if (!categories || categories.length === 0) return <SidebarSkeleton />;
 
   return (
-    <div
-      className="relative w-full lg:w-[288px]"
-      onMouseLeave={handleSidebarMouseLeave}
-    >
-      {/* Use gap-4 (or your preferred spacing) to separate the two columns */}
-      <div className="flex flex-col lg:flex-row gap-2">
-        {/* Category Sidebar */}
-        <Card className="w-full lg:w-[288px]">
-          <CardContent className="p-0">
-            <ScrollArea className="h-[700px]">
-              <div className="p-4 space-y-1 divide-y divide-gray-300">
+    <div ref={containerRef} className="relative w-full lg:w-[288px]">
+      {/* Main Category Card */}
+      <Card className="w-full">
+        <CardContent className="p-0">
+          <ScrollArea className="h-[700px]">
+            <div className="p-3">
+              <h3 className="px-2 py-1 text-sm font-semibold text-primary_1 border-b border-gray-200 mb-2">
+                Categories
+              </h3>
+              <div className="space-y-1">
                 {categories.map((cat) => renderCategoryItem(cat))}
               </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
+            </div>
+          </ScrollArea>
+        </CardContent>
+      </Card>
 
-        {/* Subcategory Sidebar (for large screens) */}
-        {isLargeScreen && hoveredCategory && (
-          <Card className="min-w-[288px]">
-            <CardContent className="p-0">
-              <ScrollArea className="h-[700px]">
-                <div className="p-4 space-y-1 divide-y divide-gray-300">
-                  {(hoveredCategory?.subcategories ?? []).map((subcat) =>
-                    renderSubcategoryItem(subcat),
-                  )}
-                </div>
-              </ScrollArea>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+      {/* Subcategories Popper */}
+      {hoveredCategory && (
+        <div
+          ref={setPopperElement}
+          style={styles.popper}
+          {...attributes.popper}
+          onMouseLeave={handleMouseLeavePopper}
+          className="z-50 bg-white border border-gray-200 rounded-md shadow-md w-auto lg:w-[288px]"
+        >
+          <ScrollArea className="max-h-[400px] overflow-auto">
+            <div className="p-3">
+              <h3 className="px-2 py-1 text-sm font-semibold text-primary_1 border-b border-gray-200 mb-2">
+                {hoveredCategory.category_name} Subcategories
+              </h3>
+              <div className="space-y-1">
+                {(hoveredCategory.subcategories ?? []).map((subcat) =>
+                  renderSubcategoryItem(subcat),
+                )}
+              </div>
+            </div>
+          </ScrollArea>
+        </div>
+      )}
     </div>
   );
 };
