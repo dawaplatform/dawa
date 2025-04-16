@@ -1,5 +1,5 @@
-import { CategoriesMenu } from '@/views/pages/category/components/categories-menu';
 import mainConfig from '@/@core/configs/mainConfigs';
+import { CategoriesMenu } from '@/views/pages/category/components/categories-menu';
 import ProductPage from '@/views/pages/home/TrendingProducts';
 import dynamic from 'next/dynamic';
 const Sidebar = dynamic(

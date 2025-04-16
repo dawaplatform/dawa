@@ -1,16 +1,16 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
-import { useProductsData } from '@core/hooks/useProductData';
-import { OopsComponent } from '@/components/shared/oops-component';
-import { SimilarItem } from '@/views/pages/product/types/product';
-import { normalizeProducts } from '@/@core/utils/normalizeProductData';
 import useInfiniteScroll from '@/@core/hooks/useInfiniteScroll';
-import SingleSkeletonCard from '@/components/features/listings/loaders/SingleSkeletonCard';
-import ProductCardSkeleton from '@/components/features/listings/loaders/ProductCardSkeleton';
-import { Button } from '@/components/ui/button';
-import { FaTh, FaThList } from 'react-icons/fa';
+import { normalizeProducts } from '@/@core/utils/normalizeProductData';
 import CardLayout from '@/components/features/listings/CardLayout';
+import ProductCardSkeleton from '@/components/features/listings/loaders/ProductCardSkeleton';
+import SingleSkeletonCard from '@/components/features/listings/loaders/SingleSkeletonCard';
+import CustomizableNoData from '@/components/shared/no-data';
+import { Button } from '@/components/ui/button';
+import { useProductsData } from '@core/hooks/useProductData';
+import React, { useRef, useState } from 'react';
+import { FaTh, FaThList } from 'react-icons/fa';
+import { SimilarItem } from '../product/types/product';
 
 const ProductPage: React.FC = () => {
   const [viewType, setViewType] = useState<'grid' | 'list'>('grid');
@@ -30,36 +30,50 @@ const ProductPage: React.FC = () => {
     { threshold: 1, enabled: !!nextPageUrl && !isLoading },
   );
 
-  // While the first page is loading, display a full grid of skeletons.
+  // When loading the first page, show a full grid of skeleton cards.
   if (isLoading && size === 1) {
     return (
       <div>
         <ProductCardSkeleton
           ITEMS_PER_PAGE={16}
-          gridClass={`grid grid-cols-2 ${viewType === 'grid' ? 'sm:grid-cols-3 md:grid-cols-4' : 'sm:grid-cols-1'} gap-3`}
+          gridClass={`grid grid-cols-2 ${
+            viewType === 'grid'
+              ? 'sm:grid-cols-3 md:grid-cols-4'
+              : 'sm:grid-cols-1'
+          } gap-3`}
         />
       </div>
     );
   }
 
-  // If an error occurred, show an error component.
+  // Error state: display a consistent error/no-data message.
   if (isError) {
     return (
-      <div>
-        <h2 className="text-2xl font-bold mb-4 text-primary_1">
-          Trending Products
-        </h2>
-        <OopsComponent />
-      </div>
+      <CustomizableNoData
+        title="Error Loading Products"
+        description="Something went wrong while fetching trending products. Please try again later."
+        containerClassName="flex flex-col items-center justify-center p-8 text-center w-full"
+      />
     );
   }
 
-  // Assume a 4-column grid layout.
+  // No data state: if no products are available.
+  if (!isLoading && normalizedProductsData.length === 0) {
+    return (
+      <CustomizableNoData
+        title="No Trending Products"
+        description="We couldn't find any trending products at the moment. Please check back later."
+        containerClassName="flex flex-col items-center justify-center p-8 text-center w-full"
+      />
+    );
+  }
+
+  // Calculate filler skeleton cards for consistent grid layout.
   const columns = 4;
   const productCount = normalizedProductsData.length;
   const remainder = productCount % columns;
   const fillCount = remainder > 0 ? columns - remainder : 0;
-  // Additionally, add one extra full row of skeleton cards.
+  // Add an extra full row of skeleton cards.
   const additionalSkeletonCount = columns;
   const totalSkeletonCount = fillCount + additionalSkeletonCount;
 
@@ -97,7 +111,11 @@ const ProductPage: React.FC = () => {
         </div>
       </div>
       <div
-        className={`grid grid-cols-2 ${viewType === 'grid' ? 'sm:grid-cols-3 md:grid-cols-4' : 'sm:grid-cols-1'} gap-3`}
+        className={`grid grid-cols-2 ${
+          viewType === 'grid'
+            ? 'sm:grid-cols-3 md:grid-cols-4'
+            : 'sm:grid-cols-1'
+        } gap-3`}
       >
         {normalizedProductsData.map((product, index) => (
           <CardLayout
@@ -112,7 +130,7 @@ const ProductPage: React.FC = () => {
             <SingleSkeletonCard key={`skeleton-${index}`} />
           ))}
       </div>
-      {/* Sentinel element: when visible, triggers loading the next page */}
+      {/* Sentinel element triggers loading the next page when visible */}
       <div ref={loadMoreRef} className="h-1" />
     </div>
   );

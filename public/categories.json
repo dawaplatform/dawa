@@ -2,12 +2,12 @@
   {
     "id": 1,
     "category_name": "Vehicles",
-    "category_item_count": 11,
+    "category_item_count": 0,
     "subcategories": [
       {
         "id": 1,
         "subcategory_name": "Cars",
-        "subcategory_item_count": 7
+        "subcategory_item_count": 0
       },
       {
         "id": 2,
@@ -27,7 +27,7 @@
       {
         "id": 5,
         "subcategory_name": "Vehicle Parts & Accessories",
-        "subcategory_item_count": 4
+        "subcategory_item_count": 0
       },
       {
         "id": 6,
@@ -39,22 +39,22 @@
   {
     "id": 2,
     "category_name": "Property",
-    "category_item_count": 9,
+    "category_item_count": 0,
     "subcategories": [
       {
         "id": 7,
         "subcategory_name": "Houses & Apartments for Sale",
-        "subcategory_item_count": 3
+        "subcategory_item_count": 0
       },
       {
         "id": 8,
         "subcategory_name": "Houses & Apartments for Rent",
-        "subcategory_item_count": 3
+        "subcategory_item_count": 0
       },
       {
         "id": 9,
         "subcategory_name": "Land & Plots for Sale",
-        "subcategory_item_count": 2
+        "subcategory_item_count": 0
       },
       {
         "id": 10,
@@ -64,7 +64,7 @@
       {
         "id": 11,
         "subcategory_name": "Commercial Property for Sale",
-        "subcategory_item_count": 1
+        "subcategory_item_count": 0
       },
       {
         "id": 12,
@@ -81,12 +81,12 @@
   {
     "id": 3,
     "category_name": "Phones & Tablets",
-    "category_item_count": 4,
+    "category_item_count": 0,
     "subcategories": [
       {
         "id": 14,
         "subcategory_name": "Mobile Phones",
-        "subcategory_item_count": 4
+        "subcategory_item_count": 0
       },
       {
         "id": 15,
@@ -108,17 +108,17 @@
   {
     "id": 4,
     "category_name": "Electronics",
-    "category_item_count": 5,
+    "category_item_count": 0,
     "subcategories": [
       {
         "id": 18,
         "subcategory_name": "TVs",
-        "subcategory_item_count": 1
+        "subcategory_item_count": 0
       },
       {
         "id": 19,
         "subcategory_name": "Audio & Music Equipment",
-        "subcategory_item_count": 1
+        "subcategory_item_count": 0
       },
       {
         "id": 20,
@@ -128,7 +128,7 @@
       {
         "id": 21,
         "subcategory_name": "Computer Accessories",
-        "subcategory_item_count": 2
+        "subcategory_item_count": 0
       },
       {
         "id": 22,
@@ -143,19 +143,19 @@
       {
         "id": 24,
         "subcategory_name": "Other Electronics",
-        "subcategory_item_count": 1
+        "subcategory_item_count": 0
       }
     ]
   },
   {
     "id": 5,
     "category_name": "Home, Appliances & Furniture",
-    "category_item_count": 5,
+    "category_item_count": 0,
     "subcategories": [
       {
         "id": 25,
         "subcategory_name": "Furniture",
-        "subcategory_item_count": 2
+        "subcategory_item_count": 0
       },
       {
         "id": 26,
@@ -165,12 +165,12 @@
       {
         "id": 27,
         "subcategory_name": "Kitchen & Dining",
-        "subcategory_item_count": 1
+        "subcategory_item_count": 0
       },
       {
         "id": 28,
         "subcategory_name": "Home Accessories",
-        "subcategory_item_count": 1
+        "subcategory_item_count": 0
       },
       {
         "id": 29,
@@ -180,19 +180,19 @@
       {
         "id": 30,
         "subcategory_name": "Other Home, Appliances & Furniture",
-        "subcategory_item_count": 1
+        "subcategory_item_count": 0
       }
     ]
   },
   {
     "id": 6,
     "category_name": "Health & Beauty",
-    "category_item_count": 1,
+    "category_item_count": 0,
     "subcategories": [
       {
         "id": 31,
         "subcategory_name": "Makeup",
-        "subcategory_item_count": 1
+        "subcategory_item_count": 0
       },
       {
         "id": 32,
@@ -224,17 +224,17 @@
   {
     "id": 7,
     "category_name": "Fashion",
-    "category_item_count": 10,
+    "category_item_count": 0,
     "subcategories": [
       {
         "id": 37,
         "subcategory_name": "Clothing",
-        "subcategory_item_count": 5
+        "subcategory_item_count": 0
       },
       {
         "id": 38,
         "subcategory_name": "Shoes",
-        "subcategory_item_count": 3
+        "subcategory_item_count": 0
       },
       {
         "id": 39,
@@ -244,7 +244,7 @@
       {
         "id": 40,
         "subcategory_name": "Jewelry",
-        "subcategory_item_count": 1
+        "subcategory_item_count": 0
       },
       {
         "id": 41,
@@ -254,19 +254,19 @@
       {
         "id": 42,
         "subcategory_name": "Other Fashion",
-        "subcategory_item_count": 1
+        "subcategory_item_count": 0
       }
     ]
   },
   {
     "id": 8,
     "category_name": "Sports, Arts & Outdoors",
-    "category_item_count": 3,
+    "category_item_count": 0,
     "subcategories": [
       {
         "id": 43,
         "subcategory_name": "Sports Equipment",
-        "subcategory_item_count": 3
+        "subcategory_item_count": 0
       },
       {
         "id": 44,
@@ -298,15 +298,15 @@
   {
     "id": 9,
     "category_name": "Seeking Work CVs",
-    "category_item_count": 1,
+    "category_item_count": 0,
     "subcategories": [
       {
         "id": 49,
         "subcategory_name": "Job Seekers' CVs",
-        "subcategory_item_count": 1
+        "subcategory_item_count": 0
       },
       {
-        "id": 63,
+        "id": 50,
         "subcategory_name": "Other Seeking Work CVs",
         "subcategory_item_count": 0
       }
@@ -315,52 +315,52 @@
   {
     "id": 10,
     "category_name": "Services",
-    "category_item_count": 3,
+    "category_item_count": 0,
     "subcategories": [
       {
-        "id": 50,
+        "id": 51,
         "subcategory_name": "Repair Services",
         "subcategory_item_count": 0
       },
       {
-        "id": 51,
-        "subcategory_name": "Event Planning & Services",
-        "subcategory_item_count": 2
-      },
-      {
         "id": 52,
-        "subcategory_name": "Health & Beauty Services",
+        "subcategory_name": "Event Planning & Services",
         "subcategory_item_count": 0
       },
       {
         "id": 53,
-        "subcategory_name": "Automotive Services",
+        "subcategory_name": "Health & Beauty Services",
         "subcategory_item_count": 0
       },
       {
         "id": 54,
+        "subcategory_name": "Automotive Services",
+        "subcategory_item_count": 0
+      },
+      {
+        "id": 55,
         "subcategory_name": "Cleaning Services",
         "subcategory_item_count": 0
       },
       {
-        "id": 62,
+        "id": 56,
         "subcategory_name": "Other Services",
-        "subcategory_item_count": 1
+        "subcategory_item_count": 0
       }
     ]
   },
   {
     "id": 11,
     "category_name": "Jobs",
-    "category_item_count": 1,
+    "category_item_count": 0,
     "subcategories": [
       {
-        "id": 55,
+        "id": 57,
         "subcategory_name": "Job Vacancies",
-        "subcategory_item_count": 1
+        "subcategory_item_count": 0
       },
       {
-        "id": 61,
+        "id": 58,
         "subcategory_name": "Other Jobs",
         "subcategory_item_count": 0
       }
@@ -369,30 +369,30 @@
   {
     "id": 12,
     "category_name": "Babies & Kids",
-    "category_item_count": 1,
+    "category_item_count": 0,
     "subcategories": [
       {
-        "id": 56,
+        "id": 59,
         "subcategory_name": "Children's Clothing",
         "subcategory_item_count": 0
       },
       {
-        "id": 57,
+        "id": 60,
         "subcategory_name": "Toys",
         "subcategory_item_count": 0
       },
       {
-        "id": 58,
+        "id": 61,
         "subcategory_name": "Baby & Child Care",
         "subcategory_item_count": 0
       },
       {
-        "id": 59,
+        "id": 62,
         "subcategory_name": "Prams & Strollers",
-        "subcategory_item_count": 1
+        "subcategory_item_count": 0
       },
       {
-        "id": 60,
+        "id": 63,
         "subcategory_name": "Children's Furniture",
         "subcategory_item_count": 0
       },
@@ -406,12 +406,12 @@
   {
     "id": 13,
     "category_name": "Pets",
-    "category_item_count": 1,
+    "category_item_count": 0,
     "subcategories": [
       {
         "id": 65,
         "subcategory_name": "Dogs & Puppies",
-        "subcategory_item_count": 1
+        "subcategory_item_count": 0
       },
       {
         "id": 66,
@@ -443,22 +443,22 @@
   {
     "id": 14,
     "category_name": "Agriculture & Food",
-    "category_item_count": 8,
+    "category_item_count": 0,
     "subcategories": [
       {
         "id": 71,
         "subcategory_name": "Farm Machinery & Equipment",
-        "subcategory_item_count": 1
+        "subcategory_item_count": 0
       },
       {
         "id": 72,
         "subcategory_name": "Livestock & Poultry",
-        "subcategory_item_count": 2
+        "subcategory_item_count": 0
       },
       {
         "id": 73,
         "subcategory_name": "Crops & Seeds",
-        "subcategory_item_count": 3
+        "subcategory_item_count": 0
       },
       {
         "id": 74,
@@ -468,7 +468,7 @@
       {
         "id": 75,
         "subcategory_name": "Meals & Drinks",
-        "subcategory_item_count": 2
+        "subcategory_item_count": 0
       },
       {
         "id": 76,
@@ -517,12 +517,12 @@
   {
     "id": 16,
     "category_name": "Repair & Construction",
-    "category_item_count": 4,
+    "category_item_count": 0,
     "subcategories": [
       {
         "id": 83,
         "subcategory_name": "Building Materials",
-        "subcategory_item_count": 2
+        "subcategory_item_count": 0
       },
       {
         "id": 84,
@@ -547,28 +547,28 @@
       {
         "id": 88,
         "subcategory_name": "Other Repair & Construction",
-        "subcategory_item_count": 2
+        "subcategory_item_count": 0
       }
     ]
   },
   {
     "id": 17,
     "category_name": "Tours And Travel",
-    "category_item_count": 1,
+    "category_item_count": 0,
     "subcategories": [
-      {
-        "id": 91,
-        "subcategory_name": "Other Tours And Travel",
-        "subcategory_item_count": 0
-      },
       {
         "id": 89,
         "subcategory_name": "Travel Agents & Services",
-        "subcategory_item_count": 1
+        "subcategory_item_count": 0
       },
       {
         "id": 90,
         "subcategory_name": "Accommodation & Transport",
+        "subcategory_item_count": 0
+      },
+      {
+        "id": 91,
+        "subcategory_name": "Other Tours And Travel",
         "subcategory_item_count": 0
       }
     ]

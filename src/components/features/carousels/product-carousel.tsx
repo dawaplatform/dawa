@@ -1,18 +1,18 @@
 'use client';
 
-import * as React from 'react';
-import useEmblaCarousel from 'embla-carousel-react';
-import AutoplayPlugin from 'embla-carousel-autoplay';
-import { Button } from '@/components/ui/button';
-import CustomImage from '@/components/shared/CustomImage';
 import { formatCurrency } from '@/@core/utils/CurrencyFormatter';
-import { usePromotedProducts } from '@core/hooks/useProductData';
-import { Skeleton } from '@/components/ui/skeleton';
-import { AlertCircle, MapPin } from 'lucide-react';
-import { useDispatch } from '@/redux-store/hooks';
-import { useRouter } from 'next/navigation';
-import { setSelectedProduct } from '@/redux-store/slices/products/productSlice';
 import { slugify } from '@/@core/utils/slugify';
+import CustomImage from '@/components/shared/CustomImage';
+import CustomizableNoData from '@/components/shared/no-data';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useDispatch } from '@/redux-store/hooks';
+import { setSelectedProduct } from '@/redux-store/slices/products/productSlice';
+import { usePromotedProducts } from '@core/hooks/useProductData';
+import AutoplayPlugin from 'embla-carousel-autoplay';
+import useEmblaCarousel from 'embla-carousel-react';
+import { useRouter } from 'next/navigation';
+import * as React from 'react';
 
 export function ProductCarousel() {
   const dispatch = useDispatch();
@@ -41,7 +41,7 @@ export function ProductCarousel() {
     };
   }, [emblaApi]);
 
-  // Loading state
+  // Loading state: show a responsive skeleton view.
   if (isLoading) {
     return (
       <div className="w-full h-[400px] bg-gray-100 rounded-lg animate-pulse">
@@ -57,32 +57,34 @@ export function ProductCarousel() {
     );
   }
 
-  // Error state
+  // Error state: use the CustomizableNoData component.
   if (isError) {
     return (
-      <div className="w-full h-[400px] bg-red-50 rounded-lg flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="mx-auto h-12 w-12 text-red-400" />
-          <h3 className="mt-2 text-sm font-semibold text-red-900">
-            Error Loading Products
-          </h3>
-          <p className="mt-1 text-sm text-red-500">
-            Failed to load promoted products.
-          </p>
-        </div>
-      </div>
+      <CustomizableNoData
+        title="Error Loading Promoted Products"
+        description="Something went wrong while fetching promoted products. Please try again later."
+        containerClassName="w-full h-[400px] flex flex-col items-center justify-center p-8 text-center"
+      />
     );
   }
 
-  // No data state
-  if (!productsData.length) return null;
+  // No data state: when there are no promoted products available.
+  if (!isLoading && !productsData.length) {
+    return (
+      <CustomizableNoData
+        title="No Promoted Products"
+        description="There are no promoted products available at the moment."
+        containerClassName="w-full h-[400px] flex flex-col items-center justify-center p-8 text-center"
+      />
+    );
+  }
 
   return (
     <div className="relative h-[400px] overflow-hidden rounded-lg bg-white shadow-sm">
       <div className="absolute inset-0" ref={emblaRef}>
         <div className="flex h-full">
           {productsData.map((item: any) => {
-            // Only show location if it contains at least one alphabetic character.
+            // Show location only if it contains at least one alphabetic character.
             const locationDisplay =
               item.location && /[A-Za-z]/.test(item.location)
                 ? item.location
@@ -109,7 +111,7 @@ export function ProductCarousel() {
                         </span>
                         {locationDisplay && (
                           <span className="text-sm text-gray-500 flex items-center line-clamp-1">
-                            <MapPin className="h-4 w-4 mr-1" />
+                            {/* You can optionally add an icon here if desired */}
                             {locationDisplay}
                           </span>
                         )}
@@ -118,7 +120,7 @@ export function ProductCarousel() {
                         <Button
                           asChild
                           onClick={() => {
-                            dispatch(setSelectedProduct(item.id as any));
+                            dispatch(setSelectedProduct(item.id));
                             router.push(`/prod/${slugify(item.name)}`);
                           }}
                           className="bg-gray-700 cursor-pointer hover:bg-gray-700/90"
@@ -150,7 +152,7 @@ export function ProductCarousel() {
 
       {/* Navigation dots */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
-        {productsData.map((_: any, index: any) => (
+        {productsData.map((_: any, index: number) => (
           <button
             key={index}
             className={`w-2 h-2 rounded-full transition-all duration-300 ${

@@ -1,12 +1,12 @@
 'use client';
 
-import * as React from 'react';
-import { Search, ChevronRight, ArrowLeft } from 'lucide-react';
+import { useFaqs } from '@/@core/hooks/useProductData';
+import Loader from '@/components/features/loaders/SubLoader';
+import { OopsComponent } from '@/components/shared/oops-component';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { useFaqs } from '@/@core/hooks/useProductData';
-import { OopsComponent } from '@/components/shared/oops-component';
-import Loader from '@/components/features/loaders/SubLoader';
+import { ArrowLeft, ChevronRight, Search } from 'lucide-react';
+import * as React from 'react';
 
 /**
  * FAQPage Component
@@ -27,13 +27,14 @@ export default function FAQPage() {
     }
   }, [selectedQuestionId]);
 
-  // Extract the array of FAQs from the API response.
-  // If `faqsData` is already an array, use it directly;
-  // otherwise assume the array is in `faqsData.data`.
-  const faqsArray = Array.isArray(faqsData) ? faqsData : faqsData?.data || [];
+  // Extract the array of FAQs and group by category in a single useMemo
+  const { faqsArray, groupedCategories } = React.useMemo(() => {
+    // Extract the array of FAQs from the API response
+    const extractedFaqsArray = Array.isArray(faqsData)
+      ? faqsData
+      : faqsData?.data || [];
 
-  // Group FAQs by category
-  const groupedCategories = React.useMemo(() => {
+    // Group FAQs by category
     const groups: Record<
       string,
       {
@@ -43,7 +44,7 @@ export default function FAQPage() {
       }
     > = {};
 
-    faqsArray.forEach((faq: any) => {
+    extractedFaqsArray.forEach((faq: any) => {
       const category = faq.category || 'Other';
       if (!groups[category]) {
         groups[category] = {
@@ -59,8 +60,11 @@ export default function FAQPage() {
       });
     });
 
-    return Object.values(groups);
-  }, [faqsArray]);
+    return {
+      faqsArray: extractedFaqsArray,
+      groupedCategories: Object.values(groups),
+    };
+  }, [faqsData]);
 
   // Deep Search in both question title & content
   const filteredCategories = React.useMemo(() => {

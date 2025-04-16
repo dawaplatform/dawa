@@ -1,6 +1,6 @@
 import {
-  secureApiClient,
   openApiClient,
+  secureApiClient,
   secureMultipartApiClient,
 } from '@/@core/utils/apiClient';
 import {
@@ -8,20 +8,6 @@ import {
   TrendingProductsResponse,
 } from '@/views/pages/product/types/product';
 import { ReportAbuseProps } from '@/views/pages/product/types/reportAbuse';
-
-/**
- * Fetch categories list
- * @returns {Promise<any>}
- */
-export const getCategoriesList = async (): Promise<any> => {
-  try {
-    const response = await openApiClient.get('/getcategories/');
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-    throw error;
-  }
-};
 
 /**
  * Fetch subcategories list
