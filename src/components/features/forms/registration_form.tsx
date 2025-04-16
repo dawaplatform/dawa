@@ -1,26 +1,26 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { schema } from '@/@core/validations/authValidation';
+import { registerUser } from '@/app/server/auth/api';
+import Button from '@/components/shared/Button';
+import InputField from '@/components/shared/InputField';
+import { Checkbox } from '@/components/ui/checkbox';
+import { useAuth } from '@core/hooks/use-auth';
+import { yupResolver } from '@hookform/resolvers/yup';
+import GoogleIcon from '@public/assets/svgs/google.svg';
+import { signIn } from 'next-auth/react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import {
-  FaUnlock,
-  FaUserCircle,
   FaEnvelope,
   FaEye,
   FaEyeSlash,
   FaPhone,
+  FaUnlock,
+  FaUserCircle,
 } from 'react-icons/fa';
-import { useRouter } from 'next/navigation';
-import Button from '@/components/shared/Button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { useForm, SubmitHandler, Controller } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import GoogleIcon from '@public/assets/svgs/google.svg';
-import InputField from '@/components/shared/InputField';
-import Link from 'next/link';
-import { registerUser } from '@/app/server/auth/api';
-import { schema } from '@/@core/validations/authValidation';
-import { signIn } from 'next-auth/react';
-import { useAuth } from '@core/hooks/use-auth';
 
 interface IFormInputs {
   email: string;
@@ -97,6 +97,7 @@ const RegistrationForm: React.FC = () => {
   const onSubmit: SubmitHandler<IFormInputs> = async (data) => {
     setLoading(true);
     setApiError(null);
+
     const formattedData = {
       email: data.email.trim(),
       password: data.password,
@@ -111,13 +112,17 @@ const RegistrationForm: React.FC = () => {
     try {
       // Assume registerUser returns a parsed JSON object.
       const result = await registerUser(formattedData);
+      console.info(result);
+
       if (result.status === 201 || result.status === 200) {
         sessionStorage.setItem('registeredEmail', formattedData.email);
         router.push('/activate');
       } else {
-        throw new Error(
-          result.message || 'Registration failed. Please try again.',
-        );
+        const errorMsg =
+          result.errors?.username?.join(', ') ||
+          result.message ||
+          'Registration failed. Please try again.';
+        throw new Error(errorMsg);
       }
     } catch (error: unknown) {
       const errorMessage =
