@@ -2,7 +2,8 @@ export interface RegisterRequest {
   firstname: string;
   lastname: string;
   contact: string;
-  user_role: string;
+  role: string;
+  user_role?: string;
   email: string;
   password: string;
 }

@@ -104,8 +104,7 @@ const RegistrationForm: React.FC = () => {
       password2: data.password,
       firstname: data.firstName.trim(),
       lastname: data.lastName.trim(),
-      user_role: 'Client',
-      // The phone number is normalized via setValueAs.
+      role: 'Client',
       contact: data.phone.trim(),
     };
 
@@ -118,6 +117,8 @@ const RegistrationForm: React.FC = () => {
         sessionStorage.setItem('registeredEmail', formattedData.email);
         router.push('/activate');
       } else {
+        // Extract a meaningful error message.
+        // If errors.username exists, join the messages; otherwise fallback to result.message.
         const errorMsg =
           result.errors?.username?.join(', ') ||
           result.message ||
