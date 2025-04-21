@@ -14,6 +14,16 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 
+// Create a custom hook to check if product data exists
+export function useHasPromotedProducts() {
+  const { productsData, isLoading, isError } = usePromotedProducts();
+
+  const hasProductData =
+    !isLoading && !isError && productsData && productsData.length > 0;
+
+  return { hasProductData, isLoading, isError };
+}
+
 export function ProductCarousel() {
   const dispatch = useDispatch();
   const router = useRouter();
@@ -69,7 +79,7 @@ export function ProductCarousel() {
   }
 
   // No data state: when there are no promoted products available.
-  if (!isLoading && !productsData.length) {
+  if (!isLoading && (!productsData || !productsData.length)) {
     return (
       <CustomizableNoData
         title="No Promoted Products"

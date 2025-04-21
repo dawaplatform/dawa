@@ -1,19 +1,27 @@
 'use client';
 
-import * as React from 'react';
-import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { ProductCarousel } from '../../../../components/features/carousels/product-carousel';
+import { useState } from 'react';
+import {
+  ProductCarousel,
+  useHasPromotedProducts,
+} from '../../../../components/features/carousels/product-carousel';
 import { PostAdvertCTA } from '../../../../components/shared/post-advert-cta';
 import { SafetyTips } from '../../../../components/shared/safety-tips';
 import MobileCategoryGrid from './MobileCategoryGrid';
 
 export function CategoriesMenu() {
   const [isHovering, setIsHovering] = useState(false);
+  const { hasProductData, isLoading } = useHasPromotedProducts();
 
   const handleMouseLeave = () => {
     setIsHovering(false);
   };
+
+  // Don't render anything if there's no product data and we're not loading
+  if (!hasProductData && !isLoading) {
+    return null;
+  }
 
   return (
     <div className="w-full">
