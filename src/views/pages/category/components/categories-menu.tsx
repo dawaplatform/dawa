@@ -1,13 +1,13 @@
 'use client';
 
-import { cn } from '@/lib/utils';
-import { useState } from 'react';
 import {
   ProductCarousel,
   useHasPromotedProducts,
-} from '../../../../components/features/carousels/product-carousel';
-import { PostAdvertCTA } from '../../../../components/shared/post-advert-cta';
-import { SafetyTips } from '../../../../components/shared/safety-tips';
+} from '@/components/features/carousels/product-carousel';
+import { PostAdvertCTA } from '@/components/shared/post-advert-cta';
+import { SafetyTips } from '@/components/shared/safety-tips';
+import { cn } from '@/lib/utils';
+import { useState } from 'react';
 import MobileCategoryGrid from './MobileCategoryGrid';
 
 export function CategoriesMenu() {
