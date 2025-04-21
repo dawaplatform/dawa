@@ -187,7 +187,7 @@
   {
     "id": 6,
     "category_name": "Health & Beauty",
-    "category_item_count": 0,
+    "category_item_count": 2,
     "subcategories": [
       {
         "id": 31,
@@ -202,7 +202,7 @@
       {
         "id": 33,
         "subcategory_name": "Fragrance",
-        "subcategory_item_count": 0
+        "subcategory_item_count": 2
       },
       {
         "id": 34,
@@ -224,7 +224,7 @@
   {
     "id": 7,
     "category_name": "Fashion",
-    "category_item_count": 0,
+    "category_item_count": 3,
     "subcategories": [
       {
         "id": 37,
@@ -234,7 +234,7 @@
       {
         "id": 38,
         "subcategory_name": "Shoes",
-        "subcategory_item_count": 0
+        "subcategory_item_count": 3
       },
       {
         "id": 39,
