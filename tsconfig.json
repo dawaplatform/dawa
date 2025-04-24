@@ -38,13 +38,15 @@
   },
   "include": [
     "next-env.d.ts",
+    "declarations.d.ts",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
     "jest.setup.ts",
     "next.config.mjs",
     "src/app/(main)/wishlist",
-    "scripts/fetch-categories.cjs"
+    "scripts/fetch-categories.cjs",
+    "scripts/generate-locations.cjs"
   ],
   "exclude": ["node_modules"]
 }

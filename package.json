@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "npm run prebuild && next dev",
     "prebuild": "node scripts/fetch-categories.cjs",
+    "generate:locations": "node scripts/generate-locations.cjs",
     "build": "next build",
     "start": "next start",
     "test": "jest",
@@ -70,6 +71,8 @@
     "recharts": "^2.14.1",
     "sharp": "^0.33.5",
     "sonner": "^1.7.4",
+    "stream-chain": "^3.4.0",
+    "stream-json": "^1.9.1",
     "swiper": "^11.1.14",
     "swr": "^2.3.0",
     "tailwind-merge": "^2.5.4",
