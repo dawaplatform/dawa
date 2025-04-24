@@ -540,4 +540,4 @@ export const locations = [
     name: "Zombo",
     count: 115,
   },
-] as const;
+];
