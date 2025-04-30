@@ -1,15 +1,15 @@
 'use client';
 
-import React from 'react';
+import mainConfig from '@/@core/configs/mainConfigs';
 import ContactForm from '@/components/features/forms/ContactForm';
+import React from 'react';
 import {
   FaFacebook,
-  FaTwitter,
   FaInstagram,
-  FaYoutube,
   FaLinkedin,
+  FaTwitter,
+  FaYoutube,
 } from 'react-icons/fa';
-import mainConfig from '@/@core/configs/mainConfigs';
 
 const ContactPage: React.FC = () => {
   return (
@@ -54,7 +54,7 @@ const ContactPage: React.FC = () => {
               <li className="flex items-start">
                 <span className="text-primary_1 flex-shrink-0 mt-1">✉️</span>
                 <span className="ml-4 text-gray-700">
-                  dawaonlinestore@gmail.com
+                  platformdawa@gmail.com
                 </span>
               </li>
             </ul>
