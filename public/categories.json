@@ -443,7 +443,7 @@
   {
     "id": 14,
     "category_name": "Agriculture & Food",
-    "category_item_count": 0,
+    "category_item_count": 1,
     "subcategories": [
       {
         "id": 71,
@@ -458,7 +458,7 @@
       {
         "id": 73,
         "subcategory_name": "Crops & Seeds",
-        "subcategory_item_count": 0
+        "subcategory_item_count": 1
       },
       {
         "id": 74,

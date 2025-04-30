@@ -40,14 +40,14 @@ const ContactPage: React.FC = () => {
               <li className="flex items-start">
                 <span className="text-primary_1 flex-shrink-0 mt-1">📍</span>
                 <span className="ml-4 text-gray-700">
-                  123 Dawa Avenue, Kampala, Uganda
+                  Dawa Avenue. B397, P2006 WB: Kampala Uganda
                 </span>
               </li>
 
               {/* Phone */}
               <li className="flex items-start">
                 <span className="text-primary_1 flex-shrink-0 mt-1">📞</span>
-                <span className="ml-4 text-gray-700">+256 702108552</span>
+                <span className="ml-4 text-gray-700">+256 707053369</span>
               </li>
 
               {/* Email */}
