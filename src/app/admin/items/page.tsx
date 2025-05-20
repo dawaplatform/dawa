@@ -280,7 +280,7 @@ const AdminItemsPage = () => {
                   </div>
                 </TableCell>
                 <TableCell>
-                  ${item.item_price ? Number(item.item_price).toFixed(2) : '0.00'}
+                  {item.item_price ? Number(item.item_price).toFixed(2) : '0.00'}SHS
                 </TableCell>
                 <TableCell>
                   <Badge
@@ -436,7 +436,7 @@ const AdminItemsPage = () => {
                     <div className="flex justify-between">
                       <span className="text-slate-500">Price:</span>
                       <span className="font-medium">
-                        ${selectedItem.item_price ? Number(selectedItem.item_price).toFixed(2) : '0.00'}
+                        {selectedItem.item_price ? Number(selectedItem.item_price).toFixed(2) : '0.00'}SHS
                       </span>
                     </div>
                     
