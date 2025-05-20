@@ -1,16 +1,16 @@
 'use client';
 
 import MainConfigs from '@/@core/configs/mainConfigs';
+import SearchBar from '@/components/features/search/SearchBar';
 import BackButton from '@/components/shared/BackButton';
 import Button from '@/components/shared/Button';
-import SearchBar from '@/components/features/search/SearchBar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useDispatch } from '@/redux-store/hooks';
 import { openAuthDialog } from '@/redux-store/slices/authDialog/authDialogSlice';
 
 import Logo3 from '@public/assets/svgs/DAWA_VARIATION_04.svg';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Search } from 'lucide-react';
+import { Search, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import React, { useState } from 'react';
 
@@ -150,6 +150,15 @@ const MobileNav: React.FC<any> = ({
                         </div>
                       </Link>
                     </DropdownMenuItem>
+                    {user?.role === 'Admin' && (
+                    <DropdownMenuItem asChild>
+                  <Link href="/admin" className="cursor-pointer flex items-center font-medium text-primary-600 hover:text-primary-700">
+                  {/* You can choose an icon like ShieldCheck or LayoutDashboard */}
+                  <ShieldCheck className="mr-2 h-4 w-4" />
+                  <span>Admin</span>
+                  </Link>
+                  </DropdownMenuItem>  
+                  )}
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
