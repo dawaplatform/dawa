@@ -10,7 +10,7 @@ import {
   useDeleteCategory,
   useDeleteSubcategory,
   useUpdateCategory,
-  useUpdateSubcategory
+  useUpdateSubcategory,
 } from '@/app/server/admin/api';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -51,16 +51,24 @@ const AdminCategoriesPage = () => {
   const [isEditCategoryDialogOpen, setIsEditCategoryDialogOpen] = useState(false);
   const [isDeleteCategoryDialogOpen, setIsDeleteCategoryDialogOpen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<CategoryData | null>(null);
-  const [expandedCategories, setExpandedCategories] = useState<Record<number, boolean>>({});
+  const [selectedCategory, setSelectedCategory] = useState<CategoryData | null>(
+    null
+  );
+  const [expandedCategories, setExpandedCategories] = useState<
+    Record<number, boolean>
+  >({});
 
   // State for subcategories
   const [isAddSubcategoryDialogOpen, setIsAddSubcategoryDialogOpen] = useState(false);
   const [isEditSubcategoryDialogOpen, setIsEditSubcategoryDialogOpen] = useState(false);
   const [isDeleteSubcategoryDialogOpen, setIsDeleteSubcategoryDialogOpen] = useState(false);
   const [newSubcategoryName, setNewSubcategoryName] = useState('');
-  const [selectedSubcategory, setSelectedSubcategory] = useState<SubcategoryData | null>(null);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [selectedSubcategory, setSelectedSubcategory] = useState<SubcategoryData | null>(
+    null
+  );
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
+    null
+  );
 
   // SWR hooks for categories
   const { 

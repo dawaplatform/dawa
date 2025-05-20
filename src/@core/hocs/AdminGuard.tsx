@@ -28,7 +28,17 @@ const AdminGuard: React.FC<AdminGuardProps> = ({ children }) => {
     // return <ThemedLoader />;
 
     // Option 2: Apply some basic themed styling (example)
-    return <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-primary-color, #333)' }}>Loading admin area...</div>;
+    return (
+      <div
+        style={{
+          padding: '20px',
+          textAlign: 'center',
+          color: 'var(--text-primary-color, #333)',
+        }}
+      >
+        Loading admin area...
+      </div>
+    );
   }
 
   return <>{children}</>;

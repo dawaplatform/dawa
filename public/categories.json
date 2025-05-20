@@ -26,12 +26,12 @@
   {
     "id": 3,
     "category_name": "Agriculture",
-    "category_item_count": 0,
+    "category_item_count": 1,
     "subcategories": [
       {
         "id": 3,
         "subcategory_name": "Trees",
-        "subcategory_item_count": 0
+        "subcategory_item_count": 1
       }
     ]
   }
