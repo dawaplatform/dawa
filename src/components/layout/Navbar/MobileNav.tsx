@@ -150,7 +150,7 @@ const MobileNav: React.FC<any> = ({
                         </div>
                       </Link>
                     </DropdownMenuItem>
-                    {user?.role === 'Admin' && (
+                    {normalizedUserProfile?.role === 'Admin' && (
                     <DropdownMenuItem asChild>
                   <Link href="/admin" className="cursor-pointer flex items-center font-medium text-primary-600 hover:text-primary-700">
                   {/* You can choose an icon like ShieldCheck or LayoutDashboard */}
