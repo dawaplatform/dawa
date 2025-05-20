@@ -20,6 +20,7 @@ interface UserProfile {
   profile_picture: string | null;
   national_id_or_passport_number: string | null;
   national_id_or_passport_document: string | null;
+  role: 'Client' | 'Vendor' | 'Admin';
 }
 
 interface ProfileContextType {

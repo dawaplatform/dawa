@@ -1,11 +1,11 @@
 'use client';
 
-import React from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@core/hooks/use-auth';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@core/hooks/use-auth';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import React from 'react';
 // import {
 //   Accordion,
 //   AccordionContent,
@@ -14,19 +14,18 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 // } from '@/components/ui/accordion';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import Logo from '@public/assets/svgs/DAWA_VARIATION_04.svg';
 import {
-  Settings,
+  FileText,
+  Heart,
   // Users,
   // MessageSquare,
   HelpCircle,
-  FileText,
   LogOut,
-  Heart,
   // Bell,
   Mail,
-  // BarChart2,
+  Settings,
 } from 'lucide-react';
-import Logo from '@public/assets/svgs/DAWA_VARIATION_04.svg';
 // import { categories } from '@/lib/mock_data';
 
 // Import the DialogTitle and VisuallyHidden components from Radix UI
@@ -132,6 +131,7 @@ const MobileSheetContent: React.FC<MobileSheetContentProps> = ({ onClose }) => {
               {item.label}
             </Button>
           ))}
+ 
         </nav>
 
         {user && (

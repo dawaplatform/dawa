@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useSession, signOut } from 'next-auth/react';
 import axios from 'axios';
 import * as jwtDecode from 'jwt-decode';
+import { signOut, useSession } from 'next-auth/react';
+import { useCallback, useEffect, useState } from 'react';
 import { useSWRConfig } from 'swr';
 
 interface User {
@@ -9,6 +9,7 @@ interface User {
   name: string;
   email: string;
   image: string;
+  role: string;
 }
 
 interface Counters {
@@ -115,6 +116,7 @@ export function useAuth() {
           name: session.user.name || '',
           email: session.user.email || '',
           image: session.user.image || '',
+          role: session.user.role || '',
         });
       } else {
         setUser(null);

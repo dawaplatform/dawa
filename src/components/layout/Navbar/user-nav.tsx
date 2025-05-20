@@ -17,7 +17,8 @@ import {
   LogOut,
   MessageSquare,
   Settings,
-  ShoppingCart,
+  ShieldCheck,
+  ShoppingCart, // Or any other icon you prefer for Admin
   User,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -153,6 +154,16 @@ export function UserNav({
                 <span>Settings</span>
               </Link>
             </DropdownMenuItem>
+            {/* Conditionally render Admin Dashboard link */}
+            {user?.role === 'Admin' && (
+              <DropdownMenuItem asChild>
+                <Link href="/admin" className="cursor-pointer flex items-center font-medium text-primary-600 hover:text-primary-700">
+                  {/* You can choose an icon like ShieldCheck or LayoutDashboard */}
+                  <ShieldCheck className="mr-2 h-4 w-4" />
+                  <span>Admin</span>
+                </Link>
+              </DropdownMenuItem>
+            )}
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem

@@ -1,11 +1,11 @@
 import {
-  openApiClient,
-  secureApiClient,
-  secureMultipartApiClient,
+    openApiClient,
+    secureApiClient,
+    secureMultipartApiClient,
 } from '@/@core/utils/apiClient';
 import {
-  ProductUploadProps,
-  TrendingProductsResponse,
+    ProductUploadProps,
+    TrendingProductsResponse,
 } from '@/views/pages/product/types/product';
 import { ReportAbuseProps } from '@/views/pages/product/types/reportAbuse';
 
@@ -35,6 +35,7 @@ export const getProductsList = async (
     const response = await openApiClient.post(url, body);
     return response.data;
   } catch (error) {
+    console.log('Raw error:', error);
     console.error('Error fetching products:', error);
     throw error;
   }

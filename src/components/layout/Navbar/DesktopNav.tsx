@@ -1,22 +1,22 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import { useDispatch } from '@redux-store/hooks';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Menu } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
 import { FiGrid } from 'react-icons/fi';
-import { Menu } from 'lucide-react';
-import { useDispatch } from '@redux-store/hooks';
 
-import Logo3 from '@public/assets/svgs/DAWA_VARIATION_04.svg';
-import { UserNav } from './user-nav';
-import { UserNavSkeleton } from './UserNavSkeleton';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import Button from '@/components/shared/Button';
-import Sidebar from '@/views/pages/category/components/Sidebar';
-import MobileSheetContent from './MobileSheetContent';
 import MainConfigs from '@/@core/configs/mainConfigs';
 import SearchBar from '@/components/features/search/SearchBar';
+import Button from '@/components/shared/Button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import Sidebar from '@/views/pages/category/components/Sidebar';
+import Logo3 from '@public/assets/svgs/DAWA_VARIATION_04.svg';
+import MobileSheetContent from './MobileSheetContent';
+import { UserNav } from './user-nav';
+import { UserNavSkeleton } from './UserNavSkeleton';
 
 interface DesktopNavProps {
   isSticky: boolean;

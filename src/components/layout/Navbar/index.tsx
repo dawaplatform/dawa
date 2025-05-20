@@ -20,6 +20,7 @@ export const normalizeUserProfile = (userProfile: any): any | null => {
     last_name: userProfile.user.last_name,
     email: userProfile.user.email,
     user_profile_picture: userProfile.profile_picture || DEFAULT_AVATAR,
+    role: userProfile.role,
   };
 };
 
@@ -30,6 +31,7 @@ export const normalizeUserFromAuth = (user: any): any | null => {
     last_name: user.name.split(' ')[1],
     email: user.email,
     user_profile_picture: user.image,
+    role: user.role,
   };
 };
 
@@ -71,7 +73,7 @@ const NavBar: React.FC<any> = ({ closeOnSelect = true }) => {
       >
         <DesktopNav
           isSticky={isSticky}
-          user={normalizedUserProfile || normalizedUserFromAuth}
+          user={normalizedUserProfile}
           loading={loading}
           logout={logout}
           handleSellClick={handleSellClick}
