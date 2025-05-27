@@ -136,6 +136,17 @@ const RegistrationForm: React.FC = () => {
 
   return (
     <div className="flex flex-col w-full md:w-[60%] md:px-10 md:py-12 md:shadow-lg md:rounded-lg">
+
+        {/* Register with Google */}
+        <Button
+          type="button"
+          icon={GoogleIcon}
+          onClick={handleGoogleSignIn}
+          className="w-full mt-4 h-12 bg-orange-200 text-black rounded-md font-semibold hover:bg-orange-300 transition-colors flex items-center justify-center"
+        >
+          Register with Google
+        </Button>
+
       <h2 className="text-2xl font-semibold mb-2 text-center text-black">
         Create an Account
       </h2>
@@ -279,15 +290,6 @@ const RegistrationForm: React.FC = () => {
           <hr className="flex-grow border-gray-300" />
         </div>
 
-        {/* Register with Google */}
-        <Button
-          type="button"
-          icon={GoogleIcon}
-          onClick={handleGoogleSignIn}
-          className="w-full mt-4 h-12 bg-gray-200 text-gray-700 rounded-md font-semibold hover:bg-gray-300 transition-colors flex items-center justify-center"
-        >
-          Register with Google
-        </Button>
 
         {/* Login Link */}
         <p className="mt-8 text-sm text-center text-gray-500">
