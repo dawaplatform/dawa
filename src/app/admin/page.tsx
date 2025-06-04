@@ -5,7 +5,7 @@
 
 'use client';
 
-import { Loader2 } from 'lucide-react';
+import { AlertTriangle, BarChart3, Eye, Heart, List, Loader2, Mail, Share2, ShoppingBag, Star, User, UserCog, Users } from 'lucide-react';
 import { useAdminDashboardStats } from '../server/admin/api';
 
 export default function AdminDashboardPage() {
@@ -33,75 +33,39 @@ export default function AdminDashboardPage() {
       <h1 className="text-2xl font-semibold text-slate-800 mb-6">
         Dashboard Overview
       </h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Users Stats */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-medium text-slate-700">Total Users</h2>
-          <p className="text-3xl font-bold text-primary-600 mt-2">{stats?.total_users || 0}</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-medium text-slate-700">Admins</h2>
-          <p className="text-3xl font-bold text-blue-600 mt-2">{stats?.total_admins || 0}</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-medium text-slate-700">Vendors</h2>
-          <p className="text-3xl font-bold text-green-600 mt-2">{stats?.total_vendors || 0}</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-medium text-slate-700">Clients</h2>
-          <p className="text-3xl font-bold text-amber-600 mt-2">{stats?.total_clients || 0}</p>
-        </div>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <StatCard icon={<Users className="w-7 h-7 text-primary-500" />} label="Total Users" value={stats?.total_users || 0} accent="primary" />
+        <StatCard icon={<UserCog className="w-7 h-7 text-blue-500" />} label="Admins" value={stats?.total_admins || 0} accent="blue" />
+        <StatCard icon={<ShoppingBag className="w-7 h-7 text-green-500" />} label="Vendors" value={stats?.total_vendors || 0} accent="green" />
+        <StatCard icon={<User className="w-7 h-7 text-amber-500" />} label="Clients" value={stats?.total_clients || 0} accent="amber" />
       </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        <StatCard icon={<List className="w-7 h-7 text-primary-500" />} label="Total Items" value={stats?.total_items || 0} accent="primary" />
+        <StatCard icon={<Star className="w-7 h-7 text-green-500" />} label="Approved Items" value={stats?.total_approved_items || 0} accent="green" />
+        <StatCard icon={<AlertTriangle className="w-7 h-7 text-amber-500" />} label="Pending Approval" value={stats ? (stats.total_items - stats.total_approved_items) : 0} accent="amber" />
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <StatCard icon={<Heart className="w-7 h-7 text-pink-500" />} label="Total Likes" value={stats?.total_likes || 0} accent="pink" />
+        <StatCard icon={<Eye className="w-7 h-7 text-blue-500" />} label="Total Views" value={stats?.total_views || 0} accent="blue" />
+        <StatCard icon={<Share2 className="w-7 h-7 text-indigo-500" />} label="Total Shares" value={stats?.total_shares || 0} accent="indigo" />
+        <StatCard icon={<BarChart3 className="w-7 h-7 text-purple-500" />} label="Wishlist Actions" value={stats?.total_wishlist_actions || 0} accent="purple" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+        <StatCard icon={<AlertTriangle className="w-7 h-7 text-red-500" />} label="Reports" value={stats?.total_reports || 0} accent="red" />
+        <StatCard icon={<Mail className="w-7 h-7 text-green-500" />} label="Newsletter Subscribers" value={stats?.total_subscribers || 0} accent="green" />
+      </div>
+    </div>
+  );
+}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        {/* Items Stats */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-medium text-slate-700">Total Items</h2>
-          <p className="text-3xl font-bold text-primary-600 mt-2">{stats?.total_items || 0}</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-medium text-slate-700">Approved Items</h2>
-          <p className="text-3xl font-bold text-green-600 mt-2">{stats?.total_approved_items || 0}</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-medium text-slate-700">Pending Approval</h2>
-          <p className="text-3xl font-bold text-amber-600 mt-2">
-            {stats ? (stats.total_items - stats.total_approved_items) : 0}
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Engagement Stats */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-medium text-slate-700">Total Likes</h2>
-          <p className="text-3xl font-bold text-pink-600 mt-2">{stats?.total_likes || 0}</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-medium text-slate-700">Total Views</h2>
-          <p className="text-3xl font-bold text-blue-600 mt-2">{stats?.total_views || 0}</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-medium text-slate-700">Total Shares</h2>
-          <p className="text-3xl font-bold text-indigo-600 mt-2">{stats?.total_shares || 0}</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-medium text-slate-700">Wishlist Actions</h2>
-          <p className="text-3xl font-bold text-purple-600 mt-2">{stats?.total_wishlist_actions || 0}</p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-        {/* Other Stats */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-medium text-slate-700">Reports</h2>
-          <p className="text-3xl font-bold text-red-500 mt-2">{stats?.total_reports || 0}</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-medium text-slate-700">Newsletter Subscribers</h2>
-          <p className="text-3xl font-bold text-green-600 mt-2">{stats?.total_subscribers || 0}</p>
-        </div>
-      </div>
+// StatCard component for consistent card design
+function StatCard({ icon, label, value, accent }: { icon: React.ReactNode; label: string; value: number; accent: string }) {
+  return (
+    <div className="bg-white rounded-lg shadow p-4 flex flex-col items-center justify-center min-h-[120px]">
+      <div className="mb-2">{icon}</div>
+      <div className="text-lg font-semibold text-slate-700">{label}</div>
+      <div className={`text-2xl font-bold mt-1 text-${accent}-600`}>{value}</div>
     </div>
   );
 }
