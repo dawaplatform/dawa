@@ -1,40 +1,40 @@
 'use client';
 
-import React, {
-  useState,
-  useMemo,
+import {
+  FC,
   useCallback,
   useEffect,
-  FC,
+  useMemo,
   useRef,
+  useState,
 } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
-import CardLayout from '@/components/features/listings/CardLayout';
-import ProductFilter from '@/components/features/filters/ProductFilter';
 import FiltersAndSorting from '@/components/features/filters/FiltersAndSorting';
-import CategoriesAndSubcategories from '@/views/pages/category/components/CategoriesAndSubcategories';
+import ProductFilter from '@/components/features/filters/ProductFilter';
+import CardLayout from '@/components/features/listings/CardLayout';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import CustomizableNoData from '@/components/shared/no-data';
 import { OopsComponent } from '@/components/shared/oops-component';
+import CategoriesAndSubcategories from '@/views/pages/category/components/CategoriesAndSubcategories';
 
 import { slugify } from '@/@core/utils/slugify';
+import { useProductsData } from '@core/hooks/useProductData';
 import {
   setSelectedCategory,
   setSelectedSubcategory,
 } from '@redux-store/slices/categories/categorySlice';
-import { useProductsData } from '@core/hooks/useProductData';
 
+import useInfiniteScroll, {
+  UseInfiniteScrollOptions,
+} from '@/@core/hooks/useInfiniteScroll';
+import { normalizeProducts } from '@/@core/utils/normalizeProductData';
+import ProductCardSkeleton from '@/components/features/listings/loaders/ProductCardSkeleton';
+import SingleSkeletonCard from '@/components/features/listings/loaders/SingleSkeletonCard';
 import type {
   Category,
   Subcategory,
 } from '@/views/pages/category/types/category';
-import ProductCardSkeleton from '@/components/features/listings/loaders/ProductCardSkeleton';
-import useInfiniteScroll, {
-  UseInfiniteScrollOptions,
-} from '@/@core/hooks/useInfiniteScroll';
-import SingleSkeletonCard from '@/components/features/listings/loaders/SingleSkeletonCard';
-import { normalizeProducts } from '@/@core/utils/normalizeProductData';
 
 type FilterOptionType =
   | 'default'
@@ -167,15 +167,15 @@ const CategoryPage: FC<CategoryPageProps> = ({ category }) => {
   const filteredProducts = useMemo(() => {
     return normalizedProductsData.filter((product) => {
       // Price filter.
-      const price = Number(product.price);
+      const price = Number(product.item_price);
       if (price < appliedPriceRange[0] || price > appliedPriceRange[1]) {
         return false;
       }
       // Location filter (case-insensitive).
       if (
         appliedLocation &&
-        product.location &&
-        !product.location.toLowerCase().includes(appliedLocation.toLowerCase())
+        product.item_location &&
+        !product.item_location.toLowerCase().includes(appliedLocation.toLowerCase())
       ) {
         return false;
       }
@@ -202,16 +202,16 @@ const CategoryPage: FC<CategoryPageProps> = ({ category }) => {
     const products = [...filteredProducts];
     switch (filterOption) {
       case 'price_low_to_high':
-        products.sort((a, b) => Number(a.price) - Number(b.price));
+        products.sort((a, b) => Number(a.item_price) - Number(b.item_price));
         break;
       case 'price_high_to_low':
-        products.sort((a, b) => Number(b.price) - Number(a.price));
+        products.sort((a, b) => Number(b.item_price) - Number(a.item_price));
         break;
       default:
         // Default: newest first using dateAdded.
         products.sort(
           (a, b) =>
-            new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime(),
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
         );
         break;
     }
