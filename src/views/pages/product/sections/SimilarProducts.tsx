@@ -19,7 +19,7 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({ similarItems }) => {
         key={item.id}
         product={{
           ...item,
-          images: [{ image_id: '1', image_url: item.image }],
+          images: [{ image_id: '1', image_url: item.image || '/placeholder.jpg' }],
         }}
         viewType="grid"
       />

@@ -1,15 +1,15 @@
 'use client';
 
-import React, { useState, useMemo, useCallback } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { useSearchProducts } from '@/@core/hooks/useProductData';
 import { normalizeProducts } from '@/@core/utils/normalizeProductData';
-import CardLayout from '@/components/features/listings/CardLayout';
-import ProductFilter from '@/components/features/filters/ProductFilter';
 import FiltersAndSorting from '@/components/features/filters/FiltersAndSorting';
+import ProductFilter from '@/components/features/filters/ProductFilter';
+import CardLayout from '@/components/features/listings/CardLayout';
+import Loader from '@/components/features/loaders/SubLoader';
 import CustomizableNoData from '@/components/shared/no-data';
 import { OopsComponent } from '@/components/shared/oops-component';
-import Loader from '@/components/features/loaders/SubLoader';
+import { useSearchParams } from 'next/navigation';
+import React, { useCallback, useMemo, useState } from 'react';
 
 const SearchPage: React.FC = () => {
   // Get query param from URL.
@@ -81,13 +81,13 @@ const SearchPage: React.FC = () => {
   // Filtering logic.
   const filteredProducts = useMemo(() => {
     return normalizedProducts.filter((product) => {
-      const price = Number(product.price);
+      const price = Number(product.item_price);
       if (price < appliedPriceRange[0] || price > appliedPriceRange[1])
         return false;
 
-      if (appliedLocation && product.location) {
+      if (appliedLocation && product.item_location) {
         if (
-          !product.location
+          !product.item_location
             .toLowerCase()
             .includes(appliedLocation.toLowerCase())
         )
@@ -125,16 +125,16 @@ const SearchPage: React.FC = () => {
     const products = [...filteredProducts];
     switch (filterOption) {
       case 'price_low_to_high':
-        products.sort((a, b) => Number(a.price) - Number(b.price));
+        products.sort((a, b) => Number(a.item_price) - Number(b.item_price));
         break;
       case 'price_high_to_low':
-        products.sort((a, b) => Number(b.price) - Number(a.price));
+        products.sort((a, b) => Number(b.item_price) - Number(a.item_price));
         break;
       default:
         // Newest first based on dateAdded.
         products.sort(
           (a, b) =>
-            new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime(),
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
         );
     }
     return products;
