@@ -1,8 +1,8 @@
 'use client';
 
 import {
-  ProductCarousel,
-  useHasPromotedProducts,
+    ProductCarousel,
+    useHasPremiumItems,
 } from '@/components/features/carousels/product-carousel';
 import { PostAdvertCTA } from '@/components/shared/post-advert-cta';
 import { SafetyTips } from '@/components/shared/safety-tips';
@@ -12,7 +12,7 @@ import MobileCategoryGrid from './MobileCategoryGrid';
 
 export function CategoriesMenu() {
   const [isHovering, setIsHovering] = useState(false);
-  const { hasProductData, isLoading } = useHasPromotedProducts();
+  const { hasProductData, isLoading } = useHasPremiumItems();
 
   const handleMouseLeave = () => {
     setIsHovering(false);

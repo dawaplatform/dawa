@@ -8,15 +8,15 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDispatch } from '@/redux-store/hooks';
 import { setSelectedProduct } from '@/redux-store/slices/products/productSlice';
-import { usePromotedProducts } from '@core/hooks/useProductData';
+import { usePremiumSectionItems } from '@core/hooks/useProductData';
 import AutoplayPlugin from 'embla-carousel-autoplay';
 import useEmblaCarousel from 'embla-carousel-react';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 
 // Create a custom hook to check if product data exists
-export function useHasPromotedProducts() {
-  const { productsData, isLoading, isError } = usePromotedProducts();
+export function useHasPremiumItems() {
+  const { productsData, isLoading, isError } = usePremiumSectionItems();
 
   const hasProductData =
     !isLoading && !isError && productsData && productsData.length > 0;
@@ -27,7 +27,7 @@ export function useHasPromotedProducts() {
 export function ProductCarousel() {
   const dispatch = useDispatch();
   const router = useRouter();
-  const { productsData, isLoading, isError } = usePromotedProducts();
+  const { productsData, isLoading, isError } = usePremiumSectionItems();
 
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { loop: true, skipSnaps: false },
@@ -71,19 +71,19 @@ export function ProductCarousel() {
   if (isError) {
     return (
       <CustomizableNoData
-        title="Error Loading Promoted Products"
-        description="Something went wrong while fetching promoted products. Please try again later."
+        title="Error Loading Premium Products"
+        description="Something went wrong while fetching premium products. Please try again later."
         containerClassName="w-full h-[400px] flex flex-col items-center justify-center p-8 text-center"
       />
     );
   }
 
-  // No data state: when there are no promoted products available.
+  // No data state: when there are no premium products available.
   if (!isLoading && (!productsData || !productsData.length)) {
     return (
       <CustomizableNoData
-        title="No Promoted Products"
-        description="There are no promoted products available at the moment."
+        title="No Premium Products"
+        description="There are no premium products available at the moment."
         containerClassName="w-full h-[400px] flex flex-col items-center justify-center p-8 text-center"
       />
     );

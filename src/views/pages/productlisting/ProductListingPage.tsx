@@ -5,27 +5,30 @@ import CardLayout from '@/components/features/listings/CardLayout';
 import ProductCardSkeleton from '@/components/features/listings/loaders/ProductCardSkeleton';
 import CustomizableNoData from '@/components/shared/no-data';
 import { Button } from '@/components/ui/button';
-import { useTrendingProducts } from '@core/hooks/useProductData';
+import { useProductListing } from '@core/hooks/useProductData';
 import React, { useRef, useState } from 'react';
 import { FaTh, FaThList } from 'react-icons/fa';
+import { SimilarItem } from '../product/types/product';
 
-const ProductPage: React.FC = () => {
+const ProductListingPage: React.FC = () => {
   const [viewType, setViewType] = useState<'grid' | 'list'>('grid');
-  const { productsData, isLoading, isError } = useTrendingProducts();
+  const { productsData, isLoading, isError } = useProductListing();
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   // Normalize the raw product data.
   const normalizedProductsData = normalizeProducts(productsData);
 
-  // When loading the first page, show a full grid of skeleton cards.
+  // When loading, show a full grid of skeleton cards.
   if (isLoading) {
     return (
-      <div>
-        <ProductCardSkeleton
-          ITEMS_PER_PAGE={8}
-          gridClass="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"
-        />
-      </div>
+      <ProductCardSkeleton
+        ITEMS_PER_PAGE={16}
+        gridClass={`grid grid-cols-2 ${
+          viewType === 'grid'
+            ? 'sm:grid-cols-3 md:grid-cols-4'
+            : 'sm:grid-cols-1'
+        } gap-3`}
+      />
     );
   }
 
@@ -34,28 +37,27 @@ const ProductPage: React.FC = () => {
     return (
       <CustomizableNoData
         title="Error Loading Products"
-        description="Please try again later."
+        description="Something went wrong while fetching products. Please try again later."
         containerClassName="flex flex-col items-center justify-center p-8 text-center w-full"
       />
     );
   }
 
   // No data state: if no products are available.
-  if (!productsData.length) {
+  if (!isLoading && normalizedProductsData.length === 0) {
     return (
       <CustomizableNoData
-        title="No Trending Products"
-        description="Check back later!"
+        title="No Products Available"
+        description="We couldn't find any products at the moment. Please check back later."
         containerClassName="flex flex-col items-center justify-center p-8 text-center w-full"
       />
     );
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-primary_1">Trending Products</h2>
-        <div className="hidden items-center gap-2 md:flex">
+    <>
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-2 md:hidden">
           <Button
             variant={viewType === 'grid' ? 'default' : 'outline'}
             size="icon"
@@ -91,12 +93,16 @@ const ProductPage: React.FC = () => {
             : 'sm:grid-cols-1'
         } gap-3`}
       >
-        {productsData.map((product) => (
-          <CardLayout key={product.id} product={product} />
+        {normalizedProductsData.map((product, index) => (
+          <CardLayout
+            key={`${product.id}-${index}`}
+            product={product as unknown as SimilarItem}
+            viewType={viewType}
+          />
         ))}
       </div>
-    </div>
+    </>
   );
 };
 
-export default ProductPage;
+export default ProductListingPage; 

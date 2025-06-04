@@ -1,45 +1,48 @@
 'use client';
 
+import { useCallback, useMemo } from 'react';
 import useSWR, { SWRConfiguration } from 'swr';
 import useSWRInfinite from 'swr/infinite';
 import useSWRMutation from 'swr/mutation';
-import { useCallback, useMemo, useRef, useEffect } from 'react';
 
 // API Methods
 import {
+  changeUserPassword,
+  fetchUserProfile,
+  updateUserProfile,
+} from '@/app/server/auth/api';
+import {
+  contactUs,
+  getFaqs,
+  subscribeToNewsletter,
+} from '@/app/server/faqs_newLetter_contactUs/api';
+import { getMessages, sendMessage } from '@/app/server/messages/api';
+import { getShopData } from '@/app/server/my-shop/api';
+import {
+  addNewProduct,
+  deleteProductImage,
+  getCategoryData,
+  getPremiumSectionItems,
+  getProductDetails,
+  getProductListing,
   getProductsList,
   getPromotedProductsList,
-  getCategoryData,
-  addNewProduct,
-  getProductDetails,
+  getTrendingProducts,
   reportAbuse,
   sendReview,
   updateProduct,
-  deleteProductImage,
 } from '@/app/server/products/api';
-import { getShopData } from '@/app/server/my-shop/api';
+import { search } from '@/app/server/search/api';
 import {
-  fetchUserProfile,
-  updateUserProfile,
-  changeUserPassword,
-} from '@/app/server/auth/api';
-import { getMessages, sendMessage } from '@/app/server/messages/api';
+  ContactUsPayload,
+  SubscribePayload,
+} from '@/views/pages/contact-us/contact-us';
 import { SendMessagePayload } from '@/views/pages/messages/types/message';
 import {
   ProductUploadProps,
   TrendingProductsResponse,
 } from '@/views/pages/product/types/product';
 import { ReportAbuseProps } from '@/views/pages/product/types/reportAbuse';
-import {
-  getFaqs,
-  subscribeToNewsletter,
-  contactUs,
-} from '@/app/server/faqs_newLetter_contactUs/api';
-import {
-  ContactUsPayload,
-  SubscribePayload,
-} from '@/views/pages/contact-us/contact-us';
-import { search } from '@/app/server/search/api';
 import { swrOptions } from '../configs/swrConfig';
 
 /**
@@ -490,3 +493,60 @@ export const useSearchProducts = (query: string) => {
     isValidating,
   };
 };
+
+/**
+ * Custom hook to fetch premium section items.
+ * @returns Object with premium section data, loading state, error info, and mutate function.
+ */
+export function usePremiumSectionItems() {
+  const { data, error, isLoading, mutate } = useSWR(
+    'premiumSectionItems',
+    getPremiumSectionItems,
+    swrOptions,
+  );
+
+  return {
+    productsData: data?.data || [],
+    isLoading,
+    isError: error,
+    mutate,
+  };
+}
+
+/**
+ * Custom hook to fetch trending products.
+ * @returns Object with trending products data, loading state, error info, and mutate function.
+ */
+export function useTrendingProducts() {
+  const { data, error, isLoading, mutate } = useSWR(
+    'trendingProducts',
+    getTrendingProducts,
+    swrOptions,
+  );
+
+  return {
+    productsData: data?.data || [],
+    isLoading,
+    isError: error,
+    mutate,
+  };
+}
+
+/**
+ * Custom hook to fetch product listing.
+ * @returns Object with product listing data, loading state, error info, and mutate function.
+ */
+export function useProductListing() {
+  const { data, error, isLoading, mutate } = useSWR(
+    'productListing',
+    getProductListing,
+    swrOptions,
+  );
+
+  return {
+    productsData: data?.data || [],
+    isLoading,
+    isError: error,
+    mutate,
+  };
+}

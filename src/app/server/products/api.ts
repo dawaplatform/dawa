@@ -165,3 +165,45 @@ export const sendReview = async (
 ): Promise<any> => {
   return secureApiClient.post(url, arg).then((response) => response.data);
 };
+
+/**
+ * Fetch premium section items
+ * @returns {Promise<any>}
+ */
+export const getPremiumSectionItems = async (): Promise<any> => {
+  try {
+    const response = await openApiClient.get('/premiumitems/');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching premium section items:', error);
+    throw error;
+  }
+};
+
+/**
+ * Fetch trending products
+ * @returns {Promise<any>}
+ */
+export const getTrendingProducts = async (): Promise<any> => {
+  try {
+    const response = await openApiClient.get('/trendingitems/');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching trending products:', error);
+    throw error;
+  }
+};
+
+/**
+ * Fetch product listing
+ * @returns {Promise<any>}
+ */
+export const getProductListing = async (): Promise<any> => {
+  try {
+    const response = await openApiClient.get('/productlisting/');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching product listing:', error);
+    throw error;
+  }
+};
