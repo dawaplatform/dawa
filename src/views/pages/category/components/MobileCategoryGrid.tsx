@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Plus } from 'lucide-react';
-import { slugify } from '@/@core/utils/slugify';
-import { useRouter } from 'next/navigation';
-import { categoryIconMap, UniversalFallbackIcon } from './icon-maps';
+'use client';
 import { useAuth } from '@/@core/hooks/use-auth';
+import { slugify } from '@/@core/utils/slugify';
 import { useDispatch } from '@/redux-store/hooks';
 import { openAuthDialog } from '@/redux-store/slices/authDialog/authDialogSlice';
+import { Plus } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import { categoryIconMap, UniversalFallbackIcon } from './icon-maps';
 
 const MobileCategoryGrid: React.FC = React.memo(() => {
   const router = useRouter();

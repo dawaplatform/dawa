@@ -494,6 +494,14 @@ export const useSearchProducts = (query: string) => {
   };
 };
 
+function extractProducts(response: any): any[] {
+  if (!response) return [];
+  if (Array.isArray(response)) return response;
+  if ('data' in response && Array.isArray(response.data)) return response.data;
+  if ('results' in response && Array.isArray(response.results.data)) return response.results.data;
+  return [];
+}
+
 /**
  * Custom hook to fetch premium section items.
  * @returns Object with premium section data, loading state, error info, and mutate function.
@@ -506,7 +514,7 @@ export function usePremiumSectionItems() {
   );
 
   return {
-    productsData: data?.data || [],
+    productsData: extractProducts(data),
     isLoading,
     isError: error,
     mutate,
@@ -525,7 +533,7 @@ export function useTrendingProducts() {
   );
 
   return {
-    productsData: data?.data || [],
+    productsData: extractProducts(data),
     isLoading,
     isError: error,
     mutate,
@@ -544,7 +552,7 @@ export function useProductListing() {
   );
 
   return {
-    productsData: data?.data || [],
+    productsData: extractProducts(data),
     isLoading,
     isError: error,
     mutate,

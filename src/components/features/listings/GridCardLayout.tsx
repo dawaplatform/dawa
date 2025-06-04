@@ -1,23 +1,23 @@
 'use client';
 
-import React from 'react';
-import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import CustomImage from '@/components/shared/CustomImage';
-import { setSelectedProduct } from '@redux-store/slices/products/productSlice';
-import { useDispatch } from '@/redux-store/hooks';
-import { slugify } from '@/@core/utils/slugify';
-import { LikeButton } from '@/components/shared/LikeButton';
 import { CurrencyFormatter } from '@/@core/utils/CurrencyFormatter';
+import { slugify } from '@/@core/utils/slugify';
+import CustomImage from '@/components/shared/CustomImage';
+import { LikeButton } from '@/components/shared/LikeButton';
 import { Button } from '@/components/ui/button';
-import { Edit, MapPin } from 'lucide-react';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useDispatch } from '@/redux-store/hooks';
 import type { SimilarItem } from '@/views/pages/product/types/product';
+import { setSelectedProduct } from '@redux-store/slices/products/productSlice';
+import { Edit, MapPin } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import React from 'react';
 
 interface ProductCardProps {
   product: SimilarItem;
@@ -33,14 +33,14 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(
 
     // Only display location if it contains alphabetic characters.
     const locationDisplay =
-      product.location && /[A-Za-z]/.test(product.location)
-        ? product.location
+      product.item_location && /[A-Za-z]/.test(product.item_location)
+        ? product.item_location
         : null;
 
     // Navigate to product details after storing product ID.
     const handleCardClick = () => {
       dispatch(setSelectedProduct(product.id as any));
-      router.push(`/prod/${slugify(product.name)}`);
+      router.push(`/prod/${slugify(product.item_name)}`);
     };
 
     // Prevent propagation for edit button.
@@ -63,7 +63,7 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(
           <div className="relative aspect-square w-full">
             <CustomImage
               src={image}
-              alt={product.name}
+              alt={product.item_name}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover rounded-none"
@@ -104,9 +104,9 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(
           </div>
         </CardContent>
         <CardFooter className="flex flex-col items-start m-0 p-2 space-y-1">
-          <h3 className="font-medium text-sm line-clamp-2">{product.name}</h3>
+          <h3 className="font-medium text-sm line-clamp-2">{product.item_name}</h3>
           <p className="text-primary_1 font-semibold text-sm">
-            <CurrencyFormatter price={Number(product.price)} />
+            {product.item_price ? <CurrencyFormatter price={Number(product.item_price)} /> : 'Price not set'}
           </p>
           {locationDisplay && (
             <div className="flex items-center text-xs text-gray-500 line-clamp-1">

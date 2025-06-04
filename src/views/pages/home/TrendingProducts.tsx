@@ -3,6 +3,7 @@
 import { normalizeProducts } from '@/@core/utils/normalizeProductData';
 import CardLayout from '@/components/features/listings/CardLayout';
 import ProductCardSkeleton from '@/components/features/listings/loaders/ProductCardSkeleton';
+import SingleSkeletonCard from '@/components/features/listings/loaders/SingleSkeletonCard';
 import CustomizableNoData from '@/components/shared/no-data';
 import { Button } from '@/components/ui/button';
 import { useTrendingProducts } from '@core/hooks/useProductData';
@@ -24,7 +25,11 @@ const ProductPage: React.FC = () => {
       <div>
         <ProductCardSkeleton
           ITEMS_PER_PAGE={8}
-          gridClass="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"
+          gridClass={`grid grid-cols-2 ${
+            viewType === 'grid'
+              ? 'sm:grid-cols-3 md:grid-cols-4'
+              : 'sm:grid-cols-1'
+          } gap-3`}
         />
       </div>
     );
@@ -42,7 +47,7 @@ const ProductPage: React.FC = () => {
   }
 
   // No data state: if no products are available.
-  if (!productsData.length) {
+  if (!normalizedProductsData.length) {
     return (
       <CustomizableNoData
         title="No Trending Products"
@@ -51,6 +56,15 @@ const ProductPage: React.FC = () => {
       />
     );
   }
+
+  // Calculate filler skeleton cards for consistent grid layout.
+  const columns = 4;
+  const productCount = normalizedProductsData.length;
+  const remainder = productCount % columns;
+  const fillCount = remainder > 0 ? columns - remainder : 0;
+  // Add an extra full row of skeleton cards.
+  const additionalSkeletonCount = columns;
+  const totalSkeletonCount = fillCount + additionalSkeletonCount;
 
   return (
     <div className="space-y-3">
@@ -92,10 +106,21 @@ const ProductPage: React.FC = () => {
             : 'sm:grid-cols-1'
         } gap-3`}
       >
-        {productsData.map((product: SimilarItem) => (
-          <CardLayout key={product.id} product={product} viewType={viewType} />
+        {normalizedProductsData.map((product, index) => (
+          <CardLayout
+            key={`${product.id}-${index}`}
+            product={product as unknown as SimilarItem}
+            viewType={viewType}
+          />
         ))}
+        {/* Optionally add filler skeletons for grid alignment if needed */}
+        {isLoading &&
+          Array.from({ length: totalSkeletonCount }).map((_, index) => (
+            <SingleSkeletonCard key={`skeleton-${index}`} />
+          ))}
       </div>
+      {/* Sentinel element triggers loading the next page when visible (if needed) */}
+      <div ref={loadMoreRef} className="h-1" />
     </div>
   );
 };

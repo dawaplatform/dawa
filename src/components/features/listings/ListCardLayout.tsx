@@ -1,24 +1,24 @@
 'use client';
 
-import React from 'react';
-import { useRouter } from 'next/navigation';
-import { Card } from '@/components/ui/card';
-import CustomImage from '@/components/shared/CustomImage';
-import { AiOutlineCheck } from 'react-icons/ai';
-import { Button } from '@/components/ui/button';
-import { LikeButton } from '@/components/shared/LikeButton';
-import { setSelectedProduct } from '@redux-store/slices/products/productSlice';
-import { useDispatch } from '@/redux-store/hooks';
-import { slugify } from '@/@core/utils/slugify';
 import { CurrencyFormatter } from '@/@core/utils/CurrencyFormatter';
-import { Edit, MapPin } from 'lucide-react';
-import type { SimilarItem } from '@/views/pages/product/types/product';
+import { slugify } from '@/@core/utils/slugify';
+import CustomImage from '@/components/shared/CustomImage';
+import { LikeButton } from '@/components/shared/LikeButton';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useDispatch } from '@/redux-store/hooks';
+import type { SimilarItem } from '@/views/pages/product/types/product';
+import { setSelectedProduct } from '@redux-store/slices/products/productSlice';
+import { Edit, MapPin } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import React from 'react';
+import { AiOutlineCheck } from 'react-icons/ai';
 
 interface ListLayoutProps {
   product: SimilarItem;
@@ -37,14 +37,14 @@ const ListLayout: React.FC<ListLayoutProps> = ({
 
   // Only display location if it contains alphabetic characters.
   const locationDisplay =
-    product.location && /[A-Za-z]/.test(product.location)
-      ? product.location
+    product.item_location && /[A-Za-z]/.test(product.item_location)
+      ? product.item_location
       : null;
 
   // Navigate to product detail on card click.
   const handleCardClick = () => {
     dispatch(setSelectedProduct(product.id as any));
-    router.push(`/prod/${slugify(product.name)}`);
+    router.push(`/prod/${slugify(product.item_name)}`);
   };
 
   // Prevent navigation when clicking the edit button.
@@ -67,7 +67,7 @@ const ListLayout: React.FC<ListLayoutProps> = ({
         <div className="relative w-full sm:w-48 md:w-64 aspect-square sm:aspect-auto sm:h-48 md:h-64">
           <CustomImage
             src={image}
-            alt={product.name}
+            alt={product.item_name}
             fill
             className="object-cover rounded-none"
             containerClassName="rounded-none"
@@ -78,11 +78,11 @@ const ListLayout: React.FC<ListLayoutProps> = ({
         <div className="flex flex-col sm:flex-row justify-between w-full p-4">
           <div className="flex flex-col gap-2">
             <h3 className="font-semibold text-lg capitalize truncate">
-              {product.name}
+              {product.item_name}
             </h3>
-            {product.description && (
+            {product.item_description && (
               <p className="text-sm text-gray-600 line-clamp-3">
-                {product.description}
+                {product.item_description}
               </p>
             )}
             {product.features && (
@@ -105,7 +105,7 @@ const ListLayout: React.FC<ListLayoutProps> = ({
           <div className="flex flex-col items-end justify-end mt-4 sm:mt-0 sm:ml-4">
             <div className="flex flex-col items-baseline gap-1">
               <span className="text-primary_1 text-xl font-bold">
-                <CurrencyFormatter price={Number(product.price)} />
+                {product.item_price ? <CurrencyFormatter price={Number(product.item_price)} /> : 'Price not set'}
               </span>
             </div>
             <div className="flex items-center gap-3 mt-4">

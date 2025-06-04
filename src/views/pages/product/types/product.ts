@@ -37,28 +37,34 @@ export interface Image {
 
 export interface ProductType {
   id: string;
-  name: string;
-  price: string;
-  location: string;
+  name?: string;
+  price?: string;
+  location?: string;
+  status?: string;
+  description?: string;
+  item_name: string;
+  item_price: string;
+  item_location: string;
   item_negotiable: boolean;
-  status: string;
-  description: string;
+  item_status: string;
+  item_description: string;
   subcategory: string;
   category: string;
   images: Image[];
-  seller: SellerType;
-  reviews: any[];
-  similar_items: any[];
-  rating: number;
-  features: string[];
-
-  originalPrice: string;
-  created_at: string;
-  updated_at: string;
+  item_promoted?: boolean;
+  subscription_package?: string;
+  seller?: SellerType;
+  reviews?: any[];
+  similar_items?: any[];
+  rating?: number;
+  features?: string[];
+  originalPrice?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface SimilarItem extends ProductType {
-  image: string;
+  image?: string;
 }
 
 export interface Review {

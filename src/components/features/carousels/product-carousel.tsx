@@ -96,8 +96,8 @@ export function ProductCarousel() {
           {productsData.map((item: any) => {
             // Show location only if it contains at least one alphabetic character.
             const locationDisplay =
-              item.location && /[A-Za-z]/.test(item.location)
-                ? item.location
+              item.item_location && /[A-Za-z]/.test(item.item_location)
+                ? item.item_location
                 : null;
             return (
               <div key={item.id} className="relative flex-[0_0_100%] h-full">
@@ -108,16 +108,16 @@ export function ProductCarousel() {
                         {item.category} • {item.subcategory}
                       </span>
                       <h3 className="text-xl md:text-2xl font-bold text-gray-800">
-                        {item.name}
+                        {item.item_name}
                       </h3>
                     </div>
                     <p className="text-gray-600 mb-4 text-sm md:text-base line-clamp-2">
-                      {item.description}
+                      {item.item_description}
                     </p>
                     <div className="space-y-4">
                       <div className="flex flex-col gap-1">
                         <span className="text-lg md:text-xl font-bold text-primary_1">
-                          {formatCurrency(item.price)}
+                          {formatCurrency(item.item_price)}
                         </span>
                         {locationDisplay && (
                           <span className="text-sm text-gray-500 flex items-center line-clamp-1">
@@ -131,7 +131,7 @@ export function ProductCarousel() {
                           asChild
                           onClick={() => {
                             dispatch(setSelectedProduct(item.id));
-                            router.push(`/prod/${slugify(item.name)}`);
+                            router.push(`/prod/${slugify(item.item_name)}`);
                           }}
                           className="bg-gray-700 cursor-pointer hover:bg-gray-700/90"
                         >
@@ -146,9 +146,9 @@ export function ProductCarousel() {
                     </div>
                   </div>
                   <div className="w-full md:w-1/2 relative bg-gray-100">
-                    <CustomImage
+                  <CustomImage
                       src={item.images[0]?.image_url || '/placeholder.png'}
-                      alt={item.name}
+                      alt={item.item_name}
                       className="h-full w-full object-cover"
                       loading="lazy"
                     />

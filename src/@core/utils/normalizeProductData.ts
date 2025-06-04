@@ -1,38 +1,36 @@
 export interface NormalizedProduct {
   id: number;
-  name: string;
-  price: string | number;
+  item_name: string;
+  item_price: string | number;
   images: {
     id: number;
     image_url: string;
   }[];
-  location?: string;
-  negotiable?: boolean;
-  status?: string;
-  description?: string;
-  category?: string;
-  subcategory?: string;
+  item_location: string;
+  item_negotiable: boolean;
+  item_status: string;
+  item_description: string;
+  category: string;
+  subcategory: string;
   created_at: string;
   updated_at: string;
-  dateAdded: string;
 }
 
 export function normalizeProduct(product: any): NormalizedProduct {
   return {
     id: product.id,
-    name: product.item_name ?? product.name ?? '',
-    price: product.item_price ?? product.price ?? 0,
+    item_name: product.item_name ?? '',
+    item_price: product.item_price ?? '',
     images: (product.images || []).map((img: any) => ({
       id: img.id ?? img.image_id ?? 0,
       image_url: img.image ?? img.image_url ?? '',
     })),
-    location: product.item_location ?? product.location ?? '',
-    negotiable: product.item_negotiable ?? product.negotiable ?? false,
-    status: product.item_status ?? product.status ?? '',
-    description: product.item_description ?? product.description ?? '',
+    item_location: product.item_location ?? '',
+    item_negotiable: product.item_negotiable ?? false,
+    item_status: product.item_status ?? '',
+    item_description: product.item_description ?? '',
     category: product.category ?? '',
     subcategory: product.subcategory ?? '',
-    dateAdded: product.created_at ?? '',
     created_at: product.created_at ?? '',
     updated_at: product.updated_at ?? '',
   };

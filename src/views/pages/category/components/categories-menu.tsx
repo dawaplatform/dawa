@@ -1,8 +1,8 @@
 'use client';
 
 import {
-    ProductCarousel,
-    useHasPremiumItems,
+  ProductCarousel,
+  useHasPremiumItems,
 } from '@/components/features/carousels/product-carousel';
 import { PostAdvertCTA } from '@/components/shared/post-advert-cta';
 import { SafetyTips } from '@/components/shared/safety-tips';
@@ -39,12 +39,14 @@ export function CategoriesMenu() {
           {/* Subcategories and Product Carousel */}
           <div className="relative flex-1 overflow-hidden">
             {/* Product Carousel */}
+            <h1>Premium Section</h1>                  
             <div
               className={cn(
                 'absolute inset-0 transition-opacity duration-300 ease-in-out',
                 isHovering ? 'opacity-0 pointer-events-none' : 'opacity-100',
               )}
             >
+
               <ProductCarousel />
             </div>
           </div>
