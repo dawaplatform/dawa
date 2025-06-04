@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { useTrendingProducts } from '@core/hooks/useProductData';
 import React, { useRef, useState } from 'react';
 import { FaTh, FaThList } from 'react-icons/fa';
+import { SimilarItem } from '../product/types/product';
 
 const ProductPage: React.FC = () => {
   const [viewType, setViewType] = useState<'grid' | 'list'>('grid');
@@ -91,8 +92,8 @@ const ProductPage: React.FC = () => {
             : 'sm:grid-cols-1'
         } gap-3`}
       >
-        {productsData.map((product) => (
-          <CardLayout key={product.id} product={product} />
+        {productsData.map((product: SimilarItem) => (
+          <CardLayout key={product.id} product={product} viewType={viewType} />
         ))}
       </div>
     </div>
