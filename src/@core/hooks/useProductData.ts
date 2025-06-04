@@ -6,6 +6,7 @@ import useSWRInfinite from 'swr/infinite';
 import useSWRMutation from 'swr/mutation';
 
 // API Methods
+import { normalizeProducts } from '@/@core/utils/normalizeProductData';
 import {
   changeUserPassword,
   fetchUserProfile,
@@ -513,8 +514,12 @@ export function usePremiumSectionItems() {
     swrOptions,
   );
 
+  // Always normalize the products before returning
+  const rawProducts = extractProducts(data);
+  const productsData = normalizeProducts(rawProducts);
+
   return {
-    productsData: extractProducts(data),
+    productsData,
     isLoading,
     isError: error,
     mutate,

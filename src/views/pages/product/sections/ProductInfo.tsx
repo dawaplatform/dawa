@@ -1,11 +1,11 @@
 'use client';
 
-import React from 'react';
-import { Badge } from '@/components/ui/badge';
-import { CalendarDays, MapPin, Tag } from 'lucide-react';
 import { CurrencyFormatter } from '@/@core/utils/CurrencyFormatter';
 import { formatDate } from '@/@core/utils/dateFormatter';
+import { Badge } from '@/components/ui/badge';
 import { ProductType } from '@/views/pages/product/types/product';
+import { CalendarDays, MapPin, Tag } from 'lucide-react';
+import React from 'react';
 
 interface ProductInfoProps {
   product: ProductType;
@@ -61,7 +61,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = React.memo(
           {/* Posted Date */}
           <span className="text-sm text-gray-500 flex items-center">
             <CalendarDays className="w-4 h-4 mr-1" />
-            Posted {formatDate(product.created_at)}
+            Posted {formatDate(product.created_at ?? '')}
           </span>
         </div>
       </div>

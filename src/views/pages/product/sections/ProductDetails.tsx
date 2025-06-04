@@ -1,19 +1,19 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
 import { useAuth } from '@/@core/hooks/use-auth';
 import { useDispatch } from '@/redux-store/hooks';
 import { openAuthDialog } from '@/redux-store/slices/authDialog/authDialogSlice';
-import { ProductInfo } from './ProductInfo';
-import { SellerInfo } from './SellerInfo';
-import { ActionButtons } from './ActionButtons';
-import { Sidebar } from './Sidebar';
-import { ProductDialogs } from './ProductDialogs';
 import type { ProductType } from '@/views/pages/product/types/product';
 import { useRouter } from 'next/navigation';
+import React, { useCallback, useState } from 'react';
 import ImageCarousel from '../components/ImageCarousel';
+import { ActionButtons } from './ActionButtons';
+import { ProductDialogs } from './ProductDialogs';
+import { ProductInfo } from './ProductInfo';
 import ProductTabs from './ProductTabs';
+import { SellerInfo } from './SellerInfo';
 import ShareSection from './ShareSection';
+import { Sidebar } from './Sidebar';
 import SimilarProducts from './SimilarProducts';
 
 interface ProductDetailsProps {
@@ -93,11 +93,26 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
               </div>
               {/* Product details section */}
               <div className="space-y-6">
-                <ProductInfo product={product} />
+                <ProductInfo product={{
+                  ...product,
+                  // Fallbacks for fields used in ProductInfo
+                  name: product.name || product.item_name || '',
+                  price: product.price || product.item_price || '0',
+                  location: product.location || product.item_location || '',
+                  status: product.status || product.item_status || '',
+                  created_at: product.created_at || '',
+                }} />
                 <SellerInfo
-                  seller={product.seller}
+                  seller={product.seller ?? {
+                    seller_id: '',
+                    seller_name: 'Unknown Seller',
+                    seller_profile_picture: null,
+                    seller_address: '',
+                    seller_contact: '',
+                    seller_email: '',
+                  }}
                   productId={product.id}
-                  reviews={product.reviews}
+                  reviews={product.reviews ?? []}
                 />
                 <ActionButtons
                   onContact={() => toggleDialog('contact')}
@@ -121,12 +136,15 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
 
             {/* Product tabs and share section */}
             <div className="w-full flex flex-col gap-10">
-              <ShareSection productId={product.id} title={product.name} />
-              <ProductTabs product={product} />
+              <ShareSection productId={product.id} title={product.name || product.item_name || ''} />
+              <ProductTabs product={{
+                ...product,
+                reviews: product.reviews ?? [],
+              }} />
             </div>
 
             {/* Similar Products Section */}
-            <SimilarProducts similarItems={product.similar_items} />
+            <SimilarProducts similarItems={product.similar_items ?? []} />
           </div>
 
           {/* Right column - Desktop Sidebar (only on large screens) */}

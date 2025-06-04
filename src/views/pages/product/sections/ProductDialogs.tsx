@@ -1,10 +1,10 @@
-import React from 'react';
-import ReportAbuseDialog from '@/components/features/dialogs/ReportAbuseDialog';
-import SendMessageDialog from '@/components/features/dialogs/SendMessageDialog';
 import ContactSellerDialog from '@/components/features/dialogs/ContactSellerDialog';
-import SafetyTipsDialog from '@/components/features/dialogs/SafetyTipsDialog';
 import MakeOfferDialog from '@/components/features/dialogs/MakeOfferDialog';
+import ReportAbuseDialog from '@/components/features/dialogs/ReportAbuseDialog';
+import SafetyTipsDialog from '@/components/features/dialogs/SafetyTipsDialog';
+import SendMessageDialog from '@/components/features/dialogs/SendMessageDialog';
 import { ProductType } from '@/views/pages/product/types/product';
+import React from 'react';
 
 const safetyTips = [
   'Always inspect the item before purchasing.',
@@ -36,15 +36,15 @@ export const ProductDialogs: React.FC<ProductDialogsProps> = ({
     <SendMessageDialog
       open={dialogStates.message}
       onOpenChange={() => toggleDialog('message')}
-      receiverId={product.seller.seller_id}
+      receiverId={(product.seller?.seller_id ?? '')}
       itemId={product.id}
     />
     <ContactSellerDialog
       open={dialogStates.contact}
       onOpenChange={() => toggleDialog('contact')}
       sellerContact={{
-        phone: product.seller.seller_contact,
-        email: product.seller.seller_email,
+        phone: product.seller?.seller_contact ?? '',
+        email: product.seller?.seller_email ?? '',
       }}
     />
     <SafetyTipsDialog
@@ -56,9 +56,9 @@ export const ProductDialogs: React.FC<ProductDialogsProps> = ({
     <MakeOfferDialog
       open={dialogStates.makeOffer}
       onOpenChange={() => toggleDialog('makeOffer')}
-      receiverId={product.seller.seller_id}
+      receiverId={product.seller?.seller_id ?? ''}
       itemId={product.id}
-      currentPrice={product.price}
+      currentPrice={product.price ?? product.item_price ?? '0'}
     />
   </>
 );
