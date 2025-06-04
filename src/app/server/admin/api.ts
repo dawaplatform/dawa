@@ -38,6 +38,7 @@ export interface ItemAdminSerializer {
   }>;
   created_at: string;
   updated_at: string;
+  subscription_package?: string | null;
 }
 
 export interface AdminDashboardStatsData {
@@ -147,6 +148,28 @@ export interface DeleteSubcategoryProps {
 export interface UpdateItemPromotedStatusProps {
   item_id: number | string;
   promoted_status: boolean;
+}
+
+// --- SUBSCRIPTION ENDPOINTS ---
+
+export interface UpdateItemSubscriptionProps {
+  item_id?: number | string;
+  subscription_package: string;
+  update_all?: boolean;
+  category_id?: number | string;
+  subcategory_id?: number | string;
+  min_price?: number;
+  max_price?: number;
+}
+
+export interface SubscriptionStatsResponse {
+  total_items: number;
+  approved_items: number;
+  subscription_counts: Record<string, number>;
+  sample_items: Record<string, any[]>;
+  null_package_count: number;
+  empty_package_count: number;
+  status: number;
 }
 
 // --- API FUNCTIONS ---
@@ -845,4 +868,28 @@ export const useDeleteSubcategory = () => {
     isDeleting: isMutating,
     error,
   };
+};
+
+// --- SUBSCRIPTION ENDPOINTS ---
+
+export const updateItemSubscription = async (
+  key: string,
+  { arg }: { arg: UpdateItemSubscriptionProps }
+): Promise<SimpleMessageResponse> => {
+  const response = await secureApiClient.post('/updateitemsubscription/', arg);
+  return response.data;
+};
+
+export const getSubscriptionStats = async (): Promise<SubscriptionStatsResponse> => {
+  const response = await secureApiClient.get('/subscriptionstats/');
+  return response.data;
+};
+
+// SWR hooks
+export const useUpdateItemSubscription = () => {
+  return useSWRMutation('/updateitemsubscription/', updateItemSubscription);
+};
+
+export const useSubscriptionStats = () => {
+  return useSWR('/subscriptionstats/', getSubscriptionStats);
 };

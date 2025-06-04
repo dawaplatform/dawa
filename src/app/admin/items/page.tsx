@@ -1,6 +1,6 @@
 'use client';
 
-import { ItemAdminSerializer, useAdminItems, useUpdateItemApprovalStatus, useUpdateItemPromotedStatus } from '@/app/server/admin/api';
+import { ItemAdminSerializer, useAdminItems, useSubscriptionStats, useUpdateItemApprovalStatus, useUpdateItemPromotedStatus, useUpdateItemSubscription } from '@/app/server/admin/api';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import {
   Table,
@@ -84,6 +85,8 @@ const AdminItemsPage = () => {
   const { items, isLoading, isError, mutate } = useAdminItems();
   const { updateApprovalStatus, isUpdating } = useUpdateItemApprovalStatus();
   const { updatePromotedStatus, isUpdating: isUpdatingPromotion } = useUpdateItemPromotedStatus();
+  const { data: subscriptionStats, isLoading: statsLoading } = useSubscriptionStats();
+  const { trigger: updateItemSubscription, isMutating: isUpdatingSubscription } = useUpdateItemSubscription();
   
   const [selectedItem, setSelectedItem] = useState<ItemAdminSerializer | null>(null);
   const [isApprovalDialogOpen, setIsApprovalDialogOpen] = useState(false);
@@ -95,6 +98,23 @@ const AdminItemsPage = () => {
   // Use our custom hook for promotion status
   const [promotionStatus, updatePromotionStatus] = usePromotionStatus(items);
   
+  // Bulk update state
+  const [bulkPackage, setBulkPackage] = useState('');
+  const [bulkCategory, setBulkCategory] = useState('');
+  const [bulkSubcategory, setBulkSubcategory] = useState('');
+  const [bulkMinPrice, setBulkMinPrice] = useState('');
+  const [bulkMaxPrice, setBulkMaxPrice] = useState('');
+  const [bulkLoading, setBulkLoading] = useState(false);
+
+  const validPackages = [
+    'Starter Package',
+    'Boost 7',
+    'Boost 30',
+    'Essential Plan',
+    'Growth Plan',
+    'Elite Plan',
+  ];
+
   const handleApproveItem = async () => {
     if (!selectedItem) return;
     
@@ -222,6 +242,28 @@ const AdminItemsPage = () => {
     return promotionStatus[item.id] !== undefined ? promotionStatus[item.id] : !!item.item_promoted;
   };
 
+  // Bulk update handler
+  const handleBulkUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBulkLoading(true);
+    try {
+      await updateItemSubscription({
+        update_all: true,
+        subscription_package: bulkPackage,
+        category_id: bulkCategory || undefined,
+        subcategory_id: bulkSubcategory || undefined,
+        min_price: bulkMinPrice ? Number(bulkMinPrice) : undefined,
+        max_price: bulkMaxPrice ? Number(bulkMaxPrice) : undefined,
+      });
+      toast({ title: 'Bulk update successful', description: 'Subscription package updated for matching items.' });
+      setBulkPackage(''); setBulkCategory(''); setBulkSubcategory(''); setBulkMinPrice(''); setBulkMaxPrice('');
+    } catch (error) {
+      toast({ title: 'Bulk update failed', description: 'Could not update subscription package.', variant: 'destructive' });
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -243,6 +285,58 @@ const AdminItemsPage = () => {
     <div>
       <h1 className="text-2xl font-semibold text-slate-800 mb-6">Item Management</h1>
       
+      {/* Subscription Stats */}
+      <div className="mb-6">
+        <h2 className="text-lg font-semibold mb-2">Subscription Stats</h2>
+        {statsLoading ? (
+          <div className="flex items-center"><Loader2 className="h-5 w-5 animate-spin mr-2" /> Loading stats...</div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {validPackages.concat('No Package').map((pkg) => (
+              <div key={pkg} className="bg-white rounded-lg shadow p-4 flex flex-col items-center">
+                <span className="font-semibold text-primary-600 text-center">{pkg}</span>
+                <span className="text-2xl font-bold">{subscriptionStats?.subscription_counts?.[pkg] ?? 0}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Bulk Update Form */}
+      <form onSubmit={handleBulkUpdate} className="bg-white rounded-lg shadow p-4 mb-6 flex flex-col md:flex-row gap-4 items-end">
+        <div className="flex flex-col w-full md:w-1/5">
+          <label className="text-sm font-medium mb-1">Package</label>
+          <Select value={bulkPackage} onValueChange={setBulkPackage} required>
+            <SelectTrigger><SelectValue placeholder="Select package" /></SelectTrigger>
+            <SelectContent>
+              {validPackages.map((pkg) => (
+                <SelectItem key={pkg} value={pkg}>{pkg}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex flex-col w-full md:w-1/5">
+          <label className="text-sm font-medium mb-1">Category ID</label>
+          <input type="text" className="input input-bordered" value={bulkCategory} onChange={e => setBulkCategory(e.target.value)} placeholder="Category ID" />
+        </div>
+        <div className="flex flex-col w-full md:w-1/5">
+          <label className="text-sm font-medium mb-1">Subcategory ID</label>
+          <input type="text" className="input input-bordered" value={bulkSubcategory} onChange={e => setBulkSubcategory(e.target.value)} placeholder="Subcategory ID" />
+        </div>
+        <div className="flex flex-col w-full md:w-1/5">
+          <label className="text-sm font-medium mb-1">Min Price</label>
+          <input type="number" className="input input-bordered" value={bulkMinPrice} onChange={e => setBulkMinPrice(e.target.value)} placeholder="Min Price" />
+        </div>
+        <div className="flex flex-col w-full md:w-1/5">
+          <label className="text-sm font-medium mb-1">Max Price</label>
+          <input type="number" className="input input-bordered" value={bulkMaxPrice} onChange={e => setBulkMaxPrice(e.target.value)} placeholder="Max Price" />
+        </div>
+        <Button type="submit" className="md:ml-4 mt-2 md:mt-0" disabled={bulkLoading || !bulkPackage}>
+          {bulkLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+          Bulk Update
+        </Button>
+      </form>
+
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <Table>
           <TableHeader>
@@ -251,6 +345,7 @@ const AdminItemsPage = () => {
               <TableHead>Price</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Promoted</TableHead>
+              <TableHead>Subscription</TableHead>
               <TableHead>Seller</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -312,6 +407,24 @@ const AdminItemsPage = () => {
                       <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
                     )}
                   </div>
+                </TableCell>
+                <TableCell>
+                  <Select
+                    value={item.subscription_package || ''}
+                    onValueChange={async (pkg) => {
+                      await updateItemSubscription({ item_id: item.id, subscription_package: pkg });
+                      toast({ title: 'Subscription updated', description: `Package set to ${pkg}` });
+                    }}
+                    disabled={isUpdatingSubscription}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Set package" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">No Package</SelectItem>
+                      {validPackages.map((pkg) => (
+                        <SelectItem key={pkg} value={pkg}>{pkg}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </TableCell>
                 <TableCell>
                   Unknown

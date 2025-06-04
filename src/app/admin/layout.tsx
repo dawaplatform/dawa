@@ -1,6 +1,5 @@
 import AdminGuard from '@/@core/hocs/AdminGuard';
 import AdminMobileNav from '@/components/layout/AdminMobileNav';
-import AdminNavbar from '@/components/layout/AdminNavbar';
 import AdminSidebar from '@/components/layout/AdminSidebar';
 import React from 'react';
 
@@ -18,7 +17,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <AdminSidebar />
         </div>
         <div className="flex-1 flex flex-col min-h-screen">
-          <AdminNavbar />
           <main className="flex-grow container mx-auto p-4 sm:p-6 lg:p-8 md:pl-0">
             {/* This is where the content of your individual admin pages will go */}
             {children}
