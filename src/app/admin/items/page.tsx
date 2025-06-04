@@ -22,6 +22,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
+import { useProfile } from '@/contexts/profile-context';
 import { toast } from '@/hooks/use-toast';
 import { CheckCircle, Eye, Loader2, Star, XCircle } from 'lucide-react';
 import Image from 'next/image';
@@ -105,6 +106,8 @@ const AdminItemsPage = () => {
   const [bulkMinPrice, setBulkMinPrice] = useState('');
   const [bulkMaxPrice, setBulkMaxPrice] = useState('');
   const [bulkLoading, setBulkLoading] = useState(false);
+
+  const { userProfile, isLoading: isProfileLoading } = useProfile();
 
   const validPackages = [
     'Starter Package',
@@ -263,6 +266,19 @@ const AdminItemsPage = () => {
       setBulkLoading(false);
     }
   };
+
+  if (isProfileLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
+        <span className="ml-2">Verifying admin access...</span>
+      </div>
+    );
+  }
+  if (!userProfile || userProfile.role !== 'Admin') {
+    // AdminGuard will redirect, but we return null to avoid rendering the page
+    return null;
+  }
 
   if (isLoading) {
     return (
