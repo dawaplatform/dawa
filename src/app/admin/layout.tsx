@@ -3,7 +3,6 @@ import AdminMobileNav from '@/components/layout/AdminMobileNav';
 import AdminSidebar from '@/components/layout/AdminSidebar';
 import React from 'react';
 
-
 interface AdminLayoutProps {
   children: React.ReactNode;
 }
@@ -11,21 +10,23 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <AdminGuard>
-      <div className="flex min-h-screen bg-slate-50">
-        {/* Sidebar for desktop */}
-        <div className="hidden md:block w-64 flex-shrink-0 h-full">
+      <div className="flex min-h-screen bg-gray-50">
+        {/* Sidebar - shown on medium and up */}
+        <aside className="hidden md:block md:w-64 bg-white shadow-lg">
           <AdminSidebar />
-        </div>
-        <div className="flex-1 flex flex-col min-h-screen">
-          <main className="flex-grow container mx-auto p-4 sm:p-6 lg:p-8 md:pl-0">
-            {/* This is where the content of your individual admin pages will go */}
+        </aside>
+
+        {/* Main content area */}
+        <main className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 overflow-y-auto p-4">
             {children}
-          </main>
-          {/* Mobile nav only on mobile */}
-          <div className="md:hidden">
+          </div>
+
+          {/* Mobile nav - only on small screens */}
+          <div className="block md:hidden fixed bottom-0 left-0 right-0 z-50">
             <AdminMobileNav />
           </div>
-        </div>
+        </main>
       </div>
     </AdminGuard>
   );
