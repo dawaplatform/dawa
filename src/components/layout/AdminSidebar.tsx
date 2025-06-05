@@ -15,7 +15,7 @@ const AdminSidebar: React.FC = () => {
   const currentPath = router.pathname;
 
   return (
-    <aside className="h-full bg-white border-r border-slate-200 flex flex-col py-6 px-4">
+    <aside className="sticky top-0 h-screen bg-white border-r border-slate-200 flex flex-col py-6 px-4">
       <div className="mb-8">
         <Link href="/admin" className="text-2xl font-bold text-primary-600 tracking-tight">
           Dawa Admin
