@@ -21,53 +21,28 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 // --- Promotion Status Hook ---
 type PromotionStatusMap = Record<number, boolean>;
+
 const usePromotionStatus = (items: ItemAdminSerializer[] | undefined): [PromotionStatusMap, (itemId: number, status: boolean) => void] => {
   const [promotionStatus, setPromotionStatus] = useState<PromotionStatusMap>({});
   const isInitialized = useRef(false);
 
+  // Initialize from items data instead of localStorage
   useEffect(() => {
-    if (typeof window !== 'undefined' && !isInitialized.current) {
-      try {
-        const savedStatus = localStorage.getItem('itemPromotionStatus');
-        if (savedStatus) setPromotionStatus(JSON.parse(savedStatus));
-        isInitialized.current = true;
-      } catch {
-        isInitialized.current = true;
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    if (items && items.length > 0 && isInitialized.current) {
-      setPromotionStatus(prev => {
-        const newStatus = { ...prev };
-        let updated = false;
-        items.forEach(item => {
-          if (!(item.id in newStatus)) {
-            newStatus[item.id] = !!item.item_promoted;
-            updated = true;
-          }
-        });
-        if (updated && typeof window !== 'undefined') {
-          try {
-            localStorage.setItem('itemPromotionStatus', JSON.stringify(newStatus));
-          } catch {}
-        }
-        return updated ? newStatus : prev;
+    if (items && items.length > 0 && !isInitialized.current) {
+      const initialStatus: PromotionStatusMap = {};
+      items.forEach(item => {
+        initialStatus[item.id] = !!item.item_promoted;
       });
+      setPromotionStatus(initialStatus);
+      isInitialized.current = true;
     }
   }, [items]);
 
   const updateStatus = useCallback((itemId: number, status: boolean) => {
-    setPromotionStatus(prev => {
-      const newStatus = { ...prev, [itemId]: status };
-      if (typeof window !== 'undefined') {
-        try {
-          localStorage.setItem('itemPromotionStatus', JSON.stringify(newStatus));
-        } catch {}
-      }
-      return newStatus;
-    });
+    setPromotionStatus(prev => ({
+      ...prev,
+      [itemId]: status
+    }));
   }, []);
 
   return [promotionStatus, updateStatus];
@@ -108,12 +83,24 @@ export default function AdminItemsPage() {
   const [bulkLoading, setBulkLoading] = useState(false);
 
   const mountedRef = useRef(true);
-  useEffect(() => () => { mountedRef.current = false; }, []);
+  useEffect(() => {
+    return () => { 
+      mountedRef.current = false; 
+    };
+  }, []);
 
   // --- Handlers ---
   const handleBulkUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!bulkPackage) return;
+    if (!bulkPackage) {
+      toast({ 
+        title: 'Package Required', 
+        description: 'Please select a package for bulk update.',
+        variant: 'destructive' 
+      });
+      return;
+    }
+    
     setBulkLoading(true);
     try {
       await updateItemSubscription({
@@ -124,67 +111,117 @@ export default function AdminItemsPage() {
         min_price: bulkMinPrice ? Number(bulkMinPrice) : undefined,
         max_price: bulkMaxPrice ? Number(bulkMaxPrice) : undefined,
       });
+      
       if (mountedRef.current) {
-        toast({ title: 'Bulk update successful', description: 'Subscription package updated for matching items.' });
+        toast({ 
+          title: 'Bulk update successful', 
+          description: 'Subscription package updated for matching items.' 
+        });
         setBulkPackage('');
         setBulkCategory('');
         setBulkSubcategory('');
         setBulkMinPrice('');
         setBulkMaxPrice('');
-        mutate();
+        await mutate(); // Wait for mutation to complete
       }
     } catch (error) {
+      console.error('Bulk update error:', error);
       if (mountedRef.current) {
-        toast({ title: 'Bulk update failed', description: 'Could not update subscription package.', variant: 'destructive' });
+        toast({ 
+          title: 'Bulk update failed', 
+          description: 'Could not update subscription package.', 
+          variant: 'destructive' 
+        });
       }
     } finally {
-      if (mountedRef.current) setBulkLoading(false);
+      if (mountedRef.current) {
+        setBulkLoading(false);
+      }
     }
   };
 
   const handleTogglePromotion = async (item: ItemAdminSerializer, newStatus: boolean) => {
+    if (item.approval_status !== 'Approved') {
+      toast({
+        title: 'Cannot promote',
+        description: 'Only approved items can be promoted.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setPromotingItems(prev => ({ ...prev, [item.id]: true }));
+    
     try {
+      // Optimistically update local state
       updatePromotionStatus(item.id, newStatus);
+      
+      // Update cache optimistically
       if (items) {
-        const updatedItems = items.map(i => i.id === item.id ? { ...i, item_promoted: newStatus } : i);
-        mutate({ data: updatedItems, status: 200 }, false);
+        const updatedItems = items.map(i => 
+          i.id === item.id ? { ...i, item_promoted: newStatus } : i
+        );
+        await mutate({ data: updatedItems, status: 200 }, false);
       }
-      await updatePromotedStatus({ item_id: item.id, promoted_status: newStatus });
+
+      // Make API call
+      await updatePromotedStatus({ 
+        item_id: item.id, 
+        promoted_status: newStatus 
+      });
+
       if (mountedRef.current) {
         toast({
           title: newStatus ? 'Item promoted' : 'Item unpromoted',
           description: `Item "${item.item_name}" has been ${newStatus ? 'promoted' : 'unpromoted'}.`,
         });
-        if (selectedItem && selectedItem.id === item.id) {
+        
+        // Update selected item if it matches
+        if (selectedItem?.id === item.id) {
           setSelectedItem({ ...selectedItem, item_promoted: newStatus });
         }
       }
     } catch (error) {
+      console.error('Promotion toggle error:', error);
       if (mountedRef.current) {
+        // Revert optimistic update
         updatePromotionStatus(item.id, !newStatus);
         toast({
           title: 'Error',
           description: `Failed to ${newStatus ? 'promote' : 'unpromote'} item. Please try again.`,
           variant: 'destructive',
         });
-        mutate();
+        await mutate(); // Refresh data from server
       }
     } finally {
-      if (mountedRef.current) setPromotingItems(prev => ({ ...prev, [item.id]: false }));
+      if (mountedRef.current) {
+        setPromotingItems(prev => ({ ...prev, [item.id]: false }));
+      }
     }
   };
 
   const handleSubscriptionChange = async (itemId: number, packageName: string) => {
     try {
-      await updateItemSubscription({ item_id: itemId, subscription_package: packageName });
+      await updateItemSubscription({ 
+        item_id: itemId, 
+        subscription_package: packageName || '' // Handle empty string
+      });
+      
       if (mountedRef.current) {
-        toast({ title: 'Subscription updated', description: `Package set to ${packageName || 'No Package'}` });
-        mutate();
+        toast({ 
+          title: 'Subscription updated', 
+          description: `Package set to ${packageName || 'No Package'}` 
+        });
+        await mutate(); // Refresh data
       }
     } catch (error) {
+      console.error('Subscription update error:', error);
       if (mountedRef.current) {
-        toast({ title: 'Error', description: 'Failed to update subscription package.', variant: 'destructive' });
+        toast({ 
+          title: 'Error', 
+          description: 'Failed to update subscription package.', 
+          variant: 'destructive' 
+        });
       }
     }
   };
@@ -198,6 +235,7 @@ export default function AdminItemsPage() {
       </div>
     );
   }
+
   if (isError) {
     return (
       <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md shadow">
@@ -205,6 +243,7 @@ export default function AdminItemsPage() {
       </div>
     );
   }
+
   if (!items || items.length === 0) {
     return (
       <div className="text-center py-8">
@@ -231,7 +270,9 @@ export default function AdminItemsPage() {
             {validPackages.concat('No Package').map((pkg) => (
               <div key={pkg} className="bg-white rounded-xl shadow p-4 flex flex-col items-center border border-slate-100">
                 <span className="font-semibold text-[#ffa200] text-center">{pkg}</span>
-                <span className="text-2xl font-bold">{subscriptionStats?.subscription_counts?.[pkg] ?? 0}</span>
+                <span className="text-2xl font-bold">
+                  {subscriptionStats?.subscription_counts?.[pkg] ?? 0}
+                </span>
               </div>
             ))}
           </div>
@@ -258,21 +299,49 @@ export default function AdminItemsPage() {
         </div>
         <div className="flex flex-col w-full md:w-1/5">
           <label className="text-sm font-medium mb-1">Category ID</label>
-          <Input type="text" value={bulkCategory} onChange={e => setBulkCategory(e.target.value)} placeholder="Category ID" />
+          <Input 
+            type="text" 
+            value={bulkCategory} 
+            onChange={e => setBulkCategory(e.target.value)} 
+            placeholder="Category ID" 
+          />
         </div>
         <div className="flex flex-col w-full md:w-1/5">
           <label className="text-sm font-medium mb-1">Subcategory ID</label>
-          <Input type="text" value={bulkSubcategory} onChange={e => setBulkSubcategory(e.target.value)} placeholder="Subcategory ID" />
+          <Input 
+            type="text" 
+            value={bulkSubcategory} 
+            onChange={e => setBulkSubcategory(e.target.value)} 
+            placeholder="Subcategory ID" 
+          />
         </div>
         <div className="flex flex-col w-full md:w-1/5">
           <label className="text-sm font-medium mb-1">Min Price</label>
-          <Input type="number" value={bulkMinPrice} onChange={e => setBulkMinPrice(e.target.value)} placeholder="Min Price" min="0" step="0.01" />
+          <Input 
+            type="number" 
+            value={bulkMinPrice} 
+            onChange={e => setBulkMinPrice(e.target.value)} 
+            placeholder="Min Price" 
+            min="0" 
+            step="0.01" 
+          />
         </div>
         <div className="flex flex-col w-full md:w-1/5">
           <label className="text-sm font-medium mb-1">Max Price</label>
-          <Input type="number" value={bulkMaxPrice} onChange={e => setBulkMaxPrice(e.target.value)} placeholder="Max Price" min="0" step="0.01" />
+          <Input 
+            type="number" 
+            value={bulkMaxPrice} 
+            onChange={e => setBulkMaxPrice(e.target.value)} 
+            placeholder="Max Price" 
+            min="0" 
+            step="0.01" 
+          />
         </div>
-        <Button type="submit" className="md:ml-4 mt-2 md:mt-0 w-full md:w-auto" disabled={bulkLoading || !bulkPackage}>
+        <Button 
+          type="submit" 
+          className="md:ml-4 mt-2 md:mt-0 w-full md:w-auto" 
+          disabled={bulkLoading || !bulkPackage}
+        >
           {bulkLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
           Bulk Update
         </Button>
@@ -305,6 +374,11 @@ export default function AdminItemsPage() {
                           fill
                           className="object-cover"
                           sizes="40px"
+                          onError={(e) => {
+                            // Handle image load errors
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                          }}
                         />
                       </div>
                     ) : (
@@ -313,12 +387,15 @@ export default function AdminItemsPage() {
                       </div>
                     )}
                     <div>
-                      <p className="truncate max-w-[120px] md:max-w-[200px]">{item.item_name}</p>
+                      <p className="truncate max-w-[120px] md:max-w-[200px]">
+                        {item.item_name || 'Unnamed Item'}
+                      </p>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell>
-                  {item.item_price ? Number(item.item_price).toFixed(2) : '0.00'} <span className="text-xs text-slate-400">SHS</span>
+                  {item.item_price ? Number(item.item_price).toFixed(2) : '0.00'}{' '}
+                  <span className="text-xs text-slate-400">SHS</span>
                 </TableCell>
                 <TableCell>
                   <Badge
@@ -330,7 +407,7 @@ export default function AdminItemsPage() {
                         : 'outline'
                     }
                   >
-                    {item.approval_status}
+                    {item.approval_status || 'Pending'}
                   </Badge>
                 </TableCell>
                 <TableCell>
@@ -341,13 +418,22 @@ export default function AdminItemsPage() {
                       </div>
                     ) : (
                       <Switch
-                        checked={promotionStatus[item.id] !== undefined ? promotionStatus[item.id] : !!item.item_promoted}
+                        checked={
+                          promotionStatus[item.id] !== undefined 
+                            ? promotionStatus[item.id] 
+                            : !!item.item_promoted
+                        }
                         onCheckedChange={(checked) => handleTogglePromotion(item, checked)}
-                        disabled={promotingItems[item.id] || item.approval_status !== 'Approved'}
-                        aria-label={`${promotionStatus[item.id] ? 'Unpromote' : 'Promote'} ${item.item_name}`}
+                        disabled={
+                          promotingItems[item.id] || 
+                          item.approval_status !== 'Approved'
+                        }
+                        aria-label={`${
+                          promotionStatus[item.id] ? 'Unpromote' : 'Promote'
+                        } ${item.item_name}`}
                       />
                     )}
-                    {promotionStatus[item.id] && (
+                    {(promotionStatus[item.id] || item.item_promoted) && (
                       <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
                     )}
                   </div>
@@ -370,7 +456,6 @@ export default function AdminItemsPage() {
                   </Select>
                 </TableCell>
                 <TableCell>
-                  {/* TODO: Replace with seller info if available */}
                   <span className="text-slate-400">Unknown</span>
                 </TableCell>
                 <TableCell className="text-right">
@@ -420,9 +505,6 @@ export default function AdminItemsPage() {
           </TableBody>
         </Table>
       </div>
-
-      {/* Dialogs: Approve, Reject, Details (as before, but with more padding, rounded corners, and color) */}
-      {/* ...reuse previous dialog code, but add px-4 py-6, rounded-xl, and responsive widths... */}
     </div>
   );
 }
