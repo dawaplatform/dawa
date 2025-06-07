@@ -10,10 +10,18 @@ import {
 } from '@/app/server/admin/api';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { CheckCircle, Eye, Loader2, Star, XCircle } from 'lucide-react';
 import Image from 'next/image';
@@ -200,30 +208,206 @@ export default function AdminItemsPage() {
     }
   };
 
-  const handleSubscriptionChange = async (itemId: number, packageName: string) => {
+  const handleApproval = async (itemId: number) => {
     try {
-      await updateItemSubscription({ 
-        item_id: itemId, 
-        subscription_package: packageName || '' // Handle empty string
+      await updateApprovalStatus({
+        item_id: itemId,
+        approval_status: 'Approved'
       });
       
       if (mountedRef.current) {
-        toast({ 
-          title: 'Subscription updated', 
-          description: `Package set to ${packageName || 'No Package'}` 
+        toast({
+          title: 'Item approved',
+          description: 'The item has been approved successfully.'
         });
-        await mutate(); // Refresh data
+        await mutate();
+        setIsApprovalDialogOpen(false);
+      }
+    } catch (error) {
+      console.error('Approval error:', error);
+      if (mountedRef.current) {
+        toast({
+          title: 'Error',
+          description: 'Failed to approve item. Please try again.',
+          variant: 'destructive'
+        });
+      }
+    }
+  };
+
+  const handleRejection = async (itemId: number) => {
+    if (!rejectionReason.trim()) {
+      toast({
+        title: 'Reason required',
+        description: 'Please provide a reason for rejection.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    try {
+      await updateApprovalStatus({
+        item_id: itemId,
+        approval_status: 'Rejected',
+        rejection_reason: rejectionReason
+      });
+      
+      if (mountedRef.current) {
+        toast({
+          title: 'Item rejected',
+          description: 'The item has been rejected successfully.'
+        });
+        await mutate();
+        setIsRejectionDialogOpen(false);
+        setRejectionReason('');
+      }
+    } catch (error) {
+      console.error('Rejection error:', error);
+      if (mountedRef.current) {
+        toast({
+          title: 'Error',
+          description: 'Failed to reject item. Please try again.',
+          variant: 'destructive'
+        });
+      }
+    }
+  };
+
+  const handleSubscriptionChange = async (itemId: number, packageName: string) => {
+    try {
+      await updateItemSubscription({
+        item_id: itemId,
+        subscription_package: packageName === 'none' ? '' : packageName
+      });
+      
+      if (mountedRef.current) {
+        toast({
+          title: 'Subscription updated',
+          description: `Package set to ${packageName === 'none' ? 'No Package' : packageName}`
+        });
+        await mutate();
       }
     } catch (error) {
       console.error('Subscription update error:', error);
       if (mountedRef.current) {
-        toast({ 
-          title: 'Error', 
-          description: 'Failed to update subscription package.', 
-          variant: 'destructive' 
+        toast({
+          title: 'Error',
+          description: 'Failed to update subscription package.',
+          variant: 'destructive'
         });
       }
     }
+  };
+
+  // --- Item Details Dialog ---
+  const ItemDetailsDialog = () => {
+    if (!selectedItem) return null;
+
+    return (
+      <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">Item Details</DialogTitle>
+          </DialogHeader>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+            {/* Images Section */}
+            <div className="space-y-4">
+              <h3 className="font-semibold text-lg">Images</h3>
+              <div className="grid grid-cols-2 gap-4">
+                {selectedItem.images && selectedItem.images.length > 0 ? (
+                  selectedItem.images.map((img, index) => (
+                    <div key={img.id} className="aspect-square relative rounded-lg overflow-hidden bg-slate-100">
+                      <Image
+                        src={img.image.replace('.heic', '.jpg')}
+                        alt={`${selectedItem.item_name} - Image ${index + 1}`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 50vw, 33vw"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const parent = target.parentElement;
+                          if (parent) {
+                            parent.classList.add('bg-slate-100');
+                            parent.innerHTML = '<span class="text-slate-400 text-xs">No img</span>';
+                          }
+                        }}
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <div className="col-span-2 aspect-square rounded-lg bg-slate-100 flex items-center justify-center">
+                    <span className="text-slate-400">No images available</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Details Section */}
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-semibold text-lg mb-2">Basic Information</h3>
+                <div className="space-y-2">
+                  <p><span className="font-medium">Name:</span> {selectedItem.item_name}</p>
+                  <p><span className="font-medium">Price:</span> {Number(selectedItem.item_price).toFixed(2)} SHS</p>
+                  <p><span className="font-medium">Location:</span> {selectedItem.item_location}</p>
+                  <p><span className="font-medium">Negotiable:</span> {selectedItem.item_negotiable ? 'Yes' : 'No'}</p>
+                  <p><span className="font-medium">Status:</span> {selectedItem.item_status}</p>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-lg mb-2">Categories</h3>
+                <div className="space-y-2">
+                  <p><span className="font-medium">Category:</span> {selectedItem.category}</p>
+                  <p><span className="font-medium">Subcategory:</span> {selectedItem.subcategory}</p>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-lg mb-2">Approval Status</h3>
+                <div className="space-y-2">
+                  <p>
+                    <span className="font-medium">Status:</span>{' '}
+                    <Badge
+                      variant={
+                        selectedItem.approval_status === 'Approved'
+                          ? 'default'
+                          : selectedItem.approval_status === 'Rejected'
+                          ? 'destructive'
+                          : 'outline'
+                      }
+                    >
+                      {selectedItem.approval_status || 'Pending'}
+                    </Badge>
+                  </p>
+                  {selectedItem.approval_status === 'Rejected' && selectedItem.rejection_reason && (
+                    <p><span className="font-medium">Rejection Reason:</span> {selectedItem.rejection_reason}</p>
+                  )}
+                  {selectedItem.approved_by && (
+                    <p><span className="font-medium">Approved By:</span> {selectedItem.approved_by}</p>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-lg mb-2">Description</h3>
+                <p className="text-slate-600 whitespace-pre-wrap">{selectedItem.item_description}</p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-lg mb-2">Timestamps</h3>
+                <div className="space-y-2">
+                  <p><span className="font-medium">Created:</span> {new Date(selectedItem.created_at).toLocaleString()}</p>
+                  <p><span className="font-medium">Updated:</span> {new Date(selectedItem.updated_at).toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
   };
 
   // --- UI States ---
@@ -357,7 +541,6 @@ export default function AdminItemsPage() {
               <TableHead>Status</TableHead>
               <TableHead>Promoted</TableHead>
               <TableHead>Subscription</TableHead>
-              <TableHead>Seller</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -369,15 +552,19 @@ export default function AdminItemsPage() {
                     {item.images && item.images.length > 0 ? (
                       <div className="h-10 w-10 rounded-md overflow-hidden bg-slate-100 relative">
                         <Image
-                          src={item.images[0].image}
+                          src={item.images[0].image.replace('.heic', '.jpg')}
                           alt={item.item_name || 'Item image'}
                           fill
                           className="object-cover"
                           sizes="40px"
                           onError={(e) => {
-                            // Handle image load errors
                             const target = e.target as HTMLImageElement;
                             target.style.display = 'none';
+                            const parent = target.parentElement;
+                            if (parent) {
+                              parent.classList.add('bg-slate-100');
+                              parent.innerHTML = '<span class="text-slate-400 text-xs">No img</span>';
+                            }
                           }}
                         />
                       </div>
@@ -448,15 +635,12 @@ export default function AdminItemsPage() {
                       <SelectValue placeholder="Set package" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">No Package</SelectItem>
+                      <SelectItem value="none">No Package</SelectItem>
                       {validPackages.map((pkg) => (
                         <SelectItem key={pkg} value={pkg}>{pkg}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                </TableCell>
-                <TableCell>
-                  <span className="text-slate-400">Unknown</span>
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex flex-col md:flex-row gap-2 justify-end">
@@ -505,6 +689,198 @@ export default function AdminItemsPage() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Item Details Dialog */}
+      {selectedItem && (
+        <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold">Item Details</DialogTitle>
+            </DialogHeader>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+              {/* Images Section */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg">Images</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {selectedItem.images && selectedItem.images.length > 0 ? (
+                    selectedItem.images.map((img, index) => (
+                      <div key={img.id} className="aspect-square relative rounded-lg overflow-hidden bg-slate-100">
+                        <Image
+                          src={img.image.replace('.heic', '.jpg')}
+                          alt={`${selectedItem.item_name} - Image ${index + 1}`}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 50vw, 33vw"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const parent = target.parentElement;
+                            if (parent) {
+                              parent.classList.add('bg-slate-100');
+                              parent.innerHTML = '<span class="text-slate-400 text-xs">No img</span>';
+                            }
+                          }}
+                        />
+                      </div>
+                    ))
+                  ) : (
+                    <div className="col-span-2 aspect-square rounded-lg bg-slate-100 flex items-center justify-center">
+                      <span className="text-slate-400">No images available</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Details Section */}
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-semibold text-lg mb-2">Basic Information</h3>
+                  <div className="space-y-2">
+                    <p><span className="font-medium">Name:</span> {selectedItem.item_name}</p>
+                    <p><span className="font-medium">Price:</span> {Number(selectedItem.item_price).toFixed(2)} SHS</p>
+                    <p><span className="font-medium">Location:</span> {selectedItem.item_location}</p>
+                    <p><span className="font-medium">Negotiable:</span> {selectedItem.item_negotiable ? 'Yes' : 'No'}</p>
+                    <p><span className="font-medium">Status:</span> {selectedItem.item_status}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-lg mb-2">Categories</h3>
+                  <div className="space-y-2">
+                    <p><span className="font-medium">Category:</span> {selectedItem.category}</p>
+                    <p><span className="font-medium">Subcategory:</span> {selectedItem.subcategory}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-lg mb-2">Approval Status</h3>
+                  <div className="space-y-2">
+                    <p>
+                      <span className="font-medium">Status:</span>{' '}
+                      <Badge
+                        variant={
+                          selectedItem.approval_status === 'Approved'
+                            ? 'default'
+                            : selectedItem.approval_status === 'Rejected'
+                            ? 'destructive'
+                            : 'outline'
+                        }
+                      >
+                        {selectedItem.approval_status || 'Pending'}
+                      </Badge>
+                    </p>
+                    {selectedItem.approval_status === 'Rejected' && selectedItem.rejection_reason && (
+                      <p><span className="font-medium">Rejection Reason:</span> {selectedItem.rejection_reason}</p>
+                    )}
+                    {selectedItem.approved_by && (
+                      <p><span className="font-medium">Approved By:</span> {selectedItem.approved_by}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-lg mb-2">Description</h3>
+                  <p className="text-slate-600 whitespace-pre-wrap">{selectedItem.item_description}</p>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-lg mb-2">Timestamps</h3>
+                  <div className="space-y-2">
+                    <p><span className="font-medium">Created:</span> {new Date(selectedItem.created_at).toLocaleString()}</p>
+                    <p><span className="font-medium">Updated:</span> {new Date(selectedItem.updated_at).toLocaleString()}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Approval Dialog */}
+      {selectedItem && (
+        <Dialog open={isApprovalDialogOpen} onOpenChange={setIsApprovalDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Approve Item</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to approve this item? This will make it visible to all users.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-end gap-2 mt-4">
+              <Button
+                variant="outline"
+                onClick={() => setIsApprovalDialogOpen(false)}
+                disabled={isUpdating}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => handleApproval(selectedItem.id)}
+                disabled={isUpdating}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                {isUpdating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Approving...
+                  </>
+                ) : (
+                  'Approve'
+                )}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Rejection Dialog */}
+      {selectedItem && (
+        <Dialog open={isRejectionDialogOpen} onOpenChange={setIsRejectionDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Reject Item</DialogTitle>
+              <DialogDescription>
+                Please provide a reason for rejecting this item.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="mt-4">
+              <Textarea
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                placeholder="Enter rejection reason..."
+                className="min-h-[100px]"
+              />
+            </div>
+            <div className="flex justify-end gap-2 mt-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsRejectionDialogOpen(false);
+                  setRejectionReason('');
+                }}
+                disabled={isUpdating}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => handleRejection(selectedItem.id)}
+                disabled={isUpdating || !rejectionReason.trim()}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                {isUpdating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Rejecting...
+                  </>
+                ) : (
+                  'Reject'
+                )}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
