@@ -75,9 +75,9 @@ export const ShopContent: React.FC<ShopContentProps> = ({
 
   const filteredItems = shopData.items.item_details.filter((item) => {
     const matchesPrice =
-      item.price >= appliedPriceRange[0] && item.price <= appliedPriceRange[1];
+      Number(item.item_price) >= appliedPriceRange[0] && Number(item.item_price) <= appliedPriceRange[1];
     const matchesLocation = appliedLocation
-      ? item.location === appliedLocation
+      ? item.item_location === appliedLocation
       : true;
     const matchesColor =
       appliedSelectedColors.length === 0 ||
@@ -90,9 +90,9 @@ export const ShopContent: React.FC<ShopContentProps> = ({
   const sortedItems = [...filteredItems].sort((a, b) => {
     switch (filterOption) {
       case 'price_low_to_high':
-        return a.price - b.price;
+        return Number(a.item_price) - Number(b.item_price);
       case 'price_high_to_low':
-        return b.price - a.price;
+        return Number(b.item_price) - Number(a.item_price);
       default:
         return 0;
     }
