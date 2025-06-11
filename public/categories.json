@@ -2,12 +2,12 @@
   {
     "id": 1,
     "category_name": "Vehicles",
-    "category_item_count": 0,
+    "category_item_count": 2,
     "subcategories": [
       {
         "id": 1,
         "subcategory_name": "Cars",
-        "subcategory_item_count": 0
+        "subcategory_item_count": 2
       },
       {
         "id": 2,
@@ -150,7 +150,7 @@
   {
     "id": 5,
     "category_name": "Home, Appliances & Furniture",
-    "category_item_count": 0,
+    "category_item_count": 2,
     "subcategories": [
       {
         "id": 25,
@@ -170,7 +170,7 @@
       {
         "id": 28,
         "subcategory_name": "Home Accessories",
-        "subcategory_item_count": 0
+        "subcategory_item_count": 2
       },
       {
         "id": 29,

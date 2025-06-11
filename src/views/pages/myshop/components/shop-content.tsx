@@ -1,14 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
-import CardLayout from '@/components/features/listings/CardLayout';
-import type { ShopData, FilterOption } from '../types/types';
-import type { SimilarItem } from '@/views/pages/product/types/product';
-import ProductFilter from '@/components/features/filters/ProductFilter';
 import FiltersAndSorting from '@/components/features/filters/FiltersAndSorting';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import ProductFilter from '@/components/features/filters/ProductFilter';
+import CardLayout from '@/components/features/listings/CardLayout';
 import { EditAdvertSheet } from '@/components/shared/edit-advert-sheet'; // adjust the path as needed
 import CustomizableNoData from '@/components/shared/no-data';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import type { SimilarItem } from '@/views/pages/product/types/product';
+import React, { useState } from 'react';
+import type { FilterOption, ShopData } from '../types/types';
 
 interface ShopContentProps {
   shopData: ShopData;
@@ -41,7 +41,7 @@ const transformItemToSimilarItem = (item: any): SimilarItem => {
     similar_items: item.similar_items || [],
     rating: item.rating ?? 0,
     features: item.features || [],
-    originalPrice: item.originalPrice || item.price,
+    originalPrice: item.originalPrice || item.item_price,
   };
 };
 

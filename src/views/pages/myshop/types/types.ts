@@ -13,11 +13,11 @@ export interface UserProfile {
 
 export interface Item {
   id: number;
-  price: number;
-  location: string;
+  item_price: number;
+  item_location: string;
   color?: string;
-  name: string;
-  description: string;
+  item_name: string;
+  item_description: string;
   category: string;
   subcategory: string;
   images: { image_url: string }[];
