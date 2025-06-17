@@ -14,7 +14,9 @@ export interface UserProfile {
 export interface Item {
   id: number;
   item_price: number;
+  price: number;
   item_location: string;
+  location: string;
   color?: string;
   item_name: string;
   item_description: string;

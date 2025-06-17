@@ -1,16 +1,16 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { useShopData } from '@core/hooks/useProductData';
+import { useAuth } from '@/@core/hooks/use-auth';
+import CustomizableNoData from '@/components/shared/no-data';
+import { OopsComponent } from '@/components/shared/oops-component';
 import { useDispatch, useSelector } from '@/redux-store/hooks';
 import { setSelectedUserId } from '@/redux-store/slices/myshop/selectedUserSlice';
-import { ShopHeader } from './components/shop-header';
+import { useShopData } from '@core/hooks/useProductData';
+import { useEffect, useMemo, useState } from 'react';
 import { ShopContent } from './components/shop-content';
+import { ShopHeader } from './components/shop-header';
 import { ShopSkeleton } from './components/shop-skeleton';
 import type { FilterOption } from './types/types';
-import { useAuth } from '@/@core/hooks/use-auth';
-import { OopsComponent } from '@/components/shared/oops-component';
-import CustomizableNoData from '@/components/shared/no-data';
 
 const MyShop: React.FC = () => {
   const { user } = useAuth();

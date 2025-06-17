@@ -2,12 +2,12 @@
   {
     "id": 1,
     "category_name": "Vehicles",
-    "category_item_count": 2,
+    "category_item_count": 1,
     "subcategories": [
       {
         "id": 1,
         "subcategory_name": "Cars",
-        "subcategory_item_count": 2
+        "subcategory_item_count": 1
       },
       {
         "id": 2,

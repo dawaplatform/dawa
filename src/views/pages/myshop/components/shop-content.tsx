@@ -35,13 +35,18 @@ interface ShopContentProps {
 const transformItemToSimilarItem = (item: any): SimilarItem => {
   return {
     ...item,
+    item_name: item.name || item.item_name || 'No Name',
+    item_price: item.price || item.item_price || 0,
+    item_location: item.location || item.item_location || 'No Location',
+    item_status: item.status || item.item_status || 'No Status',
+    item_description: item.description || item.item_description || 'No Description',
     images: item.images || [{ image_url: '/placeholder.jpg' }],
     seller: item.seller || {},
     reviews: item.reviews ?? 0,
     similar_items: item.similar_items || [],
     rating: item.rating ?? 0,
     features: item.features || [],
-    originalPrice: item.originalPrice || item.item_price,
+    originalPrice: item.originalPrice || item.item_price || item.price || 0,
   };
 };
 
@@ -74,10 +79,12 @@ export const ShopContent: React.FC<ShopContentProps> = ({
   };
 
   const filteredItems = shopData.items.item_details.filter((item) => {
+    const price = Number(item.item_price ?? item.price ?? 0);
     const matchesPrice =
-      Number(item.item_price) >= appliedPriceRange[0] && Number(item.item_price) <= appliedPriceRange[1];
+      price >= appliedPriceRange[0] && price <= appliedPriceRange[1];
+    const location = item.item_location || item.location || '';
     const matchesLocation = appliedLocation
-      ? item.item_location === appliedLocation
+      ? location === appliedLocation
       : true;
     const matchesColor =
       appliedSelectedColors.length === 0 ||
@@ -97,6 +104,16 @@ export const ShopContent: React.FC<ShopContentProps> = ({
         return 0;
     }
   });
+
+  // DEBUG: Log filtering
+  if (typeof window !== 'undefined') {
+    console.log('RAW ITEMS:', shopData.items.item_details);
+    console.log('FILTERED ITEMS:', filteredItems);
+    console.log('appliedPriceRange:', appliedPriceRange);
+    console.log('appliedLocation:', appliedLocation);
+    console.log('appliedSelectedColors:', appliedSelectedColors);
+    console.log('selectedCategory:', selectedCategory);
+  }
 
   return (
     <>
