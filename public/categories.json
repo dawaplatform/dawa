@@ -315,7 +315,7 @@
   {
     "id": 10,
     "category_name": "Services",
-    "category_item_count": 1,
+    "category_item_count": 2,
     "subcategories": [
       {
         "id": 51,
@@ -350,7 +350,7 @@
       {
         "id": 92,
         "subcategory_name": "Restaurants and Food",
-        "subcategory_item_count": 0
+        "subcategory_item_count": 1
       }
     ]
   },
