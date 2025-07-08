@@ -1,25 +1,26 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
 import { PencilIcon } from 'lucide-react';
+import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import * as yup from 'yup';
 
-import InputField from '@/components/shared/InputField';
+import { useAuth } from '@/@core/hooks/use-auth';
 import CategorySelect from '@/components/shared/CategorySelect';
-import ImageUpload from './components/ImageUpload';
+import InputField from '@/components/shared/InputField';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAddNewProduct } from '@core/hooks/useProductData';
-import { locations } from '@/data/locations';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { selectCategories } from '@redux-store/slices/categories/categories';
+import { Textarea } from '@/components/ui/textarea';
+import { locations } from '@/data/locations';
 import { useSelector } from '@/redux-store/hooks';
-import { mutate } from 'swr';
+import { useAddNewProduct } from '@core/hooks/useProductData';
+import { selectCategories } from '@redux-store/slices/categories/categories';
 import { toast } from 'sonner';
+import { mutate } from 'swr';
+import ImageUpload from './components/ImageUpload';
 
 /** -------------------------------
  *  Define Types & Validation
@@ -67,6 +68,7 @@ export default function PostAdPage() {
   const categories = useSelector(selectCategories);
   const { addProduct, isAdding, error } = useAddNewProduct();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const { user } = useAuth();
 
   /** --------------------------------
    *   Step Control
@@ -120,10 +122,31 @@ export default function PostAdPage() {
       const res = await addProduct(formData as any);
 
       if (res.status === 201) {
+        // Send pending approval email
+        if (user?.email && user?.name) {
+          try {
+            await fetch('/api/send-email/pending-approval', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                user_name: user.name,
+                user_email: user.email,
+                item_name: data.item_name,
+              }),
+            });
+          } catch (emailError) {
+            console.error('Failed to send pending approval email:', emailError);
+            // Optionally, show a non-blocking toast message
+            toast.error('Could not send submission confirmation email.');
+          }
+        }
+
         reset();
         // Show success message and reset form
-        toast.success('Your ad has been posted successfully!');
-        setSuccessMessage('Your ad has been posted successfully!');
+        toast.success('Your ad has been posted successfully and is pending approval!');
+        setSuccessMessage('Your ad has been posted successfully and is pending approval!');
         setTimeout(() => setSuccessMessage(null), 5000);
         setCurrentStep(1);
 

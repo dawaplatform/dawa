@@ -97,6 +97,65 @@ export default function AdminItemsPage() {
     };
   }, []);
 
+  // --- Email Sender ---
+  const sendStatusEmail = async (
+    item: ItemAdminSerializer, 
+    status: 'Approved' | 'Rejected', 
+    rejection_reason?: string
+  ) => {
+    if (!item.seller) {
+      // Silently fail, or show a non-blocking toast
+      toast({
+        title: 'Could not send email',
+        description: 'Seller information is not available.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    // Assuming format "Seller Name (seller@email.com)"
+    const emailMatch = item.seller.match(/\(([^)]+)\)/);
+    const sellerEmail = emailMatch ? emailMatch[1] : null;
+    const sellerName = item.seller.split('(')[0].trim();
+
+    if (!sellerEmail) {
+      toast({
+        title: 'Could not send email',
+        description: 'Seller email could not be parsed.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/send-email/item-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          seller_email: sellerEmail,
+          seller_name: sellerName || 'Valued Seller',
+          item_name: item.item_name,
+          status: status,
+          rejection_reason: rejection_reason,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send status email');
+      }
+      toast({
+        title: 'Notification Sent',
+        description: `An email has been sent to the seller.`,
+      });
+    } catch (error) {
+      toast({
+        title: 'Email Failed',
+        description: 'Could not send notification email to the seller.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   // --- Handlers ---
   const handleBulkUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,7 +192,6 @@ export default function AdminItemsPage() {
         await mutate(); // Wait for mutation to complete
       }
     } catch (error) {
-      console.error('Bulk update error:', error);
       if (mountedRef.current) {
         toast({ 
           title: 'Bulk update failed', 
@@ -190,7 +248,6 @@ export default function AdminItemsPage() {
         }
       }
     } catch (error) {
-      console.error('Promotion toggle error:', error);
       if (mountedRef.current) {
         // Revert optimistic update
         updatePromotionStatus(item.id, !newStatus);
@@ -215,23 +272,22 @@ export default function AdminItemsPage() {
         approval_status: 'Approved'
       });
       
-      if (mountedRef.current) {
-        toast({
-          title: 'Item approved',
-          description: 'The item has been approved successfully.'
-        });
-        await mutate();
-        setIsApprovalDialogOpen(false);
+      toast({
+        title: 'Item approved',
+        description: 'The item has been approved successfully.'
+      });
+      // Send email after successful approval
+      if (selectedItem) {
+        await sendStatusEmail(selectedItem, 'Approved');
       }
+      await mutate();
+      setIsApprovalDialogOpen(false);
     } catch (error) {
-      console.error('Approval error:', error);
-      if (mountedRef.current) {
-        toast({
-          title: 'Error',
-          description: 'Failed to approve item. Please try again.',
-          variant: 'destructive'
-        });
-      }
+      toast({
+        title: 'Error',
+        description: 'Failed to approve item. Please try again.',
+        variant: 'destructive'
+      });
     }
   };
 
@@ -252,24 +308,23 @@ export default function AdminItemsPage() {
         rejection_reason: rejectionReason
       });
       
-      if (mountedRef.current) {
-        toast({
-          title: 'Item rejected',
-          description: 'The item has been rejected successfully.'
-        });
-        await mutate();
-        setIsRejectionDialogOpen(false);
-        setRejectionReason('');
+      toast({
+        title: 'Item rejected',
+        description: 'The item has been rejected successfully.'
+      });
+      // Send email after successful rejection
+      if (selectedItem) {
+        await sendStatusEmail(selectedItem, 'Rejected', rejectionReason);
       }
+      await mutate();
+      setIsRejectionDialogOpen(false);
+      setRejectionReason('');
     } catch (error) {
-      console.error('Rejection error:', error);
-      if (mountedRef.current) {
-        toast({
-          title: 'Error',
-          description: 'Failed to reject item. Please try again.',
-          variant: 'destructive'
-        });
-      }
+      toast({
+        title: 'Error',
+        description: 'Failed to reject item. Please try again.',
+        variant: 'destructive'
+      });
     }
   };
 
@@ -287,8 +342,7 @@ export default function AdminItemsPage() {
         });
         await mutate();
       }
-    } catch (error) {
-      console.error('Subscription update error:', error);
+    } catch (error) { 
       if (mountedRef.current) {
         toast({
           title: 'Error',

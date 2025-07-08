@@ -20,6 +20,7 @@ export interface UserAdminView {
 
 export interface ItemAdminSerializer {
   id: number;
+  seller: string | null;
   item_name: string;
   item_price: number;
   item_location: string;

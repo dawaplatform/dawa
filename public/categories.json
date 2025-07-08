@@ -187,7 +187,7 @@
   {
     "id": 6,
     "category_name": "Health & Beauty",
-    "category_item_count": 3,
+    "category_item_count": 4,
     "subcategories": [
       {
         "id": 31,
@@ -217,7 +217,7 @@
       {
         "id": 36,
         "subcategory_name": "Other Health & Beauty",
-        "subcategory_item_count": 0
+        "subcategory_item_count": 1
       }
     ]
   },
