@@ -41,8 +41,13 @@ import {
 } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
-import { Loader2, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Loader2, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
+
+type ExtraField = {
+  name: string;
+  required: boolean;
+};
 
 const AdminCategoriesPage = () => {
   // State for categories
@@ -58,6 +63,9 @@ const AdminCategoriesPage = () => {
     Record<number, boolean>
   >({});
 
+  // State for extra fields in Add Category dialog and Subcategory dialogs
+  const [extraFields, setExtraFields] = useState<ExtraField[]>([]);
+
   // State for subcategories
   const [isAddSubcategoryDialogOpen, setIsAddSubcategoryDialogOpen] = useState(false);
   const [isEditSubcategoryDialogOpen, setIsEditSubcategoryDialogOpen] = useState(false);
@@ -71,25 +79,25 @@ const AdminCategoriesPage = () => {
   );
 
   // SWR hooks for categories
-  const { 
-    categories, 
-    isLoading: isCategoriesLoading, 
+  const {
+    categories,
+    isLoading: isCategoriesLoading,
     isError: isCategoriesError,
-    mutate: mutateCategories 
+    mutate: mutateCategories
   } = useAdminCategories();
-  
+
   const { addCategory, isAdding: isAddingCategory } = useAddCategory();
   const { updateCategory, isUpdating: isUpdatingCategory } = useUpdateCategory();
   const { deleteCategory, isDeleting: isDeletingCategory } = useDeleteCategory();
 
   // SWR hooks for subcategories
-  const { 
-    subcategories, 
-    isLoading: isSubcategoriesLoading, 
+  const {
+    subcategories,
+    isLoading: isSubcategoriesLoading,
     isError: isSubcategoriesError,
-    mutate: mutateSubcategories 
+    mutate: mutateSubcategories
   } = useAdminSubcategories();
-  
+
   const { addSubcategory, isAdding: isAddingSubcategory } = useAddSubcategory();
   const { updateSubcategory, isUpdating: isUpdatingSubcategory } = useUpdateSubcategory();
   const { deleteSubcategory, isDeleting: isDeletingSubcategory } = useDeleteSubcategory();
@@ -107,15 +115,16 @@ const AdminCategoriesPage = () => {
 
     try {
       await addCategory({
-        category_name: newCategoryName.trim(),
+        category_name: newCategoryName.trim()
       });
-      
+
       toast({
         title: 'Success',
         description: 'Category added successfully.',
       });
-      
+
       setNewCategoryName('');
+      setExtraFields([]);
       setIsAddCategoryDialogOpen(false);
       mutateCategories();
     } catch (error) {
@@ -142,12 +151,12 @@ const AdminCategoriesPage = () => {
         category_id: selectedCategory.id,
         category_name: newCategoryName.trim(),
       });
-      
+
       toast({
         title: 'Success',
         description: 'Category updated successfully.',
       });
-      
+
       setNewCategoryName('');
       setIsEditCategoryDialogOpen(false);
       mutateCategories();
@@ -167,12 +176,12 @@ const AdminCategoriesPage = () => {
       await deleteCategory({
         category_id: selectedCategory.id,
       });
-      
+
       toast({
         title: 'Success',
         description: 'Category deleted successfully.',
       });
-      
+
       setIsDeleteCategoryDialogOpen(false);
       mutateCategories();
       mutateSubcategories(); // Also refresh subcategories as they might be affected
@@ -215,17 +224,30 @@ const AdminCategoriesPage = () => {
     }
 
     try {
+      // Validate extra fields: no empty names
+      for (const field of extraFields) {
+        if (!field.name.trim()) {
+          toast({
+            title: 'Error',
+            description: 'All extra field names are required.',
+            variant: 'destructive',
+          });
+          return;
+        }
+      }
       await addSubcategory({
         subcategory_name: newSubcategoryName.trim(),
         category_id: selectedCategoryId,
+        metadata: extraFields
       });
-      
+
       toast({
         title: 'Success',
         description: 'Subcategory added successfully.',
       });
-      
+
       setNewSubcategoryName('');
+      setExtraFields([]);
       setIsAddSubcategoryDialogOpen(false);
       mutateSubcategories();
       mutateCategories(); // Also refresh categories to update subcategory counts
@@ -248,22 +270,35 @@ const AdminCategoriesPage = () => {
       return;
     }
 
+    for (const field of extraFields) {
+      if (!field.name.trim()) {
+        toast({
+          title: 'Error',
+          description: 'All extra field names are required.',
+          variant: 'destructive',
+        });
+        return;
+      }
+    }
+
     try {
       await updateSubcategory({
         subcategory_id: selectedSubcategory.id,
         subcategory_name: newSubcategoryName.trim(),
         category_id: selectedCategoryId || undefined,
+        metadata: extraFields,
       });
-      
+
       toast({
         title: 'Success',
         description: 'Subcategory updated successfully.',
       });
-      
+
       setNewSubcategoryName('');
+      setExtraFields([]);
       setIsEditSubcategoryDialogOpen(false);
       mutateSubcategories();
-      mutateCategories(); // Also refresh categories if subcategory was moved
+      mutateCategories();
     } catch (error) {
       toast({
         title: 'Error',
@@ -280,15 +315,15 @@ const AdminCategoriesPage = () => {
       await deleteSubcategory({
         subcategory_id: selectedSubcategory.id,
       });
-      
+
       toast({
         title: 'Success',
         description: 'Subcategory deleted successfully.',
       });
-      
+
       setIsDeleteSubcategoryDialogOpen(false);
       mutateSubcategories();
-      mutateCategories(); // Also refresh categories to update subcategory counts
+      mutateCategories();
     } catch (error) {
       toast({
         title: 'Error',
@@ -300,6 +335,7 @@ const AdminCategoriesPage = () => {
 
   const openAddSubcategoryDialog = () => {
     setSelectedCategoryId(categories[0]?.id || null);
+    setExtraFields([]);
     setIsAddSubcategoryDialogOpen(true);
   };
 
@@ -307,6 +343,8 @@ const AdminCategoriesPage = () => {
     setSelectedSubcategory(subcategory);
     setNewSubcategoryName(subcategory.subcategory_name);
     setSelectedCategoryId(subcategory.category.id);
+    // If subcategory.metadata exists, use it, else empty array
+    setExtraFields(Array.isArray(subcategory.metadata) ? subcategory.metadata : []);
     setIsEditSubcategoryDialogOpen(true);
   };
 
@@ -332,16 +370,40 @@ const AdminCategoriesPage = () => {
     );
   }
 
+  const handleAddExtraField = () => {
+    setExtraFields((prev) => [...prev, { name: '', required: false }]);
+  };
+
+  const handleRemoveExtraField = (idx: number) => {
+    setExtraFields((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleExtraFieldNameChange = (idx: number, value: string) => {
+    setExtraFields((prev) =>
+      prev.map((field, i) =>
+        i === idx ? { ...field, name: value } : field
+      )
+    );
+  };
+
+  const handleExtraFieldRequiredChange = (idx: number, value: boolean) => {
+    setExtraFields((prev) =>
+      prev.map((field, i) =>
+        i === idx ? { ...field, required: value } : field
+      )
+    );
+  };
+
   return (
     <div>
       <h1 className="text-2xl font-semibold text-slate-800 mb-6">Category Management</h1>
-      
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="categories">Categories</TabsTrigger>
           <TabsTrigger value="subcategories">Subcategories</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="categories">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-medium">Categories</h2>
@@ -350,7 +412,7 @@ const AdminCategoriesPage = () => {
               Add Category
             </Button>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <Table>
               <TableHeader>
@@ -409,11 +471,11 @@ const AdminCategoriesPage = () => {
             </Table>
           </div>
         </TabsContent>
-        
+
         <TabsContent value="subcategories">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-medium">Subcategories</h2>
-            <Button 
+            <Button
               onClick={openAddSubcategoryDialog}
               disabled={categories.length === 0}
             >
@@ -421,7 +483,7 @@ const AdminCategoriesPage = () => {
               Add Subcategory
             </Button>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <Table>
               <TableHeader>
@@ -481,9 +543,14 @@ const AdminCategoriesPage = () => {
           </div>
         </TabsContent>
       </Tabs>
-      
+
       {/* Add Category Dialog */}
-      <Dialog open={isAddCategoryDialogOpen} onOpenChange={setIsAddCategoryDialogOpen}>
+      <Dialog open={isAddCategoryDialogOpen} onOpenChange={(open) => {
+        setIsAddCategoryDialogOpen(open);
+        if (!open) {
+          setExtraFields([]);
+        }
+      }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add Category</DialogTitle>
@@ -491,22 +558,27 @@ const AdminCategoriesPage = () => {
               Create a new category for your items.
             </DialogDescription>
           </DialogHeader>
-          
-          <div className="py-4">
-            <Label htmlFor="categoryName">Category Name</Label>
-            <Input
-              id="categoryName"
-              value={newCategoryName}
-              onChange={(e) => setNewCategoryName(e.target.value)}
-              placeholder="Enter category name"
-              className="mt-1"
-            />
+
+          <div className="py-4 space-y-6">
+            <div>
+              <Label htmlFor="categoryName">Category Name</Label>
+              <Input
+                id="categoryName"
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                placeholder="Enter category name"
+                className="mt-1"
+              />
+            </div>
           </div>
-          
+
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setIsAddCategoryDialogOpen(false)}
+              onClick={() => {
+                setIsAddCategoryDialogOpen(false);
+                setExtraFields([]);
+              }}
               disabled={isAddingCategory}
             >
               Cancel
@@ -518,7 +590,7 @@ const AdminCategoriesPage = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      
+
       {/* Edit Category Dialog */}
       <Dialog open={isEditCategoryDialogOpen} onOpenChange={setIsEditCategoryDialogOpen}>
         <DialogContent>
@@ -528,7 +600,7 @@ const AdminCategoriesPage = () => {
               Update the category name.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="py-4">
             <Label htmlFor="editCategoryName">Category Name</Label>
             <Input
@@ -539,7 +611,7 @@ const AdminCategoriesPage = () => {
               className="mt-1"
             />
           </div>
-          
+
           <DialogFooter>
             <Button
               variant="outline"
@@ -555,7 +627,7 @@ const AdminCategoriesPage = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      
+
       {/* Delete Category Dialog */}
       <Dialog open={isDeleteCategoryDialogOpen} onOpenChange={setIsDeleteCategoryDialogOpen}>
         <DialogContent>
@@ -566,7 +638,7 @@ const AdminCategoriesPage = () => {
               This will also delete all associated subcategories and may affect items.
             </DialogDescription>
           </DialogHeader>
-          
+
           <DialogFooter>
             <Button
               variant="outline"
@@ -575,9 +647,9 @@ const AdminCategoriesPage = () => {
             >
               Cancel
             </Button>
-            <Button 
-              variant="destructive" 
-              onClick={handleDeleteCategory} 
+            <Button
+              variant="destructive"
+              onClick={handleDeleteCategory}
               disabled={isDeletingCategory}
             >
               {isDeletingCategory && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
@@ -586,7 +658,7 @@ const AdminCategoriesPage = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      
+
       {/* Add Subcategory Dialog */}
       <Dialog open={isAddSubcategoryDialogOpen} onOpenChange={setIsAddSubcategoryDialogOpen}>
         <DialogContent>
@@ -596,7 +668,7 @@ const AdminCategoriesPage = () => {
               Create a new subcategory for your items.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4">
             <div>
               <Label htmlFor="subcategoryName">Subcategory Name</Label>
@@ -608,11 +680,11 @@ const AdminCategoriesPage = () => {
                 className="mt-1"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="categorySelect">Parent Category</Label>
-              <Select 
-                value={selectedCategoryId?.toString()} 
+              <Select
+                value={selectedCategoryId?.toString()}
                 onValueChange={(value) => setSelectedCategoryId(Number(value))}
               >
                 <SelectTrigger id="categorySelect" className="mt-1">
@@ -627,8 +699,56 @@ const AdminCategoriesPage = () => {
                 </SelectContent>
               </Select>
             </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label>Extra Fields</Label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={handleAddExtraField}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Field
+                </Button>
+              </div>
+              {extraFields.length === 0 && (
+                <div className="text-sm text-slate-400">No extra fields. Click "Add Field" to add.</div>
+              )}
+              <div className="space-y-3">
+                {extraFields.map((field, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <Input
+                      value={field.name}
+                      onChange={e => handleExtraFieldNameChange(idx, e.target.value)}
+                      placeholder="Field name (e.g. Mileage)"
+                      className="flex-1"
+                    />
+                    <label className="flex items-center gap-1 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={field.required}
+                        onChange={e => handleExtraFieldRequiredChange(idx, e.target.checked)}
+                        className="accent-primary-600"
+                      />
+                      Required
+                    </label>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => handleRemoveExtraField(idx)}
+                      aria-label="Remove field"
+                    >
+                      <X className="h-4 w-4 text-red-500" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-          
+
           <DialogFooter>
             <Button
               variant="outline"
@@ -644,7 +764,7 @@ const AdminCategoriesPage = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      
+
       {/* Edit Subcategory Dialog */}
       <Dialog open={isEditSubcategoryDialogOpen} onOpenChange={setIsEditSubcategoryDialogOpen}>
         <DialogContent>
@@ -654,7 +774,7 @@ const AdminCategoriesPage = () => {
               Update the subcategory details.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4">
             <div>
               <Label htmlFor="editSubcategoryName">Subcategory Name</Label>
@@ -666,11 +786,11 @@ const AdminCategoriesPage = () => {
                 className="mt-1"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="editCategorySelect">Parent Category</Label>
-              <Select 
-                value={selectedCategoryId?.toString()} 
+              <Select
+                value={selectedCategoryId?.toString()}
                 onValueChange={(value) => setSelectedCategoryId(Number(value))}
               >
                 <SelectTrigger id="editCategorySelect" className="mt-1">
@@ -685,8 +805,56 @@ const AdminCategoriesPage = () => {
                 </SelectContent>
               </Select>
             </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label>Extra Fields</Label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={handleAddExtraField}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Field
+                </Button>
+              </div>
+              {extraFields.length === 0 && (
+                <div className="text-sm text-slate-400">No extra fields. Click "Add Field" to add.</div>
+              )}
+              <div className="space-y-3">
+                {extraFields.map((field, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <Input
+                      value={field.name}
+                      onChange={e => handleExtraFieldNameChange(idx, e.target.value)}
+                      placeholder="Field name (e.g. Mileage)"
+                      className="flex-1"
+                    />
+                    <label className="flex items-center gap-1 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={field.required}
+                        onChange={e => handleExtraFieldRequiredChange(idx, e.target.checked)}
+                        className="accent-primary-600"
+                      />
+                      Required
+                    </label>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => handleRemoveExtraField(idx)}
+                      aria-label="Remove field"
+                    >
+                      <X className="h-4 w-4 text-red-500" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-          
+
           <DialogFooter>
             <Button
               variant="outline"
@@ -702,7 +870,7 @@ const AdminCategoriesPage = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      
+
       {/* Delete Subcategory Dialog */}
       <Dialog open={isDeleteSubcategoryDialogOpen} onOpenChange={setIsDeleteSubcategoryDialogOpen}>
         <DialogContent>
@@ -713,7 +881,7 @@ const AdminCategoriesPage = () => {
               This may affect items assigned to this subcategory.
             </DialogDescription>
           </DialogHeader>
-          
+
           <DialogFooter>
             <Button
               variant="outline"
@@ -722,9 +890,9 @@ const AdminCategoriesPage = () => {
             >
               Cancel
             </Button>
-            <Button 
-              variant="destructive" 
-              onClick={handleDeleteSubcategory} 
+            <Button
+              variant="destructive"
+              onClick={handleDeleteSubcategory}
               disabled={isDeletingSubcategory}
             >
               {isDeletingSubcategory && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}

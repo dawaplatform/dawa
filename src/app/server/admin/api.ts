@@ -113,6 +113,7 @@ export interface SubcategoryData {
     id: number;
     category_name: string;
   };
+  metadata: any
   item_count?: number;
   created_at: string;
   updated_at?: string;
@@ -134,11 +135,13 @@ export interface DeleteCategoryProps {
 export interface AddSubcategoryProps {
   subcategory_name: string;
   category_id: number | string;
+  metadata?: any
 }
 
 export interface UpdateSubcategoryProps {
   subcategory_id: number | string;
   subcategory_name: string;
+  metadata?: any
   category_id?: number | string;
 }
 
@@ -199,7 +202,7 @@ export const getItemDetailsAdmin = async (itemId: number | string): Promise<ApiR
     if (!itemId) {
       throw new Error('Item ID is required');
     }
-    
+
     const response = await secureApiClient.get('/getitemdetailsadmin/', {
       params: { item_id: itemId },
     });
@@ -222,15 +225,15 @@ export const updateItemApprovalStatus = async (
     if (!arg.item_id) {
       throw new Error('Item ID is required');
     }
-    
+
     if (!arg.approval_status || !['Approved', 'Rejected'].includes(arg.approval_status)) {
       throw new Error("Valid approval_status ('Approved' or 'Rejected') is required");
     }
-    
+
     if (arg.approval_status === 'Rejected' && !arg.rejection_reason) {
       throw new Error('Rejection reason is required when rejecting an item');
     }
-    
+
     const response = await secureApiClient.post('/updateitemapprovalstatus/', arg);
     return response.data;
   } catch (error) {
@@ -265,11 +268,11 @@ export const changeUserRoleAdmin = async (
     if (!arg.user_id) {
       throw new Error('User ID is required');
     }
-    
+
     if (!arg.role || !['Client', 'Vendor', 'Admin'].includes(arg.role)) {
       throw new Error("Valid role ('Client', 'Vendor', or 'Admin') is required");
     }
-    
+
     const response = await secureApiClient.post('/changeuserroleadmin/', arg);
     return response.data;
   } catch (error) {
@@ -290,7 +293,7 @@ export const deleteUserAdmin = async (
     if (!arg.user_id) {
       throw new Error('User ID is required');
     }
-    
+
     const response = await secureApiClient.delete('/deleteuseradmin/', { data: arg });
     return response.data;
   } catch (error) {
@@ -311,26 +314,26 @@ export const updateUserAdmin = async (
     if (!arg.user_id) {
       throw new Error('User ID is required');
     }
-    
+
     // Handle file upload if profile_picture is a File
     if (arg.profile_picture instanceof File) {
       const formData = new FormData();
       formData.append('user_id', String(arg.user_id));
       formData.append('profile_picture', arg.profile_picture);
-      
+
       // Add other fields to formData
       Object.entries(arg).forEach(([key, value]) => {
         if (key !== 'user_id' && key !== 'profile_picture' && value !== undefined) {
           formData.append(key, String(value));
         }
       });
-      
+
       const response = await secureApiClient.patch('/updateuseradmin/', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       return response.data;
     }
-    
+
     const response = await secureApiClient.patch('/updateuseradmin/', arg);
     return response.data;
   } catch (error) {
@@ -365,11 +368,11 @@ export const updateItemPromotedStatus = async (
     if (!arg.item_id) {
       throw new Error('Item ID is required');
     }
-    
+
     if (arg.promoted_status === undefined) {
       throw new Error('Promoted status is required');
     }
-    
+
     const response = await secureApiClient.post('/updateItemPromotedStatus/', arg);
     return response.data;
   } catch (error) {
@@ -386,10 +389,10 @@ export const updateItemPromotedStatus = async (
  */
 export const useAdminItems = () => {
   const { data, error, isLoading, mutate } = useSWR<ApiResponse<ItemAdminSerializer[]>>(
-    '/getallitemsadmin/', 
+    '/getallitemsadmin/',
     getAllItemsAdmin
   );
-  
+
   return {
     items: data?.data || [],
     isLoading,
@@ -408,7 +411,7 @@ export const useAdminItemDetails = (itemId: number | string | null) => {
     itemId ? ['/getitemdetailsadmin/', itemId] : null,
     itemId ? () => getItemDetailsAdmin(itemId) : null
   );
-  
+
   return {
     item: data?.data,
     isLoading,
@@ -428,7 +431,7 @@ export const useUpdateItemApprovalStatus = () => {
     string,
     UpdateItemApprovalStatusProps
   >('/updateitemapprovalstatus/', (url, { arg }) => updateItemApprovalStatus({ arg }));
-  
+
   return {
     updateApprovalStatus: trigger,
     isUpdating: isMutating,
@@ -442,10 +445,10 @@ export const useUpdateItemApprovalStatus = () => {
  */
 export const useAdminUsers = () => {
   const { data, error, isLoading, mutate } = useSWR<ApiResponse<UserAdminView[]>>(
-    '/getallusersadmin/', 
+    '/getallusersadmin/',
     getAllUsersAdmin
   );
-  
+
   return {
     users: data?.data || [],
     isLoading,
@@ -465,7 +468,7 @@ export const useChangeUserRole = () => {
     string,
     ChangeUserRoleProps
   >('/changeuserroleadmin/', (url, { arg }) => changeUserRoleAdmin({ arg }));
-  
+
   return {
     changeRole: trigger,
     isChangingRole: isMutating,
@@ -484,7 +487,7 @@ export const useDeleteUser = () => {
     string,
     DeleteUserProps
   >('/deleteuseradmin/', (url, { arg }) => deleteUserAdmin({ arg }));
-  
+
   return {
     deleteUser: trigger,
     isDeleting: isMutating,
@@ -503,7 +506,7 @@ export const useUpdateUser = () => {
     string,
     UpdateUserAdminProps
   >('/updateuseradmin/', (url, { arg }) => updateUserAdmin({ arg }));
-  
+
   return {
     updateUser: trigger,
     isUpdating: isMutating,
@@ -517,10 +520,10 @@ export const useUpdateUser = () => {
  */
 export const useAdminDashboardStats = () => {
   const { data, error, isLoading, mutate } = useSWR<AdminDashboardStatsData>(
-    '/admindashboardstats/', 
+    '/admindashboardstats/',
     getAdminDashboardStats
   );
-  
+
   return {
     stats: data,
     isLoading,
@@ -540,7 +543,7 @@ export const useUpdateItemPromotedStatus = () => {
     string,
     UpdateItemPromotedStatusProps
   >('/updateItemPromotedStatus/', (url, { arg }) => updateItemPromotedStatus({ arg }));
-  
+
   return {
     updatePromotedStatus: trigger,
     isUpdating: isMutating,
@@ -576,7 +579,7 @@ export const addCategoryAdmin = async (
     if (!arg.category_name?.trim()) {
       throw new Error('Category name is required');
     }
-    
+
     const response = await secureApiClient.post('/categoryAdminAdd/', arg);
     return response.data;
   } catch (error) {
@@ -597,11 +600,11 @@ export const updateCategoryAdmin = async (
     if (!arg.category_id) {
       throw new Error('Category ID is required');
     }
-    
+
     if (!arg.category_name?.trim()) {
       throw new Error('Category name is required');
     }
-    
+
     const response = await secureApiClient.put('/categoryAdminUpdate/', arg);
     return response.data;
   } catch (error) {
@@ -622,7 +625,7 @@ export const deleteCategoryAdmin = async (
     if (!arg.category_id) {
       throw new Error('Category ID is required');
     }
-    
+
     const response = await secureApiClient.delete('/categoryAdminDelete/', { data: arg });
     return response.data;
   } catch (error) {
@@ -659,11 +662,11 @@ export const addSubcategoryAdmin = async (
     if (!arg.subcategory_name?.trim()) {
       throw new Error('Subcategory name is required');
     }
-    
+
     if (!arg.category_id) {
       throw new Error('Category ID is required');
     }
-    
+
     const response = await secureApiClient.post('/subcategoryAdminAdd/', arg);
     return response.data;
   } catch (error) {
@@ -684,11 +687,11 @@ export const updateSubcategoryAdmin = async (
     if (!arg.subcategory_id) {
       throw new Error('Subcategory ID is required');
     }
-    
+
     if (!arg.subcategory_name?.trim()) {
       throw new Error('Subcategory name is required');
     }
-    
+
     const response = await secureApiClient.put('/subcategoryAdminUpdate/', arg);
     return response.data;
   } catch (error) {
@@ -709,7 +712,7 @@ export const deleteSubcategoryAdmin = async (
     if (!arg.subcategory_id) {
       throw new Error('Subcategory ID is required');
     }
-    
+
     const response = await secureApiClient.delete('/subcategoryAdminDelete/', { data: arg });
     return response.data;
   } catch (error) {
@@ -726,10 +729,10 @@ export const deleteSubcategoryAdmin = async (
  */
 export const useAdminCategories = () => {
   const { data, error, isLoading, mutate } = useSWR<ApiResponse<CategoryData[]>>(
-    '/categoryAdminGetAll/', 
+    '/categoryAdminGetAll/',
     getAllCategoriesAdmin
   );
-  
+
   return {
     categories: data?.data || [],
     isLoading,
@@ -749,7 +752,7 @@ export const useAddCategory = () => {
     string,
     AddCategoryProps
   >('/categoryAdminAdd/', (url, { arg }) => addCategoryAdmin({ arg }));
-  
+
   return {
     addCategory: trigger,
     isAdding: isMutating,
@@ -768,7 +771,7 @@ export const useUpdateCategory = () => {
     string,
     UpdateCategoryProps
   >('/categoryAdminUpdate/', (url, { arg }) => updateCategoryAdmin({ arg }));
-  
+
   return {
     updateCategory: trigger,
     isUpdating: isMutating,
@@ -787,7 +790,7 @@ export const useDeleteCategory = () => {
     string,
     DeleteCategoryProps
   >('/categoryAdminDelete/', (url, { arg }) => deleteCategoryAdmin({ arg }));
-  
+
   return {
     deleteCategory: trigger,
     isDeleting: isMutating,
@@ -805,7 +808,7 @@ export const useAdminSubcategories = (categoryId?: number | string) => {
     categoryId ? ['/subcategoryAdminGetAll/', categoryId] : '/subcategoryAdminGetAll/',
     () => getAllSubcategoriesAdmin(categoryId)
   );
-  
+
   return {
     subcategories: data?.data || [],
     isLoading,
@@ -825,7 +828,7 @@ export const useAddSubcategory = () => {
     string,
     AddSubcategoryProps
   >('/subcategoryAdminAdd/', (url, { arg }) => addSubcategoryAdmin({ arg }));
-  
+
   return {
     addSubcategory: trigger,
     isAdding: isMutating,
@@ -844,7 +847,7 @@ export const useUpdateSubcategory = () => {
     string,
     UpdateSubcategoryProps
   >('/subcategoryAdminUpdate/', (url, { arg }) => updateSubcategoryAdmin({ arg }));
-  
+
   return {
     updateSubcategory: trigger,
     isUpdating: isMutating,
@@ -863,7 +866,7 @@ export const useDeleteSubcategory = () => {
     string,
     DeleteSubcategoryProps
   >('/subcategoryAdminDelete/', (url, { arg }) => deleteSubcategoryAdmin({ arg }));
-  
+
   return {
     deleteSubcategory: trigger,
     isDeleting: isMutating,
