@@ -5,6 +5,7 @@ export interface Subcategory {
   icon: React.ElementType;
   href: string;
   subcategory_name: string;
+  metadata: any
 }
 
 export interface Category {

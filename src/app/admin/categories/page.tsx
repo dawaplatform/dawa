@@ -205,13 +205,6 @@ const AdminCategoriesPage = () => {
     setIsDeleteCategoryDialogOpen(true);
   };
 
-  const toggleCategoryExpansion = (categoryId: number) => {
-    setExpandedCategories(prev => ({
-      ...prev,
-      [categoryId]: !prev[categoryId]
-    }));
-  };
-
   // Subcategory handlers
   const handleAddSubcategory = async () => {
     if (!newSubcategoryName.trim() || !selectedCategoryId) {

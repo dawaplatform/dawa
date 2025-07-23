@@ -2,8 +2,8 @@
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import { PencilIcon } from 'lucide-react';
-import { useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useEffect, useMemo, useState } from 'react';
+import { Controller, FieldErrors, Resolver, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 
 import { useAuth } from '@/@core/hooks/use-auth';
@@ -26,7 +26,16 @@ import ImageUpload from './components/ImageUpload';
  *  Define Types & Validation
  *  -------------------------------
  */
-type FormValues = {
+export type MetadataField = {
+  name: string;
+  required: boolean;
+};
+
+export type DynamicMeta = {
+  [key: `meta_${string}`]: string;
+};
+
+export interface FormValues extends DynamicMeta {
   item_subcategory_id: string; // Step 1
   location: string; // Step 1
   images: File[]; // Step 1
@@ -35,14 +44,40 @@ type FormValues = {
   item_price: number; // Step 2
   item_description: string; // Step 2
   negotiation: boolean; // Step 2
+}
+
+type Category = {
+  id: string | number;
+  subcategories?: Subcategory[];
 };
 
-const schema = yup
-  .object({
-    // Step 1 Fields
-    item_subcategory_id: yup
-      .string()
-      .required('Category selection is required'),
+type Subcategory = {
+  id: string | number;
+  metadata?: MetadataField[];
+};
+
+function getSubcategoryMetadata(
+  categories: Category[],
+  subcategoryId: string
+): MetadataField[] {
+  for (const category of categories) {
+    if (category.subcategories) {
+      for (const sub of category.subcategories) {
+        if (String(sub.id) === String(subcategoryId)) {
+          if (Array.isArray(sub.metadata)) {
+            return sub.metadata;
+          }
+        }
+      }
+    }
+  }
+  return [];
+}
+
+function buildSchema(metadataFields: MetadataField[]) {
+  // Step 1 fields
+  const shape: Record<string, yup.AnySchema> = {
+    item_subcategory_id: yup.string().required('Category selection is required'),
     location: yup.string().required('Location is required'),
     images: yup
       .array()
@@ -50,8 +85,7 @@ const schema = yup
       .min(1, 'Please upload at least one image')
       .max(5, 'You can upload up to 5 images')
       .required(),
-
-    // Step 2 Fields
+    // Step 2 fields
     item_name: yup.string().required('Item name is required'),
     item_price: yup
       .number()
@@ -61,11 +95,23 @@ const schema = yup
     negotiation: yup
       .boolean()
       .required('Please indicate if negotiation is open'),
-  })
-  .required();
+  };
+
+  // Add dynamic metadata fields
+  for (const meta of metadataFields) {
+    const key = `meta_${meta.name}`;
+    if (meta.required) {
+      shape[key] = yup.string().required(`${meta.name} is required`);
+    } else {
+      shape[key] = yup.string().notRequired();
+    }
+  }
+
+  return yup.object().shape(shape).required();
+}
 
 export default function PostAdPage() {
-  const categories = useSelector(selectCategories);
+  const categories = useSelector(selectCategories) as Category[];
   const { addProduct, isAdding, error } = useAddNewProduct();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const { user } = useAuth();
@@ -77,18 +123,29 @@ export default function PostAdPage() {
   const [currentStep, setCurrentStep] = useState<1 | 2>(1);
 
   /** --------------------------------
+   *   Metadata State
+   *  --------------------------------
+   */
+  const [metadataFields, setMetadataFields] = useState<MetadataField[]>([]);
+
+  /** --------------------------------
    *   React Hook Form Setup
    *  --------------------------------
    */
+  // We need to update the schema dynamically based on metadataFields
+  const schema = useMemo(() => buildSchema(metadataFields), [metadataFields]);
+
   const {
     register,
     handleSubmit,
     control,
     trigger,
     reset,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schema) as unknown as Resolver<FormValues>,
     mode: 'onChange',
     defaultValues: {
       item_subcategory_id: '',
@@ -100,6 +157,25 @@ export default function PostAdPage() {
       negotiation: false,
     },
   });
+
+  // Watch subcategory selection to update metadata fields
+  const selectedSubcategoryId = watch('item_subcategory_id');
+
+  useEffect(() => {
+    if (selectedSubcategoryId && categories && typeof categories === 'object') {
+      const meta = getSubcategoryMetadata(categories, selectedSubcategoryId);
+      setMetadataFields(meta || []);
+      // Optionally, clear previous meta fields if subcategory changes
+      if (meta && meta.length > 0) {
+        for (const m of meta) {
+          setValue(`meta_${m.name}` as keyof FormValues, '');
+        }
+      }
+    } else {
+      setMetadataFields([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSubcategoryId, categories, setValue]);
 
   /** --------------------------------
    *   Submit Handler (Final, Step 2)
@@ -119,9 +195,18 @@ export default function PostAdPage() {
       );
       data.images.forEach((image) => formData.append('images', image));
 
+      const metadataObj: Record<string, string> = {};
+      for (const meta of metadataFields) {
+        const key = `meta_${meta.name}` as keyof FormValues;
+        if (typeof data[key] !== 'undefined') {
+          metadataObj[meta.name] = data[key] as string;
+        }
+      }
+      formData.append('metadata', JSON.stringify(metadataObj));
+
       const res = await addProduct(formData as any);
 
-      if (res.status === 201) {
+      if (res && res.status === 201) {
         // Send pending approval email
         if (user?.email && user?.name) {
           try {
@@ -138,19 +223,16 @@ export default function PostAdPage() {
             });
           } catch (emailError) {
             console.error('Failed to send pending approval email:', emailError);
-            // Optionally, show a non-blocking toast message
             toast.error('Could not send submission confirmation email.');
           }
         }
 
         reset();
-        // Show success message and reset form
         toast.success('Your ad has been posted successfully and is pending approval!');
         setSuccessMessage('Your ad has been posted successfully and is pending approval!');
         setTimeout(() => setSuccessMessage(null), 5000);
         setCurrentStep(1);
 
-        // Refetch trending products after successful ad post
         mutate('products');
       } else {
         setSuccessMessage('Failed to post ad. Please try again later.');
@@ -182,6 +264,19 @@ export default function PostAdPage() {
     setCurrentStep(1);
   };
 
+  // Helper for dynamic meta field errors
+  function getMetaError(
+    errors: FieldErrors<FormValues>,
+    metaName: string
+  ): string | undefined {
+    const key = `meta_${metaName}` as keyof FormValues;
+    const err = errors[key];
+    if (err && typeof err === 'object' && 'message' in err) {
+      return (err as { message?: string }).message;
+    }
+    return undefined;
+  }
+
   return (
     <div>
       <div className="max-w-3xl mx-auto">
@@ -208,10 +303,9 @@ export default function PostAdPage() {
                           Category
                         </label>
                         <CategorySelect
-                          categories={(categories as any) || []}
+                          categories={categories as any} // Type assertion to bypass type mismatch
                           onChange={field.onChange}
                           value={field.value}
-                          errors={errors.item_subcategory_id?.message}
                         />
                       </div>
                     )}
@@ -229,7 +323,7 @@ export default function PostAdPage() {
                       <option value="" disabled>
                         Select a location
                       </option>
-                      {locations.map((loc, index) => (
+                      {locations.map((loc: { name: string }, index: number) => (
                         <option key={index} value={loc.name}>
                           {loc.name}
                         </option>
@@ -237,7 +331,7 @@ export default function PostAdPage() {
                     </select>
                     {errors.location && (
                       <p className="text-sm text-red-500">
-                        {errors.location.message}
+                        {errors.location.message as string}
                       </p>
                     )}
                   </div>
@@ -258,8 +352,9 @@ export default function PostAdPage() {
                   />
                   {errors.images && (
                     <p className="text-sm text-red-500">
-                      {(errors.images.message as string) ||
-                        'Please upload images'}
+                      {typeof errors.images.message === 'string'
+                        ? errors.images.message
+                        : 'Please upload images'}
                     </p>
                   )}
 
@@ -308,10 +403,35 @@ export default function PostAdPage() {
                     />
                     {errors.item_description && (
                       <p className="text-sm text-red-500">
-                        {errors.item_description.message}
+                        {errors.item_description.message as string}
                       </p>
                     )}
                   </div>
+
+                  {/* Dynamic Metadata Fields */}
+                  {metadataFields && metadataFields.length > 0 && (
+                    <div className="space-y-4">
+                      {metadataFields.map((meta) => (
+                        <div key={meta.name} className="space-y-2">
+                          <label className="block font-semibold text-gray-700">
+                            {meta.name}
+                            {meta.required && <span className="text-red-500 ml-1">*</span>}
+                          </label>
+                          <input
+                            type="text"
+                            {...register(`meta_${meta.name}` as const)}
+                            className="w-full h-12 border rounded-lg px-3 focus:border-primary_1 focus:outline-none"
+                            placeholder={`Enter ${meta.name}`}
+                          />
+                          {getMetaError(errors, meta.name) && (
+                            <p className="text-sm text-red-500">
+                              {getMetaError(errors, meta.name)}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
                   <Controller
                     name="negotiation"
@@ -336,7 +456,7 @@ export default function PostAdPage() {
                             <label className="flex items-center gap-2">
                               <Checkbox
                                 checked={field.value === false}
-                                onCheckedChange={(checked) => {
+                                onCheckedChange={() => {
                                   // If user clicks again, keep false
                                   field.onChange(false);
                                 }}
@@ -348,7 +468,7 @@ export default function PostAdPage() {
                         </div>
                         {errors.negotiation && (
                           <p className="text-sm text-red-500">
-                            {errors.negotiation.message}
+                            {errors.negotiation.message as string}
                           </p>
                         )}
                       </div>
@@ -357,7 +477,7 @@ export default function PostAdPage() {
 
                   {error && (
                     <p className="text-red-500 text-center">
-                      Error: {error.message}
+                      Error: {error.message as string}
                     </p>
                   )}
                   {successMessage && (

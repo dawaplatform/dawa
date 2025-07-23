@@ -42,15 +42,16 @@ function transformCategory(rawCat: any): Category {
     category_item_count: rawCat.category_item_count,
     subcategories: rawCat.subcategories
       ? rawCat.subcategories.map(
-          (sub: any): Subcategory => ({
-            id: sub.id,
-            subcategory_name: sub.subcategory_name,
-            name: sub.subcategory_name,
-            count: sub.subcategory_item_count || 0,
-            icon: sub.icon || '',
-            href: `/cat/${slugify(rawCat.category_name)}/${slugify(sub.subcategory_name)}`,
-          }),
-        )
+        (sub: any): Subcategory => ({
+          id: sub.id,
+          subcategory_name: sub.subcategory_name,
+          name: sub.subcategory_name,
+          metadata: sub.metadata,
+          count: sub.subcategory_item_count || 0,
+          icon: sub.icon || '',
+          href: `/cat/${slugify(rawCat.category_name)}/${slugify(sub.subcategory_name)}`,
+        }),
+      )
       : [],
   };
 }
@@ -194,11 +195,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelect }) => {
             onClick={handleItemClick}
           >
             <div
-              className={`py-2 px-3 rounded-md cursor-pointer transition-colors duration-200 flex items-center justify-between ${
-                isActive
-                  ? 'bg-gray-100 text-primary_1 shadow-sm'
-                  : 'hover:bg-gray-50 hover:text-primary_1'
-              }`}
+              className={`py-2 px-3 rounded-md cursor-pointer transition-colors duration-200 flex items-center justify-between ${isActive
+                ? 'bg-gray-100 text-primary_1 shadow-sm'
+                : 'hover:bg-gray-50 hover:text-primary_1'
+                }`}
             >
               <div className="flex items-center gap-2 truncate">
                 <div className="bg-primary_2 p-1 rounded">
