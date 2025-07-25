@@ -61,6 +61,7 @@ export interface ProductType {
   originalPrice?: string;
   created_at?: string;
   updated_at?: string;
+  metadata?: Record<string, string>;
 }
 
 export interface SimilarItem extends ProductType {
