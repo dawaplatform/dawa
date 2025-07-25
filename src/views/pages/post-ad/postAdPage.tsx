@@ -18,6 +18,7 @@ import { locations } from '@/data/locations';
 import { useSelector } from '@/redux-store/hooks';
 import { useAddNewProduct } from '@core/hooks/useProductData';
 import { selectCategories } from '@redux-store/slices/categories/categories';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { mutate } from 'swr';
 import ImageUpload from './components/ImageUpload';
@@ -115,6 +116,7 @@ export default function PostAdPage() {
   const { addProduct, isAdding, error } = useAddNewProduct();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const { user } = useAuth();
+  const router = useRouter();
 
   /** --------------------------------
    *   Step Control
@@ -206,38 +208,26 @@ export default function PostAdPage() {
 
       const res = await addProduct(formData as any);
 
+      toast.success('Your product has been posted successfully and is pending approval!');
+      router.push('/');
+
       if (res && res.status === 201) {
-        // Send pending approval email
         if (user?.email && user?.name) {
-          try {
-            await fetch('/api/send-email/pending-approval', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                user_name: user.name,
-                user_email: user.email,
-                item_name: data.item_name,
-              }),
-            });
-          } catch (emailError) {
-            console.error('Failed to send pending approval email:', emailError);
-            toast.error('Could not send submission confirmation email.');
-          }
+          fetch('/api/send-email/pending-approval', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              user_name: user.name,
+              user_email: user.email,
+              item_name: data.item_name,
+            }),
+          })
         }
-
-        reset();
-        toast.success('Your ad has been posted successfully and is pending approval!');
-        setSuccessMessage('Your ad has been posted successfully and is pending approval!');
-        setTimeout(() => setSuccessMessage(null), 5000);
-        setCurrentStep(1);
-
         mutate('products');
       } else {
-        setSuccessMessage('Failed to post ad. Please try again later.');
         toast.error('Failed to post ad. Please try again later.');
-        setTimeout(() => setSuccessMessage(null), 5000);
       }
     } catch (err) {
       console.error('Failed to add product:', err);
