@@ -143,7 +143,7 @@
             "required": true
           }
         ],
-        "image_url": "https://utfs.io/f/PwMkCc5aCBRnnW6PVbYfExDhmiLg6jcPTS05NYMK9yWpvuGV"
+        "image_url": null
       }
     ]
   },
@@ -766,7 +766,7 @@
     "id": 8,
     "category_name": "Sports, Arts & Outdoors",
     "category_item_count": 0,
-    "image_url": "https://utfs.io/f/PwMkCc5aCBRnX7SKgcQH6qmwjG9baPuckAf4UOdylWQ0vSho",
+    "image_url": null,
     "subcategories": [
       {
         "id": 43,

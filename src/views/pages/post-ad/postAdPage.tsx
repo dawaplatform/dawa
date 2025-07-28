@@ -122,7 +122,7 @@ export default function PostAdPage() {
    *   Step Control
    *  --------------------------------
    */
-  const [currentStep, setCurrentStep] = useState<1 | 2>(1);
+  
 
   /** --------------------------------
    *   Metadata State
@@ -234,25 +234,7 @@ export default function PostAdPage() {
     }
   };
 
-  /** --------------------------------
-   *   Step 1 Validation & Next
-   *  --------------------------------
-   */
-  const handleNextStep = async () => {
-    // Only validate Step 1 fields
-    const valid = await trigger(['item_subcategory_id', 'location', 'images']);
-    if (valid) {
-      setCurrentStep(2);
-    }
-  };
-
-  /** --------------------------------
-   *   Step 2 Back to Step 1
-   *  --------------------------------
-   */
-  const handleBackStep = () => {
-    setCurrentStep(1);
-  };
+  
 
   // Helper for dynamic meta field errors
   function getMetaError(
@@ -278,226 +260,191 @@ export default function PostAdPage() {
           </CardHeader>
           <CardContent className="p-6">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              {/**
-               * STEP 1 FIELDS
-               */}
-              {currentStep === 1 && (
-                <>
-                  {/* Category Field */}
-                  <Controller
-                    name="item_subcategory_id"
-                    control={control}
-                    render={({ field }) => (
-                      <div className="space-y-2">
-                        <label className="block font-semibold text-gray-700">
-                          Category
-                        </label>
-                        <CategorySelect
-                          categories={categories as any} // Type assertion to bypass type mismatch
-                          onChange={field.onChange}
-                          value={field.value}
-                        />
-                      </div>
-                    )}
-                  />
-
-                  {/* Location Field */}
-                  <div className="space-y-2">
-                    <label className="block font-semibold text-gray-700">
-                      Location
-                    </label>
-                    <select
-                      {...register('location')}
-                      className="w-full h-14 border rounded-lg focus:border-primary_1 focus:outline-none"
-                    >
-                      <option value="" disabled>
-                        Select a location
-                      </option>
-                      {locations.map((loc: { name: string }, index: number) => (
-                        <option key={index} value={loc.name}>
-                          {loc.name}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.location && (
-                      <p className="text-sm text-red-500">
-                        {errors.location.message as string}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Image Upload Field */}
-                  <Controller
-                    name="images"
-                    control={control}
-                    render={({ field }) => (
-                      <ImageUpload
-                        onUpload={(files: File[]) => {
-                          field.onChange(files);
-                        }}
-                        images={field.value}
-                        maxImages={5}
+              <>
+                {/* Category Field */}
+                <Controller
+                  name="item_subcategory_id"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="space-y-2">
+                      <label className="block font-semibold text-gray-700">
+                        Category
+                      </label>
+                      <CategorySelect
+                        categories={categories as any} // Type assertion to bypass type mismatch
+                        onChange={field.onChange}
+                        value={field.value}
                       />
-                    )}
-                  />
-                  {errors.images && (
-                    <p className="text-sm text-red-500">
-                      {typeof errors.images.message === 'string'
-                        ? errors.images.message
-                        : 'Please upload images'}
-                    </p>
-                  )}
-
-                  {/* Step 1 -> Next Button */}
-                  <div className="flex justify-end">
-                    <Button
-                      type="button"
-                      onClick={handleNextStep}
-                      className="h-12 bg-primary_1 text-white rounded-md font-bold"
-                    >
-                      Next
-                    </Button>
-                  </div>
-                </>
-              )}
-
-              {/**
-               * STEP 2 FIELDS
-               */}
-              {currentStep === 2 && (
-                <>
-                  <InputField
-                    label="Item Name"
-                    icon={PencilIcon}
-                    placeholder="Enter item name"
-                    errors={errors.item_name?.message}
-                    {...register('item_name')}
-                  />
-
-                  <InputField
-                    label="Price (UGX)"
-                    type="number"
-                    placeholder="Enter price"
-                    errors={errors.item_price?.message}
-                    {...register('item_price')}
-                  />
-
-                  <div className="space-y-2">
-                    <label className="block font-semibold text-gray-700">
-                      Description
-                    </label>
-                    <Textarea
-                      {...register('item_description')}
-                      className="min-h-[120px] resize-none"
-                      placeholder="Describe your item in detail..."
-                    />
-                    {errors.item_description && (
-                      <p className="text-sm text-red-500">
-                        {errors.item_description.message as string}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Dynamic Metadata Fields */}
-                  {metadataFields && metadataFields.length > 0 && (
-                    <div className="space-y-4">
-                      {metadataFields.map((meta) => (
-                        <div key={meta.name} className="space-y-2">
-                          <label className="block font-semibold text-gray-700">
-                            {meta.name}
-                            {meta.required && <span className="text-red-500 ml-1">*</span>}
-                          </label>
-                          <input
-                            type="text"
-                            {...register(`meta_${meta.name}` as const)}
-                            className="w-full h-12 border rounded-lg px-3 focus:border-primary_1 focus:outline-none"
-                            placeholder={`Enter ${meta.name}`}
-                          />
-                          {getMetaError(errors, meta.name) && (
-                            <p className="text-sm text-red-500">
-                              {getMetaError(errors, meta.name)}
-                            </p>
-                          )}
-                        </div>
-                      ))}
                     </div>
                   )}
+                />
 
-                  <Controller
-                    name="negotiation"
-                    control={control}
-                    render={({ field }) => (
-                      <div className="space-y-2">
-                        <div className="flex flex-col gap-4">
-                          <Label className="block text-sm font-semibold text-gray-700">
-                            Are you open to negotiation?
-                          </Label>
-                          <div className="flex items-center gap-4">
-                            <label className="flex items-center gap-2">
-                              <Checkbox
-                                checked={field.value === true}
-                                onCheckedChange={(checked) => {
-                                  field.onChange(!!checked);
-                                }}
-                                className="border-orange-500 text-orange-500"
-                              />
-                              Yes
-                            </label>
-                            <label className="flex items-center gap-2">
-                              <Checkbox
-                                checked={field.value === false}
-                                onCheckedChange={() => {
-                                  // If user clicks again, keep false
-                                  field.onChange(false);
-                                }}
-                                className="border-orange-500 text-orange-500"
-                              />
-                              No
-                            </label>
-                          </div>
-                        </div>
-                        {errors.negotiation && (
+                {/* Location Field */}
+                <div className="space-y-2">
+                  <label className="block font-semibold text-gray-700">
+                    Location
+                  </label>
+                  <select
+                    {...register('location')}
+                    className="w-full h-14 border rounded-lg focus:border-primary_1 focus:outline-none"
+                  >
+                    <option value="" disabled>
+                      Select a location
+                    </option>
+                    {locations.map((loc: { name: string }, index: number) => (
+                      <option key={index} value={loc.name}>
+                        {loc.name}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.location && (
+                    <p className="text-sm text-red-500">
+                      {errors.location.message as string}
+                    </p>
+                  )}
+                </div>
+
+                {/* Image Upload Field */}
+                <Controller
+                  name="images"
+                  control={control}
+                  render={({ field }) => (
+                    <ImageUpload
+                      onUpload={(files: File[]) => {
+                        field.onChange(files);
+                      }}
+                      images={field.value}
+                      maxImages={5}
+                    />
+                  )}
+                />
+                {errors.images && (
+                  <p className="text-sm text-red-500">
+                    {typeof errors.images.message === 'string'
+                      ? errors.images.message
+                      : 'Please upload images'}
+                  </p>
+                )}
+
+                <InputField
+                  label="Item Name"
+                  icon={PencilIcon}
+                  placeholder="Enter item name"
+                  errors={errors.item_name?.message}
+                  {...register('item_name')}
+                />
+
+                <InputField
+                  label="Price (UGX)"
+                  type="number"
+                  placeholder="Enter price"
+                  errors={errors.item_price?.message}
+                  {...register('item_price')}
+                />
+
+                <div className="space-y-2">
+                  <label className="block font-semibold text-gray-700">
+                    Description
+                  </label>
+                  <Textarea
+                    {...register('item_description')}
+                    className="min-h-[120px] resize-none"
+                    placeholder="Describe your item in detail..."
+                  />
+                  {errors.item_description && (
+                    <p className="text-sm text-red-500">
+                      {errors.item_description.message as string}
+                    </p>
+                  )}
+                </div>
+
+                {/* Dynamic Metadata Fields */}
+                {metadataFields && metadataFields.length > 0 && (
+                  <div className="space-y-4">
+                    {metadataFields.map((meta) => (
+                      <div key={meta.name} className="space-y-2">
+                        <label className="block font-semibold text-gray-700">
+                          {meta.name}
+                          {meta.required && <span className="text-red-500 ml-1">*</span>}
+                        </label>
+                        <input
+                          type="text"
+                          {...register(`meta_${meta.name}` as const)}
+                          className="w-full h-12 border rounded-lg px-3 focus:border-primary_1 focus:outline-none"
+                          placeholder={`Enter ${meta.name}`}
+                        />
+                        {getMetaError(errors, meta.name) && (
                           <p className="text-sm text-red-500">
-                            {errors.negotiation.message as string}
+                            {getMetaError(errors, meta.name)}
                           </p>
                         )}
                       </div>
-                    )}
-                  />
-
-                  {error && (
-                    <p className="text-red-500 text-center">
-                      Error: {error.message as string}
-                    </p>
-                  )}
-                  {successMessage && (
-                    <p className="text-green-500 text-center">
-                      {successMessage}
-                    </p>
-                  )}
-
-                  <div className="flex items-center justify-between">
-                    {/* Step 2 -> Back Button */}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleBackStep}
-                      className="h-12 rounded-md font-bold"
-                    >
-                      Back
-                    </Button>
-
-                    {/* Submit (Post Ad) Button */}
-                    <Button
-                      type="submit"
-                      disabled={isAdding}
-                      className="h-12 bg-primary_1 text-white py-3 rounded-md font-bold hover:bg-primary_1-dark transition-colors"
-                    >
-                      {isAdding ? 'Posting...' : 'Post Ad'}
-                    </Button>
+                    ))}
                   </div>
-                </>
-              )}
+                )}
+
+                <Controller
+                  name="negotiation"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="space-y-2">
+                      <div className="flex flex-col gap-4">
+                        <Label className="block text-sm font-semibold text-gray-700">
+                          Are you open to negotiation?
+                        </Label>
+                        <div className="flex items-center gap-4">
+                          <label className="flex items-center gap-2">
+                            <Checkbox
+                              checked={field.value === true}
+                              onCheckedChange={(checked) => {
+                                field.onChange(!!checked);
+                              }}
+                              className="border-orange-500 text-orange-500"
+                            />
+                            Yes
+                          </label>
+                          <label className="flex items-center gap-2">
+                            <Checkbox
+                              checked={field.value === false}
+                              onCheckedChange={() => {
+                                // If user clicks again, keep false
+                                field.onChange(false);
+                              }}
+                              className="border-orange-500 text-orange-500"
+                            />
+                            No
+                          </label>
+                        </div>
+                      </div>
+                      {errors.negotiation && (
+                        <p className="text-sm text-red-500">
+                          {errors.negotiation.message as string}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                />
+
+                {error && (
+                  <p className="text-red-500 text-center">
+                    Error: {error.message as string}
+                  </p>
+                )}
+                {successMessage && (
+                  <p className="text-green-500 text-center">
+                    {successMessage}
+                  </p>
+                )}
+
+                {/* Submit (Post Ad) Button */}
+                <Button
+                  type="submit"
+                  disabled={isAdding}
+                  className="h-12 w-full bg-primary_1 text-white py-3 rounded-md font-bold hover:bg-primary_1-dark transition-colors"
+                >
+                  {isAdding ? 'Posting...' : 'Post Ad'}
+                </Button>
+              </>
             </form>
           </CardContent>
         </Card>
