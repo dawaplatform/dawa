@@ -71,16 +71,17 @@ const MobileCategoryGrid: React.FC = React.memo(() => {
       </button>
 
       {/* Category List */}
-      {categories.map(({ category_name }: any) => {
-        // Get the icon component for the category;
-        // fallback to UniversalFallbackIcon if none is defined.
+      {categories.map(({ category_name, image_url }: any) => {
         const Icon = categoryIconMap[category_name] || UniversalFallbackIcon;
         const categorySlug = slugify(category_name);
-
         return (
           <Link key={category_name} href={`/subs/${categorySlug}`}>
             <div className="flex flex-col items-center justify-center p-4 bg-gray-100 border aspect-square rounded-lg">
-              <Icon className="h-6 w-6 mb-2 text-primary" />
+              {image_url ? (
+                <img src={image_url} alt={category_name} className="h-6 w-6 mb-2 object-contain" />
+              ) : (
+                <Icon className="h-6 w-6 mb-2 text-primary" />
+              )}
             </div>
             <span className="text-xs text-center line-clamp-2 mt-2 w-full">
               {category_name}

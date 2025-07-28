@@ -40,6 +40,7 @@ function transformCategory(rawCat: any): Category {
     id: rawCat.id,
     category_name: rawCat.category_name,
     category_item_count: rawCat.category_item_count,
+    image_url: rawCat.image_url, // Add this line
     subcategories: rawCat.subcategories
       ? rawCat.subcategories.map(
         (sub: any): Subcategory => ({
@@ -49,6 +50,7 @@ function transformCategory(rawCat: any): Category {
           metadata: sub.metadata,
           count: sub.subcategory_item_count || 0,
           icon: sub.icon || '',
+          image_url: sub.image_url, // And this line
           href: `/cat/${slugify(rawCat.category_name)}/${slugify(sub.subcategory_name)}`,
         }),
       )
@@ -202,7 +204,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelect }) => {
             >
               <div className="flex items-center gap-2 truncate">
                 <div className="bg-primary_2 p-1 rounded">
-                  <Icon className="h-5 w-5" />
+                  {category.image_url ? (
+                    <img src={category.image_url} alt={category.category_name} className="h-5 w-5 object-contain" />
+                  ) : (
+                    <Icon className="h-5 w-5" />
+                  )}
                 </div>
                 <div className="flex flex-col truncate">
                   <span className="text-sm font-medium truncate max-w-[160px]">
@@ -240,7 +246,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelect }) => {
       return (
         <Link key={subcat.id} href={subcat.href} onClick={handleItemClick}>
           <div className="py-2 px-3 rounded-md cursor-pointer hover:bg-gray-50 transition-colors duration-200 flex items-center">
-            <IconComponent className="h-5 w-5 mr-2" />
+            {subcat.image_url ? (
+              <img src={subcat.image_url} alt={subcat.subcategory_name} className="h-5 w-5 mr-2 object-contain" />
+            ) : (
+              <IconComponent className="h-5 w-5 mr-2" />
+            )}
             <div className="flex flex-col">
               <span className="text-sm font-medium truncate max-w-[160px]">
                 {subcat.subcategory_name}

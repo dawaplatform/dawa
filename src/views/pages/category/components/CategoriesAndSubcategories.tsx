@@ -1,22 +1,25 @@
 'use client';
 
-import React, { useState, useMemo, FC } from 'react';
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
 import { slugify } from '@/@core/utils/slugify';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { FiMenu, FiX } from 'react-icons/fi';
 import useWindowSize from '@core/hooks/useWindowSize';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { FC, useMemo, useState } from 'react';
+import { FiMenu } from 'react-icons/fi';
+import { subcategoryIconMap, UniversalFallbackIcon } from './icon-maps';
 
 interface Subcategory {
   name: string;
   count: number;
+  image_url?: string; // Added for image_url
 }
 
 interface CategoriesAndSubcategoriesProps {
@@ -86,6 +89,8 @@ const CategoriesAndSubcategories: FC<CategoriesAndSubcategoriesProps> = ({
                     .map((subcat) => {
                       const slugifiedSubcat = slugify(subcat.name);
                       const subcatPath = `/cat/${slugifiedCategoryName}/${slugifiedSubcat}`;
+                      // Assume subcat.image_url is available; fallback to icon map
+                      const SubcatIcon = subcategoryIconMap[subcat.name] || UniversalFallbackIcon;
                       return (
                         <Link key={subcat.name} href={subcatPath}>
                           <button
@@ -95,7 +100,14 @@ const CategoriesAndSubcategories: FC<CategoriesAndSubcategoriesProps> = ({
                                 : 'border-gray-300 bg-gray-50 text-gray-800 hover:bg-gray-200'
                             }`}
                           >
-                            <span>{subcat.name}</span>
+                            <span className="flex items-center gap-2">
+                              {subcat.image_url ? (
+                                <img src={subcat.image_url} alt={subcat.name} className="h-5 w-5 object-contain" />
+                              ) : (
+                                <SubcatIcon className="h-5 w-5 text-primary" />
+                              )}
+                              {subcat.name}
+                            </span>
                             <span className="text-xs font-light text-gray-500">
                               {subcat.count} items
                             </span>
@@ -148,6 +160,8 @@ const CategoriesAndSubcategories: FC<CategoriesAndSubcategoriesProps> = ({
         {subcategories.slice(0, showMore ? undefined : 4).map((subcat) => {
           const slugifiedSubcat = slugify(subcat.name);
           const subcatPath = `/cat/${slugifiedCategoryName}/${slugifiedSubcat}`;
+          // Assume subcat.image_url is available; fallback to icon map
+          const SubcatIcon = subcategoryIconMap[subcat.name] || UniversalFallbackIcon;
           return (
             <Link key={subcat.name} href={subcatPath}>
               <button
@@ -157,7 +171,14 @@ const CategoriesAndSubcategories: FC<CategoriesAndSubcategoriesProps> = ({
                     : 'border-gray-300 bg-gray-50 text-gray-800 hover:bg-gray-200'
                 }`}
               >
-                <span>{subcat.name}</span>
+                <span className="flex items-center gap-2">
+                  {subcat.image_url ? (
+                    <Image src={subcat.image_url} alt={subcat.name} className="h-5 w-5 object-contain" />
+                  ) : (
+                    <SubcatIcon className="h-5 w-5 text-primary" />
+                  )}
+                  {subcat.name}
+                </span>
                 <span className="text-xs font-light text-gray-500">
                   {subcat.count} items
                 </span>

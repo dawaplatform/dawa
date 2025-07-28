@@ -33,6 +33,7 @@ function transformCategory(cat: any): Category {
           subcategory_name: sub.subcategory_name,
           name: sub.subcategory_name, // display name
           count: sub.subcategory_item_count || 0,
+          image_url: sub.image_url, // Add this line
           // Generate the subcategory href: /cat/{category_slug}/{subcategory_slug}
           href: `/cat/${slugify(cat.category_name)}/${slugify(sub.subcategory_name)}`,
         }))
@@ -115,7 +116,11 @@ export default function CategoryPage() {
                   className="flex items-center bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
                 >
                   <div className="bg-gray-100 rounded-full p-3 mr-4">
-                    <SubIcon className="h-6 w-6 text-gray-600" />
+                    {subcat.image_url ? (
+                      <img src={subcat.image_url} alt={subcat.subcategory_name} className="h-6 w-6 object-contain" />
+                    ) : (
+                      <SubIcon className="h-6 w-6 text-gray-600" />
+                    )}
                   </div>
                   <div className="flex-grow">
                     <h2 className="text-lg font-semibold text-gray-900">

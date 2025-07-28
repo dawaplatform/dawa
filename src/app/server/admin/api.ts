@@ -104,6 +104,7 @@ export interface CategoryData {
   item_count?: number;
   created_at: string;
   updated_at?: string;
+  image_url?: string;
 }
 
 export interface SubcategoryData {
@@ -117,15 +118,18 @@ export interface SubcategoryData {
   item_count?: number;
   created_at: string;
   updated_at?: string;
+  image_url?: string;
 }
 
 export interface AddCategoryProps {
   category_name: string;
+  image_url?: string;
 }
 
 export interface UpdateCategoryProps {
   category_id: number | string;
   category_name: string;
+  image_url?: string;
 }
 
 export interface DeleteCategoryProps {
@@ -136,6 +140,7 @@ export interface AddSubcategoryProps {
   subcategory_name: string;
   category_id: number | string;
   metadata?: any
+  image_url?: string;
 }
 
 export interface UpdateSubcategoryProps {
@@ -143,6 +148,7 @@ export interface UpdateSubcategoryProps {
   subcategory_name: string;
   metadata?: any
   category_id?: number | string;
+  image_url?: string;
 }
 
 export interface DeleteSubcategoryProps {

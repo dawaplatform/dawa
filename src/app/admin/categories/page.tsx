@@ -28,8 +28,7 @@ import {
   Select,
   SelectContent,
   SelectItem,
-  SelectTrigger,
-  SelectValue,
+  SelectTrigger
 } from '@/components/ui/select';
 import {
   Table,
@@ -43,6 +42,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
 import { Loader2, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
+import { UploadButton } from '../../../../utils/uploadthing';
 
 type ExtraField = {
   name: string;
@@ -77,6 +77,13 @@ const AdminCategoriesPage = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
     null
   );
+
+  // State for image URLs
+  const [categoryImageUrl, setCategoryImageUrl] = useState('');
+  const [subcategoryImageUrl, setSubcategoryImageUrl] = useState('');
+
+  // 1. Add state for category search in subcategory dialogs
+  const [categorySearch, setCategorySearch] = useState('');
 
   // SWR hooks for categories
   const {
@@ -115,7 +122,8 @@ const AdminCategoriesPage = () => {
 
     try {
       await addCategory({
-        category_name: newCategoryName.trim()
+        category_name: newCategoryName.trim(),
+        image_url: categoryImageUrl || undefined,
       });
 
       toast({
@@ -124,6 +132,7 @@ const AdminCategoriesPage = () => {
       });
 
       setNewCategoryName('');
+      setCategoryImageUrl('');
       setExtraFields([]);
       setIsAddCategoryDialogOpen(false);
       mutateCategories();
@@ -150,6 +159,7 @@ const AdminCategoriesPage = () => {
       await updateCategory({
         category_id: selectedCategory.id,
         category_name: newCategoryName.trim(),
+        image_url: categoryImageUrl || selectedCategory.image_url || undefined,
       });
 
       toast({
@@ -158,6 +168,7 @@ const AdminCategoriesPage = () => {
       });
 
       setNewCategoryName('');
+      setCategoryImageUrl('');
       setIsEditCategoryDialogOpen(false);
       mutateCategories();
     } catch (error) {
@@ -197,6 +208,7 @@ const AdminCategoriesPage = () => {
   const openEditCategoryDialog = (category: CategoryData) => {
     setSelectedCategory(category);
     setNewCategoryName(category.category_name);
+    setCategoryImageUrl(category.image_url || '');
     setIsEditCategoryDialogOpen(true);
   };
 
@@ -231,7 +243,8 @@ const AdminCategoriesPage = () => {
       await addSubcategory({
         subcategory_name: newSubcategoryName.trim(),
         category_id: selectedCategoryId,
-        metadata: extraFields
+        metadata: extraFields,
+        image_url: subcategoryImageUrl || undefined,
       });
 
       toast({
@@ -240,6 +253,7 @@ const AdminCategoriesPage = () => {
       });
 
       setNewSubcategoryName('');
+      setSubcategoryImageUrl('');
       setExtraFields([]);
       setIsAddSubcategoryDialogOpen(false);
       mutateSubcategories();
@@ -280,6 +294,7 @@ const AdminCategoriesPage = () => {
         subcategory_name: newSubcategoryName.trim(),
         category_id: selectedCategoryId || undefined,
         metadata: extraFields,
+        image_url: subcategoryImageUrl || selectedSubcategory.image_url || undefined,
       });
 
       toast({
@@ -288,6 +303,7 @@ const AdminCategoriesPage = () => {
       });
 
       setNewSubcategoryName('');
+      setSubcategoryImageUrl('');
       setExtraFields([]);
       setIsEditSubcategoryDialogOpen(false);
       mutateSubcategories();
@@ -329,6 +345,7 @@ const AdminCategoriesPage = () => {
   const openAddSubcategoryDialog = () => {
     setSelectedCategoryId(categories[0]?.id || null);
     setExtraFields([]);
+    setSubcategoryImageUrl('');
     setIsAddSubcategoryDialogOpen(true);
   };
 
@@ -338,6 +355,7 @@ const AdminCategoriesPage = () => {
     setSelectedCategoryId(subcategory.category.id);
     // If subcategory.metadata exists, use it, else empty array
     setExtraFields(Array.isArray(subcategory.metadata) ? subcategory.metadata : []);
+    setSubcategoryImageUrl(subcategory.image_url || '');
     setIsEditSubcategoryDialogOpen(true);
   };
 
@@ -411,6 +429,7 @@ const AdminCategoriesPage = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
+                  <TableHead>Image</TableHead>
                   <TableHead>Subcategories</TableHead>
                   <TableHead>Items</TableHead>
                   <TableHead>Created</TableHead>
@@ -420,7 +439,7 @@ const AdminCategoriesPage = () => {
               <TableBody>
                 {categories.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-slate-500">
+                    <TableCell colSpan={6} className="text-center py-8 text-slate-500">
                       No categories found. Add your first category to get started.
                     </TableCell>
                   </TableRow>
@@ -428,6 +447,11 @@ const AdminCategoriesPage = () => {
                   categories.map((category) => (
                     <TableRow key={category.id}>
                       <TableCell className="font-medium">{category.category_name}</TableCell>
+                      <TableCell>
+                        {category.image_url && (
+                          <img src={category.image_url} alt="" className="w-10 h-10 object-contain rounded" />
+                        )}
+                      </TableCell>
                       <TableCell>
                         <Badge variant="outline">{category.subcategory_count || 0}</Badge>
                       </TableCell>
@@ -482,6 +506,7 @@ const AdminCategoriesPage = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
+                  <TableHead>Image</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Items</TableHead>
                   <TableHead>Created</TableHead>
@@ -491,7 +516,7 @@ const AdminCategoriesPage = () => {
               <TableBody>
                 {subcategories.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-slate-500">
+                    <TableCell colSpan={6} className="text-center py-8 text-slate-500">
                       No subcategories found. Add your first subcategory to get started.
                     </TableCell>
                   </TableRow>
@@ -499,6 +524,11 @@ const AdminCategoriesPage = () => {
                   subcategories.map((subcategory) => (
                     <TableRow key={subcategory.id}>
                       <TableCell className="font-medium">{subcategory.subcategory_name}</TableCell>
+                      <TableCell>
+                        {subcategory.image_url && (
+                          <img src={subcategory.image_url} alt="" className="w-10 h-10 object-contain rounded" />
+                        )}
+                      </TableCell>
                       <TableCell>
                         <Badge>{subcategory.category.category_name}</Badge>
                       </TableCell>
@@ -542,6 +572,7 @@ const AdminCategoriesPage = () => {
         setIsAddCategoryDialogOpen(open);
         if (!open) {
           setExtraFields([]);
+          setCategoryImageUrl('');
         }
       }}>
         <DialogContent>
@@ -563,6 +594,29 @@ const AdminCategoriesPage = () => {
                 className="mt-1"
               />
             </div>
+            <div>
+              <Label>Category Image</Label>
+              <UploadButton
+                endpoint="categoryImage"
+                onClientUploadComplete={res => {
+                  if (res && res[0]?.url) setCategoryImageUrl(res[0].url);
+                }}
+                onUploadError={error => {
+                  toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+                }}
+                appearance={{
+                  button: "bg-orange-500 hover:bg-orange-600 text-white p-2",
+                }}
+              />
+              {categoryImageUrl && (
+                <div className="flex items-center gap-2 mt-2">
+                  <img src={categoryImageUrl} alt="Category" className="w-24 h-24 object-contain rounded" />
+                  <Button type="button" size="icon" variant="destructive" onClick={() => setCategoryImageUrl('')} aria-label="Remove image">
+                    <Trash2 className="h-5 w-5" />
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
 
           <DialogFooter>
@@ -571,6 +625,7 @@ const AdminCategoriesPage = () => {
               onClick={() => {
                 setIsAddCategoryDialogOpen(false);
                 setExtraFields([]);
+                setCategoryImageUrl('');
               }}
               disabled={isAddingCategory}
             >
@@ -603,6 +658,29 @@ const AdminCategoriesPage = () => {
               placeholder="Enter category name"
               className="mt-1"
             />
+          </div>
+          <div>
+            <Label>Category Image</Label>
+            <UploadButton
+              endpoint="categoryImage"
+              onClientUploadComplete={res => {
+                if (res && res[0]?.url) setCategoryImageUrl(res[0].url);
+              }}
+              onUploadError={error => {
+                toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+              }}
+              appearance={{
+                button: "bg-orange-500 hover:bg-orange-600 text-white p-2",
+              }}
+            />
+            {categoryImageUrl && (
+              <div className="flex items-center gap-2 mt-2">
+                <img src={categoryImageUrl} alt="Category" className="w-24 h-24 object-contain rounded" />
+                <Button type="button" size="icon" variant="destructive" onClick={() => setCategoryImageUrl('')} aria-label="Remove image">
+                  <Trash2 className="h-5 w-5" />
+                </Button>
+              </div>
+            )}
           </div>
 
           <DialogFooter>
@@ -678,19 +756,49 @@ const AdminCategoriesPage = () => {
               <Label htmlFor="categorySelect">Parent Category</Label>
               <Select
                 value={selectedCategoryId?.toString()}
-                onValueChange={(value) => setSelectedCategoryId(Number(value))}
+                onValueChange={value => setSelectedCategoryId(Number(value))}
               >
-                <SelectTrigger id="categorySelect" className="mt-1">
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
+                <SelectTrigger id="categorySelect" className="mt-1" />
+                <SelectContent
+                  className="hide-scrollbar"
+                  style={{
+                    maxHeight: 240,
+                    overflowY: 'auto',
+                    touchAction: 'pan-y',
+                    WebkitOverflowScrolling: 'touch',
+                  }}
+                >
+                  {categories.map(category => (
                     <SelectItem key={category.id} value={category.id.toString()}>
                       {category.category_name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div>
+              <Label>Subcategory Image</Label>
+              <UploadButton
+                endpoint="subcategoryImage"
+                onClientUploadComplete={res => {
+                  if (res && res[0]?.url) setSubcategoryImageUrl(res[0].url);
+                }}
+                onUploadError={error => {
+                  toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+                }}
+                appearance={{
+                  button: "bg-orange-500 hover:bg-orange-600 text-white p-2",
+                }}
+              />
+              {subcategoryImageUrl && (
+                <div className="flex items-center gap-2 mt-2">
+                  <img src={subcategoryImageUrl} alt="Subcategory" className="w-24 h-24 object-contain rounded" />
+                  <Button type="button" size="icon" variant="destructive" onClick={() => setSubcategoryImageUrl('')} aria-label="Remove image">
+                    <Trash2 className="h-5 w-5" />
+                  </Button>
+                </div>
+              )}
             </div>
 
             <div>
@@ -784,19 +892,49 @@ const AdminCategoriesPage = () => {
               <Label htmlFor="editCategorySelect">Parent Category</Label>
               <Select
                 value={selectedCategoryId?.toString()}
-                onValueChange={(value) => setSelectedCategoryId(Number(value))}
+                onValueChange={value => setSelectedCategoryId(Number(value))}
               >
-                <SelectTrigger id="editCategorySelect" className="mt-1">
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
+                <SelectTrigger id="editCategorySelect" className="mt-1" />
+                <SelectContent
+                  className="hide-scrollbar"
+                  style={{
+                    maxHeight: 240,
+                    overflowY: 'auto',
+                    touchAction: 'pan-y',
+                    WebkitOverflowScrolling: 'touch',
+                  }}
+                >
+                  {categories.map(category => (
                     <SelectItem key={category.id} value={category.id.toString()}>
                       {category.category_name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div>
+              <Label>Subcategory Image</Label>
+              <UploadButton
+                endpoint="subcategoryImage"
+                onClientUploadComplete={res => {
+                  if (res && res[0]?.url) setSubcategoryImageUrl(res[0].url);
+                }}
+                onUploadError={error => {
+                  toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+                }}
+                appearance={{
+                  button: "bg-orange-500 hover:bg-orange-600 text-white p-2",
+                }}
+              />
+              {subcategoryImageUrl && (
+                <div className="flex items-center gap-2 mt-2">
+                  <img src={subcategoryImageUrl} alt="Subcategory" className="w-24 h-24 object-contain rounded" />
+                  <Button type="button" size="icon" variant="destructive" onClick={() => setSubcategoryImageUrl('')} aria-label="Remove image">
+                    <Trash2 className="h-5 w-5" />
+                  </Button>
+                </div>
+              )}
             </div>
 
             <div>

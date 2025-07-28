@@ -6,6 +6,7 @@ export interface Subcategory {
   href: string;
   subcategory_name: string;
   metadata: any
+  image_url: string;
 }
 
 export interface Category {
@@ -17,6 +18,7 @@ export interface Category {
   icon?: string;
   href?: string;
   subcategories?: Subcategory[];
+  image_url: string;
 }
 
 export interface ProductCarouselItem {
