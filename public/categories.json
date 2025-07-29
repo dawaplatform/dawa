@@ -127,13 +127,6 @@
         "image_url": null
       },
       {
-        "id": 17,
-        "subcategory_name": "Other Phones & Tablets",
-        "subcategory_item_count": 0,
-        "metadata": null,
-        "image_url": null
-      },
-      {
         "id": 16,
         "subcategory_name": "Accessories for Mobile Phones & Tablets",
         "subcategory_item_count": 0,
@@ -143,6 +136,13 @@
             "required": true
           }
         ],
+        "image_url": null
+      },
+      {
+        "id": 17,
+        "subcategory_name": "Other Phones & Tablets",
+        "subcategory_item_count": 0,
+        "metadata": null,
         "image_url": null
       }
     ]
@@ -325,13 +325,6 @@
         "image_url": null
       },
       {
-        "id": 39,
-        "subcategory_name": "Bags",
-        "subcategory_item_count": 0,
-        "metadata": null,
-        "image_url": null
-      },
-      {
         "id": 40,
         "subcategory_name": "Jewelry",
         "subcategory_item_count": 0,
@@ -350,6 +343,34 @@
         "subcategory_name": "Other Fashion",
         "subcategory_item_count": 0,
         "metadata": null,
+        "image_url": null
+      },
+      {
+        "id": 39,
+        "subcategory_name": "Bags",
+        "subcategory_item_count": 0,
+        "metadata": [
+          {
+            "name": "Type",
+            "required": true
+          },
+          {
+            "name": "Brand",
+            "required": true
+          },
+          {
+            "name": "Gender",
+            "required": true
+          },
+          {
+            "name": "Color",
+            "required": true
+          },
+          {
+            "name": "Condition",
+            "required": true
+          }
+        ],
         "image_url": null
       }
     ]
