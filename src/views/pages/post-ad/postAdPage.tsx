@@ -1,7 +1,7 @@
 'use client';
 
 import { yupResolver } from '@hookform/resolvers/yup';
-import { PencilIcon } from 'lucide-react';
+import { GiftIcon, PencilIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Controller, FieldErrors, Resolver, useForm } from 'react-hook-form';
 import * as yup from 'yup';
@@ -251,11 +251,27 @@ export default function PostAdPage() {
 
   return (
     <div>
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-3xl mx-auto space-y-6">
+        {/* Announcement Card: Free Posting */}
+        <Card className="border border-primary_1/30 bg-primary_1/5 shadow-none">
+          <CardContent className="flex items-center gap-4 py-4 px-6">
+            <div className="flex-shrink-0">
+              <GiftIcon className="w-8 h-8 text-primary_1" />
+            </div>
+            <div>
+              <div className="font-bold text-lg text-primary_1 mb-1">
+                Posting Ads is <span className="text-green-600">FREE</span>!
+              </div>
+              <div className="text-gray-700 text-sm">
+                We&apos;ve just launched. For a limited time, you can post your ads absolutely <span className="font-semibold text-green-700">free of charge</span>. Take advantage and reach more buyers today!
+              </div>
+            </div>
+          </CardContent>
+        </Card>
         <Card>
           <CardHeader className="border-b bg-gray-100/50">
             <CardTitle className="text-2xl font-bold text-center">
-              Post Your Free Ad
+              Post Your Ad
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
