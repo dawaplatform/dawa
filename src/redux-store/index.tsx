@@ -1,9 +1,9 @@
-import { configureStore, combineReducers } from '@reduxjs/toolkit';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import authDialogReducer from './slices/authDialog/authDialogSlice';
 import categoriesReducer from './slices/categories/categories';
 import categoryReducer from './slices/categories/categorySlice';
-import productReducer from './slices/products/productSlice';
 import myShopReducer from './slices/myshop/selectedUserSlice';
+import productReducer from './slices/products/productSlice';
 
 const rootReducer = combineReducers({
   authDialog: authDialogReducer,
@@ -15,10 +15,9 @@ const rootReducer = combineReducers({
 
 export type RootState = ReturnType<typeof rootReducer>;
 
-export function initializeStore(preloadedState?: Partial<RootState>) {
+export function initializeStore() {
   return configureStore({
     reducer: rootReducer,
-    preloadedState,
   });
 }
 

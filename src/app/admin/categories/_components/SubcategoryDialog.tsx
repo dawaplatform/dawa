@@ -67,7 +67,7 @@ export const SubcategoryDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent className="overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
@@ -94,20 +94,18 @@ export const SubcategoryDialog = ({
               <SelectTrigger id="categorySelect" className="mt-1">
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
-              <SelectContent 
-                className="max-h-[200px] overflow-y-auto" 
+              <SelectContent
+                className="overflow-y-auto"
                 position="popper"
                 side="bottom"
                 align="start"
                 sideOffset={4}
               >
-                <div className="max-h-[180px] overflow-y-auto">
-                  {categories.map(category => (
-                    <SelectItem key={category.id} value={category.id.toString()}>
-                      {category.category_name}
-                    </SelectItem>
-                  ))}
-                </div>
+                {categories.map(category => (
+                  <SelectItem key={category.id} value={category.id.toString()}>
+                    {category.category_name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -115,10 +113,10 @@ export const SubcategoryDialog = ({
             <Label>Subcategory Image</Label>
             <UploadButton
               endpoint="subcategoryImage"
-              onClientUploadComplete={res => {
+              onClientUploadComplete={(res: any) => {
                 if (res && res[0]?.url) setSubcategoryImageUrl(res[0].url);
               }}
-              onUploadError={error => {
+              onUploadError={(error: any) => {
                 toast({ title: "Upload failed", description: error.message, variant: "destructive" });
               }}
               appearance={{

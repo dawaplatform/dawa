@@ -5,6 +5,8 @@ import { getProductCategories } from '@/app/server/categories/api';
 import CustomizableNoData from '@/components/shared/no-data';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { RootState } from '@/redux-store';
+import { fetchCategories } from '@/redux-store/slices/categories/categories';
 import type {
   Category,
   Subcategory,
@@ -19,6 +21,7 @@ import React, {
   useState,
 } from 'react';
 import { usePopper } from 'react-popper';
+import { useDispatch, useSelector } from 'react-redux';
 import useSWR from 'swr';
 import SidebarSkeleton from './SidebarSkeleton';
 import {
@@ -110,7 +113,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelect }) => {
   );
 
   // Combine the categories from API and fallback.
-  const categories: Category[] = apiCategories || fallbackCategories || [];
+  const categories = useSelector((state: RootState) => state.categories.categories).map((cat: any) => transformCategory(cat));
+  // const categories: Category[] = apiCategories || fallbackCategories || [];
   const isLoading = isLoadingApi || (shouldFetchFallback && isLoadingFallback);
 
   // Track the currently hovered category.
@@ -166,6 +170,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelect }) => {
       setReferenceElement(null);
     }
   }, []);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchCategories() as any);
+  }, [dispatch]);
 
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
@@ -312,7 +322,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelect }) => {
                     Categories
                   </h3>
                   <div className="space-y-1">
-                    {categories.map((cat: Category) => renderCategoryItem(cat))}
+                    {categories.map((cat: any) => renderCategoryItem(cat))}
                   </div>
                 </div>
               </ScrollArea>

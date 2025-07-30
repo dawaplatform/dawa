@@ -1,19 +1,20 @@
-import './globals.css';
-import { Suspense } from 'react';
-import { Poppins } from 'next/font/google';
+'use client';
 import Provider from '@/components/Provider';
-import Loader from '@/components/features/loaders/MainLoader';
 import { AuthDialog } from '@/components/features/dialogs/auth-dialog';
-import categoriesData from '@public/categories.json';
+import Loader from '@/components/features/loaders/MainLoader';
+import { CompleteProfileModal } from '@/components/shared/CompleteProfileModal';
 import { WishlistProvider } from '@/contexts/WishlistContext';
 import { ProfileProvider } from '@/contexts/profile-context';
-import { CompleteProfileModal } from '@/components/shared/CompleteProfileModal';
+import { Poppins } from 'next/font/google';
+import { Suspense } from 'react';
 import { Toaster } from 'sonner';
+import './globals.css';
+
 
 // TODO: Remove this once SpeedInsights is ready
-import { SpeedInsights } from '@vercel/speed-insights/next';
-import { Analytics } from '@vercel/analytics/react';
 import { ChatProvider } from '@/contexts/ChatContext';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -25,20 +26,12 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Cast the static JSON data to an array of Category
-  const preloadedState = {
-    categories: {
-      categories: categoriesData as any,
-      status: 'succeeded',
-      error: null,
-    },
-  };
 
   return (
     <html lang="en">
       <body className={`${poppins.className} antialiased`}>
         <Suspense fallback={<Loader />}>
-          <Provider preloadedState={preloadedState as any}>
+          <Provider>
             <ChatProvider>
               <WishlistProvider>
                 <ProfileProvider>
