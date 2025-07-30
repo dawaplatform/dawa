@@ -4,8 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "npm run prebuild && next dev",
-    "prebuild": "node scripts/fetch-categories.cjs",
+    "dev": "next dev",
     "generate:locations": "node scripts/generate-locations.cjs",
     "build": "next build",
     "start": "next start",
