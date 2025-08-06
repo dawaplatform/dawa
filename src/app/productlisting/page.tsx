@@ -13,11 +13,13 @@ export default function ProductListingRoute() {
     <div className="flex flex-col min-h-screen bg-background">
       <NavBar />
       <main className={`flex-1 flex flex-col ${mainConfig.maxWidthClass} gap-12 w-full mx-auto px-2 sm:px-4 pt-8 pb-8`}>
-        <section>
+        {/* Mobile/Tablet Categories Menu - Only show on screens smaller than lg */}
+        <section className="lg:hidden">
           <CategoriesMenuListing />
         </section>
         <section>
           <div className="flex gap-4">
+            {/* Desktop Sidebar - Only show on lg and larger screens */}
             <div className="hidden lg:block w-72 flex-shrink-0">
               <div className="sticky top-[100px] z-40">
                 <Sidebar />

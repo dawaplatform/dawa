@@ -12,7 +12,7 @@ export interface Category {
   }[];
 }
 
-interface CategoriesState {
+export interface CategoriesState {
   categories: Category[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;

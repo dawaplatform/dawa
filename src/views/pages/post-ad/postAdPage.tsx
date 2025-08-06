@@ -263,7 +263,7 @@ export default function PostAdPage() {
                 Posting Ads is <span className="text-green-600">FREE</span>!
               </div>
               <div className="text-gray-700 text-sm">
-                We&apos;ve just launched. For a limited time, you can post your ads absolutely <span className="font-semibold text-green-700">free of charge</span>. Take advantage and reach more buyers today!
+               You can post your ads absolutely <span className="font-semibold text-green-700">free of charge</span>. Take advantage and reach more buyers today!
               </div>
             </div>
           </CardContent>

@@ -1,33 +1,25 @@
 'use client';
 import { useAuth } from '@/@core/hooks/use-auth';
 import { slugify } from '@/@core/utils/slugify';
-import { useDispatch } from '@/redux-store/hooks';
+import { useDispatch, useSelector } from '@/redux-store/hooks';
 import { openAuthDialog } from '@/redux-store/slices/authDialog/authDialogSlice';
+import { CategoriesState } from '@/redux-store/slices/categories/categories';
 import { Plus } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { Category } from '../types/category';
 import { categoryIconMap, UniversalFallbackIcon } from './icon-maps';
 
 const MobileCategoryGrid: React.FC = React.memo(() => {
   const router = useRouter();
   const dispatch = useDispatch();
   const { user } = useAuth();
-  const [categories, setCategories] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Fetch categories from the JSON file in the public folder.
-  useEffect(() => {
-    fetch('/categories.json')
-      .then((res) => res.json())
-      .then((data) => {
-        setCategories(data);
-        setIsLoading(false);
-      })
-      .catch(() => {
-        setIsLoading(false);
-      });
-  }, []);
+  const categories = useSelector((state: { categories: CategoriesState }) => state.categories.categories) as Category[];
+  const status = useSelector((state: { categories: CategoriesState }) => state.categories.status);
+
 
   const handleSellClick = () => {
     if (!user) {
@@ -37,7 +29,7 @@ const MobileCategoryGrid: React.FC = React.memo(() => {
     }
   };
 
-  if (isLoading) {
+  if (status === 'loading') {
     return (
       <div className="grid grid-cols-4 gap-2">
         {/* Skeleton for Post Ad Button */}
@@ -72,13 +64,21 @@ const MobileCategoryGrid: React.FC = React.memo(() => {
 
       {/* Category List */}
       {categories.map(({ category_name, image_url }: any) => {
+        // Add console.log for image_url
+        console.log('Category:', category_name, 'Image URL:', image_url);
         const Icon = categoryIconMap[category_name] || UniversalFallbackIcon;
         const categorySlug = slugify(category_name);
         return (
           <Link key={category_name} href={`/subs/${categorySlug}`}>
             <div className="flex flex-col items-center justify-center p-4 bg-gray-100 border aspect-square rounded-lg">
               {image_url ? (
-                <img src={image_url} alt={category_name} className="h-6 w-6 mb-2 object-contain" />
+                    <Image
+                    src={image_url}
+                    alt={category_name}
+                    width={24} // You need to provide a width
+                    height={24} // and a height for remote images
+                    className="mb-2 object-contain"
+                />
               ) : (
                 <Icon className="h-6 w-6 mb-2 text-primary" />
               )}

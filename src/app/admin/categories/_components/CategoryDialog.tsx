@@ -2,12 +2,12 @@
 
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -36,7 +36,7 @@ export const CategoryDialog = ({
         setCategoryImageUrl('');
       }
     }}>
-      <DialogContent>
+      <DialogContent className="max-w-lg w-[95vw] max-h-[90vh] overflow-y-auto scrollbar-hide">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
@@ -44,7 +44,7 @@ export const CategoryDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="py-4 space-y-6">
+        <div className="py-4 space-y-6 overflow-y-auto max-h-[calc(90vh-120px)] scrollbar-hide">
           <div>
             <Label htmlFor="categoryName">Category Name</Label>
             <Input

@@ -50,7 +50,6 @@ export function CategoriesMenu() {
           onMouseLeave={handleMouseLeave}
         >
           <div className="relative h-[400px]">
-            <h1 className="text-xl font-semibold p-4">Premium Section</h1>
             <div
               className={cn(
                 'absolute inset-0 transition-opacity duration-300 ease-in-out px-4',
