@@ -43,7 +43,7 @@ const AdminCategoriesPage = () => {
   const [expandedCategories, setExpandedCategories] = useState<
     Record<number, boolean>
   >({});
-  
+
   // State for editing categories
   const [editCategoryId, setEditCategoryId] = useState<number | null>(null);
   const [editCategoryName, setEditCategoryName] = useState('');
@@ -63,7 +63,7 @@ const AdminCategoriesPage = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
     null
   );
-  
+
   // State for editing subcategories
   const [editSubcategoryId, setEditSubcategoryId] = useState<number | null>(null);
   const [editSubcategoryName, setEditSubcategoryName] = useState('');
@@ -395,7 +395,7 @@ const AdminCategoriesPage = () => {
   };
 
   return (
-    <div>
+    <div className='pb-12'>
       <h1 className="text-2xl font-semibold text-slate-800 mb-6">Category Management</h1>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

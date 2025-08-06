@@ -1,22 +1,21 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
-import { useSelector } from 'react-redux';
+import { slugify } from '@/@core/utils/slugify';
+import BackButton from '@/components/shared/BackButton';
+import {
+  subcategoryIconMap,
+  UniversalFallbackIcon
+} from '@/views/pages/category/components/icon-maps';
 import type {
   Category,
   Subcategory,
 } from '@/views/pages/category/types/category';
-import { slugify } from '@/@core/utils/slugify';
-import {
-  categoryIconMap,
-  subcategoryIconMap,
-  UniversalFallbackIcon,
-} from '@/views/pages/category/components/icon-maps';
 import { selectCategories } from '@redux-store/slices/categories/categories';
-import BackButton from '@/components/shared/BackButton';
+import { ChevronRight } from 'lucide-react';
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
 
 /**
  * Transform a Redux category into a local Category type.
@@ -29,14 +28,14 @@ function transformCategory(cat: any): Category {
     href: `/cat/${slugify(cat.category_name)}`,
     subcategories: cat.subcategories
       ? cat.subcategories.map((sub: any) => ({
-          id: sub.id,
-          subcategory_name: sub.subcategory_name,
-          name: sub.subcategory_name, // display name
-          count: sub.subcategory_item_count || 0,
-          image_url: sub.image_url, // Add this line
-          // Generate the subcategory href: /cat/{category_slug}/{subcategory_slug}
-          href: `/cat/${slugify(cat.category_name)}/${slugify(sub.subcategory_name)}`,
-        }))
+        id: sub.id,
+        subcategory_name: sub.subcategory_name,
+        name: sub.subcategory_name, // display name
+        count: sub.subcategory_item_count || 0,
+        image_url: sub.image_url, // Add this line
+        // Generate the subcategory href: /cat/{category_slug}/{subcategory_slug}
+        href: `/cat/${slugify(cat.category_name)}/${slugify(sub.subcategory_name)}`,
+      }))
       : [],
   };
 }
@@ -75,17 +74,13 @@ export default function CategoryPage() {
     );
   }
 
-  // Get the category icon from your icon map or use the fallback.
-  const CategoryIcon =
-    categoryIconMap[category.category_name] || UniversalFallbackIcon;
-
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header with Back Button and Category Name */}
       <header className="bg-white shadow-sm p-4 flex items-center">
         <BackButton />
         <div className="flex items-center">
-          <CategoryIcon className="h-8 w-8 text-gray-600 mr-2" />
+          <img src={category.image_url} alt={category.category_name} className="h-8 w-8 text-gray-600 mr-2" />
           <h1 className="text-xl font-bold text-gray-900">
             {category.category_name}
           </h1>
