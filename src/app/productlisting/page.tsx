@@ -10,7 +10,7 @@ const Sidebar = dynamic(
 
 export default function ProductListingRoute() {
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-background pt-12">
       <NavBar />
       <main className={`flex-1 flex flex-col ${mainConfig.maxWidthClass} gap-12 w-full mx-auto px-2 sm:px-4 pt-8 pb-8`}>
         {/* Mobile/Tablet Categories Menu - Only show on screens smaller than lg */}
