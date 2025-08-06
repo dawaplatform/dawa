@@ -70,17 +70,17 @@ const MobileCategoryGrid: React.FC = React.memo(() => {
         const categorySlug = slugify(category_name);
         return (
           <Link key={category_name} href={`/subs/${categorySlug}`}>
-            <div className="flex flex-col items-center justify-center p-2 bg-gray-100 border aspect-square rounded-lg">
+            <div className="flex flex-col items-center justify-center bg-gray-100 border aspect-square rounded-lg p-0.5">
               {image_url ? (
                 <Image
                   src={image_url}
                   alt={category_name}
-                  width={40}
-                  height={40}
-                  className="h-10 w-10 mb-2 object-contain"
+                  width={32}
+                  height={32}
+                  className="object-contain w-14 h-14"
                 />
               ) : (
-                <Icon className="h-10 w-10 mb-2 text-primary" />
+                <Icon className="w-14 h-14 text-primary" />
               )}
             </div>
             <span className="text-xs text-center line-clamp-2 mt-2 w-full">
