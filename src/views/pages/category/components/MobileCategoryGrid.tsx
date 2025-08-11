@@ -75,9 +75,9 @@ const MobileCategoryGrid: React.FC = React.memo(() => {
                 <Image
                   src={image_url}
                   alt={category_name}
-                  width={32}
-                  height={32}
-                  className="object-contain w-14 h-14"
+                  width={60}
+                  height={60}
+                  className="object-fill w-14 h-14"
                 />
               ) : (
                 <Icon className="w-14 h-14 text-primary" />
