@@ -80,7 +80,14 @@ export default function CategoryPage() {
       <header className="bg-white shadow-sm p-4 flex items-center">
         <BackButton />
         <div className="flex items-center">
-          <img src={category.image_url} alt={category.category_name} className="h-8 w-8 text-gray-600 mr-2" />
+          {category.image_url ? (
+            <img src={category.image_url} alt={category.category_name} className="h-8 w-8 text-gray-600 mr-2" />
+          ) : (
+            (() => {
+              const CatIcon = subcategoryIconMap[category.category_name] || UniversalFallbackIcon;
+              return <CatIcon className="h-8 w-8 text-gray-600 mr-2" />;
+            })()
+          )}
           <h1 className="text-xl font-bold text-gray-900">
             {category.category_name}
           </h1>
@@ -112,9 +119,9 @@ export default function CategoryPage() {
                 >
                   <div className="bg-gray-100 rounded-full p-3 mr-4">
                     {subcat.image_url ? (
-                      <img src={subcat.image_url} alt={subcat.subcategory_name} className="h-6 w-6 object-contain" />
+                      <img src={subcat.image_url} alt={subcat.subcategory_name} className="h-8 w-8 object-contain" />
                     ) : (
-                      <SubIcon className="h-6 w-6 text-gray-600" />
+                      <SubIcon className="h-8 w-8 text-gray-600" />
                     )}
                   </div>
                   <div className="flex-grow">
