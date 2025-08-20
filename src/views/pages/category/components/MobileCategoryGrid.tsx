@@ -75,12 +75,12 @@ const MobileCategoryGrid: React.FC = React.memo(() => {
                 <Image
                   src={image_url}
                   alt={category_name}
-                  width={60}
-                  height={60}
-                  className="object-fill w-14 h-14"
+                  width={80}
+                  height={80}
+                  className="object-fill w-16 h-16"
                 />
               ) : (
-                <Icon className="w-14 h-14 text-primary" />
+                <Icon className="w-16 h-16 text-primary" />
               )}
             </div>
             <span className="text-xs text-center line-clamp-2 mt-2 w-full">
