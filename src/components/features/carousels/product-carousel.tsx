@@ -128,14 +128,13 @@ export function ProductCarousel() {
                       </div>
                       <div className="flex gap-3 items-center">
                         <Button
-                          asChild
                           onClick={() => {
                             dispatch(setSelectedProduct(item.id));
                             router.push(`/prod/${slugify(item.item_name)}`);
                           }}
                           className="bg-gray-700 cursor-pointer hover:bg-gray-700/90"
                         >
-                          <span>View Details</span>
+                          View Details
                         </Button>
                         {item.item_negotiable && (
                           <span className="text-sm font-medium text-green-600">

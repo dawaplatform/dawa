@@ -43,7 +43,7 @@ export function MobileProductCarousel() {
 
   if (isLoading) {
     return (
-      <div className="w-full h-[300px] bg-gray-100 rounded-lg animate-pulse">
+      <div className="w-full h-[350px] bg-gray-100 rounded-lg animate-pulse">
         <Skeleton className="h-full w-full" />
       </div>
     );
@@ -54,7 +54,7 @@ export function MobileProductCarousel() {
       <CustomizableNoData
         title="Error Loading Premium Products"
         description="Something went wrong while fetching premium products."
-        containerClassName="w-full h-[300px] flex flex-col items-center justify-center p-4 text-center"
+        containerClassName="w-full h-[350px] flex flex-col items-center justify-center p-4 text-center"
       />
     );
   }
@@ -64,13 +64,13 @@ export function MobileProductCarousel() {
       <CustomizableNoData
         title="No Premium Products"
         description="There are no premium products available at the moment."
-        containerClassName="w-full h-[300px] flex flex-col items-center justify-center p-4 text-center"
+        containerClassName="w-full h-[350px] flex flex-col items-center justify-center p-4 text-center"
       />
     );
   }
 
   return (
-    <div className="relative h-[300px] overflow-hidden rounded-lg bg-white shadow-sm">
+    <div className="relative h-[350px] overflow-hidden rounded-lg bg-white shadow-sm">
       <div className="absolute inset-0" ref={emblaRef}>
         <div className="flex h-full">
           {productsData.map((item: any) => {
@@ -82,8 +82,8 @@ export function MobileProductCarousel() {
             return (
               <div key={item.id} className="relative flex-[0_0_100%] h-full">
                 <div className="absolute inset-0 flex flex-col">
-                  {/* Image Section */}
-                  <div className="h-1/2 relative bg-gray-100">
+                  {/* Image Section - Reduced height to give more space for content */}
+                  <div className="h-2/5 relative bg-gray-100">
                     <CustomImage
                       src={item.images[0]?.image_url || '/placeholder.png'}
                       alt={item.item_name}
@@ -92,23 +92,23 @@ export function MobileProductCarousel() {
                     />
                   </div>
 
-                  {/* Content Section */}
-                  <div className="h-1/2 p-4 flex flex-col justify-between">
-                    <div className="space-y-1">
+                  {/* Content Section - Increased height and better spacing */}
+                  <div className="h-3/5 p-3 flex flex-col justify-between">
+                    <div className="space-y-1 flex-1">
                       <span className="text-xs font-medium text-gray-500">
                         {item.category} • {item.subcategory}
                       </span>
-                      <h3 className="text-lg font-bold text-gray-800 line-clamp-1">
+                      <h3 className="text-base font-bold text-gray-800 line-clamp-1">
                         {item.item_name}
                       </h3>
-                      <p className="text-gray-600 text-sm line-clamp-2">
+                      <p className="text-gray-600 text-xs line-clamp-2">
                         {item.item_description}
                       </p>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2 mt-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-lg font-bold text-primary_1">
+                        <span className="text-base font-bold text-primary_1">
                           {formatCurrency(item.item_price)}
                         </span>
                         {item.item_negotiable && (
@@ -123,14 +123,13 @@ export function MobileProductCarousel() {
                         </span>
                       )}
                       <Button
-                        asChild
                         onClick={() => {
                           dispatch(setSelectedProduct(item.id));
                           router.push(`/prod/${slugify(item.item_name)}`);
                         }}
-                        className="w-full bg-gray-700 hover:bg-gray-700/90 text-sm"
+                        className="w-full bg-gray-700 hover:bg-gray-700/90 text-sm py-2"
                       >
-                        <span>View Details</span>
+                        View Details
                       </Button>
                     </div>
                   </div>
@@ -141,8 +140,8 @@ export function MobileProductCarousel() {
         </div>
       </div>
 
-      {/* Navigation dots */}
-      <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-1.5">
+      {/* Navigation dots - Moved higher to avoid overlap */}
+      <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-1.5 mt-2">
         {productsData.map((_: any, index: number) => (
           <button
             key={index}
