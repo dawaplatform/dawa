@@ -1,25 +1,31 @@
 'use client';
 
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { FiPlus, FiMinus, FiFilter } from 'react-icons/fi';
-import { FaCheckCircle } from 'react-icons/fa';
-import { Range, getTrackBackground } from 'react-range';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { locations } from '@/data/locations';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { LocationDialog } from '../dialogs/location-dialog';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { districts } from '@/data/districts';
+
+// Convert districts to Location format expected by LocationDialog
+const locations = districts.map((district) => ({
+  name: district.name,
+  count: 0, // Count can be updated later if needed
+}));
 import useWindowSize from '@core/hooks/useWindowSize';
+import React, { useEffect, useMemo, useState } from 'react';
+import { FaCheckCircle } from 'react-icons/fa';
+import { FiFilter, FiMinus, FiPlus } from 'react-icons/fi';
+import { Range, getTrackBackground } from 'react-range';
+import { LocationDialog } from '../dialogs/location-dialog';
 
 interface ProductFilterProps {
   appliedPriceRange: [number, number];

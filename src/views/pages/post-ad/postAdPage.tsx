@@ -7,14 +7,15 @@ import { Controller, FieldErrors, Resolver, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 
 import { useAuth } from '@/@core/hooks/use-auth';
+import { LocationItem } from '@/@core/utils/locationFilter';
 import CategorySelect from '@/components/shared/CategorySelect';
 import InputField from '@/components/shared/InputField';
+import LocationAutocomplete from '@/components/shared/LocationAutocomplete';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { locations } from '@/data/locations';
 import { useSelector } from '@/redux-store/hooks';
 import { useAddNewProduct } from '@core/hooks/useProductData';
 import { selectCategories } from '@redux-store/slices/categories/categories';
@@ -38,7 +39,8 @@ export type DynamicMeta = {
 
 export interface FormValues extends DynamicMeta {
   item_subcategory_id: string; // Step 1
-  location: string; // Step 1
+  location: string; // Step 1 - now stores location ID
+  locationItem: LocationItem | null; // Step 1 - stores the full location object
   images: File[]; // Step 1
 
   item_name: string; // Step 2
@@ -152,6 +154,7 @@ export default function PostAdPage() {
     defaultValues: {
       item_subcategory_id: '',
       location: '',
+      locationItem: null,
       images: [],
       item_name: '',
       item_price: 0,
@@ -187,7 +190,13 @@ export default function PostAdPage() {
     try {
       const formData = new FormData();
       formData.append('item_subcategory_id', data.item_subcategory_id);
-      formData.append('item_location', data.location);
+      
+      // Use the full location path for display, but store the location ID
+      const locationValue = data.locationItem 
+        ? (data.locationItem.fullPath || data.locationItem.name)
+        : data.location;
+      formData.append('item_location', locationValue);
+      
       formData.append('item_name', data.item_name);
       formData.append('item_price', String(data.item_price));
       formData.append('item_description', data.item_description);
@@ -296,29 +305,27 @@ export default function PostAdPage() {
                 />
 
                 {/* Location Field */}
-                <div className="space-y-2">
-                  <label className="block font-semibold text-gray-700">
-                    Location
-                  </label>
-                  <select
-                    {...register('location')}
-                    className="w-full h-14 border rounded-lg focus:border-primary_1 focus:outline-none"
-                  >
-                    <option value="" disabled>
-                      Select a location
-                    </option>
-                    {locations.map((loc: { name: string }, index: number) => (
-                      <option key={index} value={loc.name}>
-                        {loc.name}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.location && (
-                    <p className="text-sm text-red-500">
-                      {errors.location.message as string}
-                    </p>
+                <Controller
+                  name="locationItem"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="space-y-2">
+                      <label className="block font-semibold text-gray-700">
+                        Location
+                      </label>
+                      <LocationAutocomplete
+                        value={field.value?.id || ''}
+                        onChange={(location) => {
+                          field.onChange(location);
+                          // Also update the location field for validation
+                          setValue('location', location?.id || '');
+                        }}
+                        placeholder="Search for a district, county, subcounty, parish, or village..."
+                        error={errors.location?.message as string}
+                      />
+                    </div>
                   )}
-                </div>
+                />
 
                 {/* Image Upload Field */}
                 <Controller

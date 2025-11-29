@@ -1,25 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { useSelector } from 'react-redux';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import {
-  useUpdateProduct,
-  useDeleteItemImage,
-} from '@core/hooks/useProductData';
-import { toast } from 'sonner';
-import { X, Loader2, ImageIcon, Upload } from 'lucide-react';
+import { LocationDialog } from '@/components/features/dialogs/location-dialog';
+import CategorySelect from '@/components/shared/CategorySelect';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,15 +12,39 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { selectCategories } from '@/redux-store/slices/categories/categories';
-import CategorySelect from '@/components/shared/CategorySelect';
-import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { ImageSkeleton } from './ImageSkeleton';
-import { LocationDialog } from '@/components/features/dialogs/location-dialog';
-import { locations } from '@/data/locations';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+import { districts } from '@/data/districts';
+
+// Convert districts to Location format expected by LocationDialog
+const locations = districts.map((district) => ({
+  name: district.name,
+  count: 0, // Count can be updated later if needed
+}));
+import { selectCategories } from '@/redux-store/slices/categories/categories';
+import {
+  useDeleteItemImage,
+  useUpdateProduct,
+} from '@core/hooks/useProductData';
 import { AnimatePresence, motion } from 'framer-motion';
+import { ImageIcon, Loader2, Upload, X } from 'lucide-react';
+import Image from 'next/image';
+import React, { useEffect, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { toast } from 'sonner';
+import { ImageSkeleton } from './ImageSkeleton';
 
 interface EditAdvertSheetProps {
   isOpen: boolean;
