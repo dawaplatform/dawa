@@ -16,7 +16,8 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
 import { Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useMemo, useState } from 'react';
 import {
   CategoryDialog,
   CategoryTable,
@@ -77,6 +78,10 @@ const AdminCategoriesPage = () => {
 
   // 1. Add state for category search in subcategory dialogs
   const [categorySearch, setCategorySearch] = useState('');
+
+  // Get filter params from URL
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get('search') || '';
 
   // SWR hooks for categories
   const {
@@ -362,6 +367,26 @@ const AdminCategoriesPage = () => {
     setIsDeleteSubcategoryDialogOpen(true);
   };
 
+  // Filter categories and subcategories based on search query
+  // IMPORTANT: These hooks must be called before any early returns to maintain hook order
+  const filteredCategories = useMemo(() => {
+    if (!categories || !searchQuery) return categories || [];
+    const query = searchQuery.toLowerCase();
+    return categories.filter(category =>
+      category.category_name.toLowerCase().includes(query)
+    );
+  }, [categories, searchQuery]);
+
+  const filteredSubcategories = useMemo(() => {
+    if (!subcategories || !searchQuery) return subcategories || [];
+    const query = searchQuery.toLowerCase();
+    return subcategories.filter(subcategory =>
+      subcategory.subcategory_name.toLowerCase().includes(query) ||
+      categories?.find(c => c.id === subcategory.category_id)?.category_name.toLowerCase().includes(query)
+    );
+  }, [subcategories, categories, searchQuery]);
+
+  // Early returns must come AFTER all hooks
   if (isCategoriesLoading || isSubcategoriesLoading) {
     return <LoadingState />;
   }
@@ -414,12 +439,17 @@ const AdminCategoriesPage = () => {
           </div>
 
           <CategoryTable
-            categories={categories}
+            categories={filteredCategories}
             onEdit={openEditCategoryDialog}
             onDelete={openDeleteCategoryDialog}
             isUpdating={isUpdatingCategory}
             isDeleting={isDeletingCategory}
           />
+          {searchQuery && (
+            <div className="mt-4 text-sm text-gray-500 text-center">
+              Showing {filteredCategories.length} of {categories.length} categories
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="subcategories">
@@ -435,12 +465,17 @@ const AdminCategoriesPage = () => {
           </div>
 
           <SubcategoryTable
-            subcategories={subcategories}
+            subcategories={filteredSubcategories}
             onEdit={openEditSubcategoryDialog}
             onDelete={openDeleteSubcategoryDialog}
             isUpdating={isUpdatingSubcategory}
             isDeleting={isDeletingSubcategory}
           />
+          {searchQuery && (
+            <div className="mt-4 text-sm text-gray-500 text-center">
+              Showing {filteredSubcategories.length} of {subcategories.length} subcategories
+            </div>
+          )}
         </TabsContent>
       </Tabs>
 

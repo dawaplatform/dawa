@@ -28,9 +28,11 @@ import {
 } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
 import { Loader2, Trash2, UserCog } from 'lucide-react';
-import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useMemo, useState } from 'react';
 
 const AdminUsersPage = () => {
+  const searchParams = useSearchParams();
   const { users, isLoading, isError, mutate } = useAdminUsers();
   const { changeRole, isChangingRole } = useChangeUserRole();
   const { deleteUser, isDeleting } = useDeleteUser();
@@ -39,6 +41,34 @@ const AdminUsersPage = () => {
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [newRole, setNewRole] = useState<'Client' | 'Vendor' | 'Admin'>('Client');
+
+  // Get filter params from URL
+  const roleFilter = searchParams.get('role') || '';
+  const searchQuery = searchParams.get('search') || '';
+
+  // Filter users based on search and role
+  const filteredUsers = useMemo(() => {
+    let filtered = users;
+
+    // Filter by role
+    if (roleFilter) {
+      filtered = filtered.filter(user => user.role === roleFilter);
+    }
+
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(user => 
+        user.username.toLowerCase().includes(query) ||
+        user.email.toLowerCase().includes(query) ||
+        user.first_name?.toLowerCase().includes(query) ||
+        user.last_name?.toLowerCase().includes(query) ||
+        `${user.first_name} ${user.last_name}`.toLowerCase().includes(query)
+      );
+    }
+
+    return filtered;
+  }, [users, roleFilter, searchQuery]);
   
   const handleRoleChange = async () => {
     if (!selectedUser || !newRole) return;
@@ -119,7 +149,15 @@ const AdminUsersPage = () => {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-800 mb-6">User Management</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <h1 className="text-2xl font-semibold text-slate-800">User Management</h1>
+        {(roleFilter || searchQuery) && (
+          <div className="text-sm text-gray-500">
+            Showing {filteredUsers.length} of {users.length} users
+            {roleFilter && ` (${roleFilter})`}
+          </div>
+        )}
+      </div>
       
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <Table>
@@ -133,7 +171,14 @@ const AdminUsersPage = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((user) => (
+            {filteredUsers.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                  No users found that match the current filters.
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredUsers.map((user) => (
               <TableRow key={user.id}>
                 <TableCell className="font-medium">
                   <div className="flex items-center space-x-3">
@@ -188,7 +233,8 @@ const AdminUsersPage = () => {
                   </div>
                 </TableCell>
               </TableRow>
-            ))}
+              ))
+            )}
           </TableBody>
         </Table>
       </div>

@@ -16,8 +16,23 @@ import {
   UserCog,
   Users,
 } from 'lucide-react';
+import Link from 'next/link';
 import { useAdminDashboardStats } from '../server/admin/api';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 
 export default function AdminDashboardPage() {
   const { stats, isLoading, isError } = useAdminDashboardStats();
@@ -57,6 +72,7 @@ export default function AdminDashboardPage() {
       {/* User Stats Cards - Optimized grid */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard
+          href="/admin/users"
           icon={<Users className="w-5 h-5" />}
           label="Total Users"
           value={stats?.total_users || 0}
@@ -66,6 +82,7 @@ export default function AdminDashboardPage() {
           valueColor="text-blue-600"
         />
         <StatCard
+          href="/admin/users?role=Admin"
           icon={<UserCog className="w-5 h-5" />}
           label="Admins"
           value={stats?.total_admins || 0}
@@ -75,6 +92,7 @@ export default function AdminDashboardPage() {
           valueColor="text-purple-600"
         />
         <StatCard
+          href="/admin/users?role=Vendor"
           icon={<ShoppingBag className="w-5 h-5" />}
           label="Vendors"
           value={stats?.total_vendors || 0}
@@ -84,6 +102,7 @@ export default function AdminDashboardPage() {
           valueColor="text-green-600"
         />
         <StatCard
+          href="/admin/users?role=Client"
           icon={<User className="w-5 h-5" />}
           label="Clients"
           value={stats?.total_clients || 0}
@@ -97,6 +116,7 @@ export default function AdminDashboardPage() {
       {/* Item Stats Cards - Better space usage */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <StatCard
+          href="/admin/items"
           icon={<List className="w-5 h-5" />}
           label="Total Items"
           value={stats?.total_items || 0}
@@ -106,6 +126,7 @@ export default function AdminDashboardPage() {
           valueColor="text-primary_1"
         />
         <StatCard
+          href="/admin/items?status=approved"
           icon={<Star className="w-5 h-5" />}
           label="Approved Items"
           value={stats?.total_approved_items || 0}
@@ -115,6 +136,7 @@ export default function AdminDashboardPage() {
           valueColor="text-green-600"
         />
         <StatCard
+          href="/admin/items?status=pending"
           icon={<AlertTriangle className="w-5 h-5" />}
           label="Pending Approval"
           value={stats ? stats.total_items - stats.total_approved_items : 0}
@@ -168,6 +190,7 @@ export default function AdminDashboardPage() {
       {/* Additional Stats - Compact */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <StatCard
+          href="/admin/reports"
           icon={<AlertTriangle className="w-5 h-5" />}
           label="Reports"
           value={stats?.total_reports || 0}
@@ -177,6 +200,7 @@ export default function AdminDashboardPage() {
           valueColor="text-red-600"
         />
         <StatCard
+          href="/admin/reports"
           icon={<Mail className="w-5 h-5" />}
           label="Newsletter Subscribers"
           value={stats?.total_subscribers || 0}
@@ -186,12 +210,121 @@ export default function AdminDashboardPage() {
           valueColor="text-green-600"
         />
       </div>
+
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
+        {/* User Distribution Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold">User Distribution</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={[
+                    { name: 'Admins', value: stats?.total_admins || 0 },
+                    { name: 'Vendors', value: stats?.total_vendors || 0 },
+                    { name: 'Clients', value: stats?.total_clients || 0 },
+                  ]}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  <Cell fill="#9333ea" />
+                  <Cell fill="#10b981" />
+                  <Cell fill="#f59e0b" />
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Items Status Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold">Items Status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart
+                data={[
+                  {
+                    name: 'Total',
+                    value: stats?.total_items || 0,
+                  },
+                  {
+                    name: 'Approved',
+                    value: stats?.total_approved_items || 0,
+                  },
+                  {
+                    name: 'Pending',
+                    value: (stats?.total_items || 0) - (stats?.total_approved_items || 0),
+                  },
+                ]}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="value" fill="#ffa200" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Engagement Metrics Chart */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold">Engagement Metrics</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart
+                data={[
+                  {
+                    name: 'Likes',
+                    value: stats?.total_likes || 0,
+                  },
+                  {
+                    name: 'Views',
+                    value: stats?.total_views || 0,
+                  },
+                  {
+                    name: 'Shares',
+                    value: stats?.total_shares || 0,
+                  },
+                  {
+                    name: 'Wishlist',
+                    value: stats?.total_wishlist_actions || 0,
+                  },
+                ]}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="value" fill="#3b82f6" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
 
 // Enhanced StatCard component with modern design - optimized for space
 function StatCard({
+  href,
   icon,
   label,
   value,
@@ -200,6 +333,7 @@ function StatCard({
   iconColor,
   valueColor,
 }: {
+  href?: string;
   icon: React.ReactNode;
   label: string;
   value: number;
@@ -208,8 +342,11 @@ function StatCard({
   iconColor: string;
   valueColor: string;
 }) {
-  return (
-    <Card className="hover:shadow-lg transition-shadow duration-200 border-gray-200">
+  const cardContent = (
+    <Card className={cn(
+      "transition-all duration-200 border-gray-200",
+      href && "hover:shadow-lg hover:scale-[1.02] cursor-pointer"
+    )}>
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
@@ -232,4 +369,14 @@ function StatCard({
       </CardContent>
     </Card>
   );
+
+  if (href) {
+    return (
+      <Link href={href} className="block">
+        {cardContent}
+      </Link>
+    );
+  }
+
+  return cardContent;
 }

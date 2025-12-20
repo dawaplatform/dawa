@@ -22,9 +22,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           {/* Admin Top Navbar */}
           <AdminNavbar />
 
-          {/* Content area with optimized padding */}
+          {/* Content area with optimized padding - full width */}
           <div className="flex-1 overflow-y-auto bg-gray-50">
-            <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-5 lg:py-6 pb-20 md:pb-6">
+            <div className="w-full px-3 sm:px-4 lg:px-6 py-4 sm:py-5 lg:py-6 pb-20 md:pb-6">
               {children}
             </div>
           </div>

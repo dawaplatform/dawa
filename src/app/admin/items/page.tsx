@@ -25,7 +25,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { CheckCircle, Eye, Loader2, Star, XCircle } from 'lucide-react';
 import Image from 'next/image';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 // --- Promotion Status Hook ---
 type PromotionStatusMap = Record<number, boolean>;
@@ -66,6 +67,8 @@ const validPackages = [
 ];
 
 export default function AdminItemsPage() {
+  const searchParams = useSearchParams();
+  
   // --- Data hooks ---
   const { items, isLoading, isError, mutate } = useAdminItems();
   const { data: subscriptionStats, isLoading: statsLoading } = useSubscriptionStats();
@@ -81,6 +84,36 @@ export default function AdminItemsPage() {
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [promotingItems, setPromotingItems] = useState<Record<number, boolean>>({});
   const [promotionStatus, updatePromotionStatus] = usePromotionStatus(items);
+
+  // Get filter params from URL
+  const statusFilter = searchParams.get('status') || '';
+  const searchQuery = searchParams.get('search') || '';
+
+  // Filter items based on search and status
+  const filteredItems = useMemo(() => {
+    let filtered = items;
+
+    // Filter by status
+    if (statusFilter === 'approved') {
+      filtered = filtered.filter(item => item.approval_status === 'Approved');
+    } else if (statusFilter === 'pending') {
+      filtered = filtered.filter(item => item.approval_status !== 'Approved');
+    }
+
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(item => 
+        item.item_name?.toLowerCase().includes(query) ||
+        item.description?.toLowerCase().includes(query) ||
+        item.seller?.toLowerCase().includes(query) ||
+        item.category?.toLowerCase().includes(query) ||
+        item.subcategory?.toLowerCase().includes(query)
+      );
+    }
+
+    return filtered;
+  }, [items, statusFilter, searchQuery]);
 
   // Bulk update state
   const [bulkPackage, setBulkPackage] = useState('');
@@ -492,8 +525,16 @@ export default function AdminItemsPage() {
 
   // --- Render ---
   return (
-    <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-8">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Item Management</h1>
+    <div className="w-full px-2 sm:px-4 md:px-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">Item Management</h1>
+        {(statusFilter || searchQuery) && (
+          <div className="text-sm text-gray-500">
+            Showing {filteredItems.length} of {items.length} items
+            {statusFilter && ` (${statusFilter})`}
+          </div>
+        )}
+      </div>
 
       {/* Subscription Stats */}
       <div className="mb-6">
@@ -599,7 +640,14 @@ export default function AdminItemsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {items.map((item) => (
+            {filteredItems.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                  No items found that match the current filters.
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredItems.map((item) => (
               <TableRow key={item.id} className="hover:bg-slate-50 transition-colors">
                 <TableCell className="font-medium">
                   <div className="flex items-center space-x-3">
@@ -739,7 +787,8 @@ export default function AdminItemsPage() {
                   </div>
                 </TableCell>
               </TableRow>
-            ))}
+              ))
+            )}
           </TableBody>
         </Table>
       </div>

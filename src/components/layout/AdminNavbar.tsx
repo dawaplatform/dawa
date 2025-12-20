@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/@core/hooks/use-auth';
-import { Bell, Home, LogOut, Search, User } from 'lucide-react';
+import { Home, LogOut, Menu, User } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useState } from 'react';
@@ -13,34 +13,59 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
+import AdminSearch from '@/components/admin/AdminSearch';
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from '@/components/ui/sheet';
+import AdminSidebar from './AdminSidebar';
 
-const AdminNavbar = () => {
+interface AdminNavbarProps {
+  onMobileMenuOpen?: (open: boolean) => void;
+}
+
+const AdminNavbar = ({ onMobileMenuOpen }: AdminNavbarProps) => {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     await logout();
     router.push('/');
   };
 
+  const handleMobileMenuChange = (open: boolean) => {
+    setMobileMenuOpen(open);
+    onMobileMenuOpen?.(open);
+  };
+
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14">
-          {/* Left: Search bar - hidden on mobile */}
-          <div className="hidden md:flex flex-1 max-w-lg mr-4">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                type="text"
-                placeholder="Search admin..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 h-10 bg-gray-50 border-gray-200 focus:bg-white"
-              />
+    <nav className="bg-white shadow-lg border-b-2 border-gray-300 sticky top-0 z-40">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Left: Mobile menu button and Search bar */}
+          <div className="flex items-center gap-4 flex-1">
+            {/* Mobile menu button */}
+            <Sheet open={mobileMenuOpen} onOpenChange={handleMobileMenuChange}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="md:hidden hover:bg-gray-100"
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-64 p-0">
+                <AdminSidebar />
+              </SheetContent>
+            </Sheet>
+
+            {/* Search bar - More prominent */}
+            <div className="hidden md:flex flex-1 max-w-2xl">
+              <AdminSearch />
             </div>
           </div>
 
@@ -49,21 +74,11 @@ const AdminNavbar = () => {
             {/* Home link */}
             <Link
               href="/home"
-              className="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-primary_1 transition-colors"
+              className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-primary_1 transition-colors"
             >
               <Home className="h-4 w-4" />
               <span>View Site</span>
             </Link>
-
-            {/* Notifications */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative hover:bg-gray-100"
-            >
-              <Bell className="h-5 w-5 text-gray-600" />
-              <span className="absolute top-1 right-1 h-2 w-2 bg-primary_1 rounded-full"></span>
-            </Button>
 
             {/* User dropdown */}
             <DropdownMenu>
