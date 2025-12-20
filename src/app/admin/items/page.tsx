@@ -105,7 +105,7 @@ export default function AdminItemsPage() {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(item => 
         item.item_name?.toLowerCase().includes(query) ||
-        item.description?.toLowerCase().includes(query) ||
+        item.item_description?.toLowerCase().includes(query) ||
         item.seller?.toLowerCase().includes(query) ||
         item.category?.toLowerCase().includes(query) ||
         item.subcategory?.toLowerCase().includes(query)

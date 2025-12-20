@@ -382,7 +382,7 @@ const AdminCategoriesPage = () => {
     const query = searchQuery.toLowerCase();
     return subcategories.filter(subcategory =>
       subcategory.subcategory_name.toLowerCase().includes(query) ||
-      categories?.find(c => c.id === subcategory.category_id)?.category_name.toLowerCase().includes(query)
+      categories?.find(c => c.id === subcategory.category.id)?.category_name.toLowerCase().includes(query)
     );
   }, [subcategories, categories, searchQuery]);
 
