@@ -89,12 +89,30 @@ export const updateUserProfile = async (data: FormData): Promise<any> => {
 };
 
 /**
- *Change user password.
+ * Change user password.
  */
 export const changeUserPassword = async (
   _key: string,
   { arg }: { arg: any },
 ): Promise<any> => {
   const response = await secureApiClient.post('/changepassword/', arg);
+  return response.data;
+};
+
+/**
+ * Permanently delete the current user's account and all associated data.
+ * Invalidates the auth token (client should logout after 2xx).
+ */
+export const deleteAccount = async (): Promise<any> => {
+  const response = await secureApiClient.post('/deleteaccount/', {});
+  return response.data;
+};
+
+/**
+ * Request deletion/anonymization of the current user's personal data (GDPR-style).
+ * Optionally invalidates the session; app shows success message after 2xx.
+ */
+export const deleteMyData = async (): Promise<any> => {
+  const response = await secureApiClient.post('/deletemydata/', {});
   return response.data;
 };

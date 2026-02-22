@@ -3,14 +3,19 @@
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useProfile } from '@/contexts/profile-context';
+import { useAuth } from '@/@core/hooks/use-auth';
 import { cn } from '@/lib/utils';
 import {
   useChangeUserPassword,
+  useDeleteAccount,
+  useDeleteMyData,
   useUpdateUserProfile,
 } from '@core/hooks/useProductData';
 import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { DataPrivacyForm } from '../../../../../components/features/forms/DataPrivacyForm';
 import { NotificationPreferences } from '../../../../../components/features/forms/NotificationPreferences';
 import { PersonalInfoForm } from '../../../../../components/features/forms/PersonalInfoForm';
 import { SecurityForm } from '../../../../../components/features/forms/SecurityForm';
@@ -36,10 +41,14 @@ const initialFormData: ProfileFormData = {
 };
 
 export default function SettingsPage() {
+  const router = useRouter();
+  const { logout } = useAuth();
   const { userProfile, isLoading: isProfileLoading, mutate } = useProfile();
   const { updateUserProfile, isLoading: isUpdating } = useUpdateUserProfile();
   const { changeUserPassword, isLoading: isChangingPassword } =
     useChangeUserPassword();
+  const { deleteAccount, isLoading: isDeletingAccount } = useDeleteAccount();
+  const { deleteMyData, isLoading: isDeletingMyData } = useDeleteMyData();
   const [formData, setFormData] = useState<ProfileFormData>(initialFormData);
   const [originalData, setOriginalData] =
     useState<ProfileFormData>(initialFormData);
@@ -217,6 +226,31 @@ export default function SettingsPage() {
     }
   };
 
+  const handleDeleteMyData = async () => {
+    try {
+      await deleteMyData();
+      toast.success('Your data deletion request has been processed.');
+      mutate();
+      await logout();
+      router.push('/');
+    } catch (error) {
+      toast.error('Failed to process data deletion request.');
+      throw error;
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      await deleteAccount();
+      await logout();
+      router.push('/');
+      toast.success('Your account has been deleted.');
+    } catch (error) {
+      toast.error('Failed to delete account.');
+      throw error;
+    }
+  };
+
   return (
     <div className="py-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
@@ -269,6 +303,12 @@ export default function SettingsPage() {
             >
               Notifications
             </TabsTrigger>
+            <TabsTrigger
+              value="data-privacy"
+              className="flex-grow sm:flex-grow-0 h-10"
+            >
+              Data & Privacy
+            </TabsTrigger>
           </div>
         </TabsList>
 
@@ -295,6 +335,15 @@ export default function SettingsPage() {
 
         <TabsContent value="notifications">
           <NotificationPreferences />
+        </TabsContent>
+
+        <TabsContent value="data-privacy">
+          <DataPrivacyForm
+            onDeleteMyData={handleDeleteMyData}
+            onDeleteAccount={handleDeleteAccount}
+            isDeletingMyData={isDeletingMyData}
+            isDeletingAccount={isDeletingAccount}
+          />
         </TabsContent>
       </Tabs>
     </div>

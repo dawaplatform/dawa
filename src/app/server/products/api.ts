@@ -207,3 +207,14 @@ export const getProductListing = async (): Promise<any> => {
     throw error;
   }
 };
+
+/**
+ * Permanently delete the current user's own listing by item_id.
+ * Backend returns 403 if not owner, 404 if not found.
+ */
+export const deleteItem = async (itemId: number): Promise<any> => {
+  const response = await secureApiClient.delete('/deleteitem/', {
+    data: { item_id: itemId },
+  });
+  return response.data;
+};

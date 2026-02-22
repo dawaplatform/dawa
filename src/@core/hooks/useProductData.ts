@@ -9,6 +9,8 @@ import useSWRMutation from 'swr/mutation';
 import { normalizeProducts } from '@/@core/utils/normalizeProductData';
 import {
   changeUserPassword,
+  deleteAccount as deleteAccountApi,
+  deleteMyData as deleteMyDataApi,
   fetchUserProfile,
   updateUserProfile,
 } from '@/app/server/auth/api';
@@ -22,6 +24,7 @@ import { getShopData } from '@/app/server/my-shop/api';
 import {
   addNewProduct,
   deleteProductImage,
+  deleteItem as deleteItemApi,
   getCategoryData,
   getPremiumSectionItems,
   getProductDetails,
@@ -360,6 +363,28 @@ export function useChangeUserPassword() {
 }
 
 /**
+ * Custom hook to delete the current user's account (permanent). Call logout after success.
+ */
+export function useDeleteAccount() {
+  const { trigger, isMutating, error } = useSWRMutation(
+    '/deleteaccount/',
+    () => deleteAccountApi(),
+  );
+  return { deleteAccount: trigger, isLoading: isMutating, error };
+}
+
+/**
+ * Custom hook to request deletion/anonymization of the current user's data (GDPR).
+ */
+export function useDeleteMyData() {
+  const { trigger, isMutating, error } = useSWRMutation(
+    '/deletemydata/',
+    () => deleteMyDataApi(),
+  );
+  return { deleteMyData: trigger, isLoading: isMutating, error };
+}
+
+/**
  * Custom hook to update product details.
  * @returns Object with a trigger function to update a product, loading state, and error info.
  */
@@ -392,6 +417,18 @@ export const useDeleteItemImage = () => {
     error,
     isMutating,
   };
+};
+
+/**
+ * Custom hook to delete the current user's own listing by item_id.
+ * Backend returns 403 if not owner, 404 if not found.
+ */
+export const useDeleteItem = () => {
+  const { trigger, isMutating, error } = useSWRMutation(
+    '/deleteitem/',
+    (_key, { arg }: { arg: number }) => deleteItemApi(arg),
+  );
+  return { deleteItem: trigger, isLoading: isMutating, error };
 };
 
 /**
