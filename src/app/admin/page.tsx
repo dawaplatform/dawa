@@ -8,6 +8,7 @@ import {
   List,
   Loader2,
   Mail,
+  MessageSquare,
   Share2,
   ShoppingBag,
   Star,
@@ -17,7 +18,7 @@ import {
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useAdminDashboardStats } from '../server/admin/api';
+import { useAdminAnalytics, useAdminDashboardStats } from '../server/admin/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import {
@@ -32,12 +33,31 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  LineChart,
+  Line,
 } from 'recharts';
+import { useMemo } from 'react';
 
 export default function AdminDashboardPage() {
   const { stats, isLoading, isError } = useAdminDashboardStats();
+  const { analytics, isLoading: analyticsLoading } = useAdminAnalytics();
 
-  if (isLoading) {
+  const trendData = useMemo(() => {
+    const users = analytics?.trends.user_registrations || [];
+    const products = analytics?.trends.product_posts || [];
+    const chats = analytics?.trends.chats_created || [];
+    const messages = analytics?.trends.messages_sent || [];
+
+    return users.map((point, index) => ({
+      date: new Date(point.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+      users: point.count,
+      products: products[index]?.count || 0,
+      chats: chats[index]?.count || 0,
+      messages: messages[index]?.count || 0,
+    }));
+  }, [analytics]);
+
+  if (isLoading || analyticsLoading) {
     return (
       <div className="flex flex-col justify-center items-center h-64 gap-4">
         <Loader2 className="h-8 w-8 animate-spin text-primary_1" />
@@ -188,7 +208,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Additional Stats - Compact */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
         <StatCard
           href="/admin/reports"
           icon={<AlertTriangle className="w-5 h-5" />}
@@ -209,10 +229,49 @@ export default function AdminDashboardPage() {
           iconColor="text-green-600"
           valueColor="text-green-600"
         />
+        <StatCard
+          icon={<MessageSquare className="w-5 h-5" />}
+          label="Chats"
+          value={analytics?.summary.total_chats || 0}
+          trend={null}
+          iconBg="bg-blue-100"
+          iconColor="text-blue-600"
+          valueColor="text-blue-600"
+        />
+        <StatCard
+          icon={<Mail className="w-5 h-5" />}
+          label="Messages"
+          value={analytics?.summary.total_messages || 0}
+          trend={null}
+          iconBg="bg-indigo-100"
+          iconColor="text-indigo-600"
+          valueColor="text-indigo-600"
+        />
       </div>
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold">Platform Trends</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={320}>
+              <LineChart data={trendData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="users" stroke="#2563eb" strokeWidth={2} name="Users" />
+                <Line type="monotone" dataKey="products" stroke="#f59e0b" strokeWidth={2} name="Products" />
+                <Line type="monotone" dataKey="chats" stroke="#10b981" strokeWidth={2} name="Chats" />
+                <Line type="monotone" dataKey="messages" stroke="#8b5cf6" strokeWidth={2} name="Messages" />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
         {/* User Distribution Chart */}
         <Card>
           <CardHeader>
@@ -280,6 +339,26 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
 
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold">Top Categories</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={analytics?.category_performance || []} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" />
+                <YAxis dataKey="category_name" type="category" width={140} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="approved_items" fill="#10b981" name="Approved" />
+                <Bar dataKey="sold_items" fill="#2563eb" name="Sold" />
+                <Bar dataKey="out_of_stock_items" fill="#f59e0b" name="Out of Stock" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
         {/* Engagement Metrics Chart */}
         <Card className="lg:col-span-2">
           <CardHeader>
@@ -315,6 +394,43 @@ export default function AdminDashboardPage() {
                 <Bar dataKey="value" fill="#3b82f6" />
               </BarChart>
             </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold">Needs Attention</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {[
+              { label: 'Pending products', value: analytics?.summary.pending_items || 0, tone: 'text-amber-600' },
+              { label: 'Open reports', value: analytics?.summary.reports_pending || 0, tone: 'text-red-600' },
+              { label: 'Unread messages', value: analytics?.summary.unread_messages || 0, tone: 'text-blue-600' },
+            ].map((item) => (
+              <div key={item.label} className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
+                <span className="text-sm font-medium text-gray-700">{item.label}</span>
+                <span className={cn('text-lg font-semibold', item.tone)}>{item.value}</span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold">Products With Most Chats</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {(analytics?.top_chatted_products || []).slice(0, 5).map((item) => (
+              <div key={item.id} className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
+                <span className="truncate text-sm font-medium text-gray-700">{item.item_name}</span>
+                <span className="text-sm text-gray-500">{item.message_count} messages</span>
+              </div>
+            ))}
+            {(analytics?.top_chatted_products || []).length === 0 && (
+              <p className="text-sm text-gray-500">No product chat activity yet.</p>
+            )}
           </CardContent>
         </Card>
       </div>

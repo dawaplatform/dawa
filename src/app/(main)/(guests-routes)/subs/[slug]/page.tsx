@@ -3,6 +3,7 @@
 import { slugify } from '@/@core/utils/slugify';
 import BackButton from '@/components/shared/BackButton';
 import {
+  categoryIconMap,
   subcategoryIconMap,
   UniversalFallbackIcon
 } from '@/views/pages/category/components/icon-maps';
@@ -84,7 +85,7 @@ export default function CategoryPage() {
             <img src={category.image_url} alt={category.category_name} className="h-8 w-8 text-gray-600 mr-2" />
           ) : (
             (() => {
-              const CatIcon = subcategoryIconMap[category.category_name] || UniversalFallbackIcon;
+              const CatIcon = categoryIconMap[category.category_name] || UniversalFallbackIcon;
               return <CatIcon className="h-8 w-8 text-gray-600 mr-2" />;
             })()
           )}

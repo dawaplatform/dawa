@@ -15,12 +15,15 @@ import {
 import { formatCurrency } from '@/@core/utils/CurrencyFormatter';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EditAdvertSheet } from '@/components/shared/edit-advert-sheet';
+import { useDeleteItem } from '@/@core/hooks/useProductData';
 import Link from 'next/link';
 import CustomPagination from '@/components/shared/CustomPagination';
 import { AdvertCard } from '../../components/AdvertCard';
+import { toast } from 'sonner';
 
 export function AdvertsClient() {
   const { items, isLoading, mutate } = useProfile();
+  const { deleteItem, isLoading: isDeleting } = useDeleteItem();
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
@@ -28,6 +31,22 @@ export function AdvertsClient() {
   const handleUpdateSuccess = () => {
     mutate();
     setSelectedItem(null);
+  };
+
+  const handleDelete = async (item: any) => {
+    if (isDeleting) return;
+    const confirmed = window.confirm(
+      `Permanently delete "${item.name || item.item_name || 'this advert'}"? This cannot be undone.`,
+    );
+    if (!confirmed) return;
+
+    try {
+      await deleteItem(item.id);
+      toast.success('Advert deleted successfully');
+      mutate();
+    } catch (error) {
+      toast.error('Failed to delete advert');
+    }
   };
 
   if (isLoading) {
@@ -124,6 +143,7 @@ export function AdvertsClient() {
                     key={item.id}
                     item={item}
                     onEdit={() => setSelectedItem(item)}
+                    onDelete={() => handleDelete(item)}
                   />
                 ))}
               </div>

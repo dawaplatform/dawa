@@ -365,6 +365,8 @@ export function EditAdvertSheet({
                   options={[
                     { value: 'Available', label: 'Available' },
                     { value: 'Sold', label: 'Sold' },
+                    { value: 'Out of Stock', label: 'Out of Stock' },
+                    { value: 'Cancelled', label: 'Cancelled' },
                   ]}
                   required
                 />

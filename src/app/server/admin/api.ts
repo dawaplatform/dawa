@@ -58,6 +58,47 @@ export interface AdminDashboardStatsData {
   status: number;
 }
 
+export interface AdminTrendPoint {
+  date: string;
+  count: number;
+}
+
+export interface AdminAnalyticsData {
+  summary: {
+    total_chats: number;
+    total_messages: number;
+    unread_messages: number;
+    pending_items: number;
+    reports_pending: number;
+  };
+  trends: {
+    user_registrations: AdminTrendPoint[];
+    product_posts: AdminTrendPoint[];
+    chats_created: AdminTrendPoint[];
+    messages_sent: AdminTrendPoint[];
+  };
+  distributions: {
+    approval_status: Array<{ approval_status: string | null; count: number }>;
+    item_status: Array<{ item_status: string | null; count: number }>;
+  };
+  category_performance: Array<{
+    id: number;
+    category_name: string;
+    total_items: number;
+    approved_items: number;
+    sold_items: number;
+    out_of_stock_items: number;
+    cancelled_items: number;
+  }>;
+  top_chatted_products: Array<{
+    id: number;
+    item_name: string;
+    chat_count: number;
+    message_count: number;
+  }>;
+  status: number;
+}
+
 export interface UpdateItemApprovalStatusProps {
   item_id: number | string;
   approval_status: 'Approved' | 'Rejected';
@@ -362,6 +403,16 @@ export const getAdminDashboardStats = async (): Promise<AdminDashboardStatsData>
   }
 };
 
+export const getAdminAnalytics = async (): Promise<AdminAnalyticsData> => {
+  try {
+    const response = await secureApiClient.get('/adminanalytics/');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching admin analytics:', error);
+    throw error;
+  }
+};
+
 /**
  * Update item promotion status
  * @param arg - Object containing item_id and promoted_status
@@ -532,6 +583,20 @@ export const useAdminDashboardStats = () => {
 
   return {
     stats: data,
+    isLoading,
+    isError: error,
+    mutate,
+  };
+};
+
+export const useAdminAnalytics = () => {
+  const { data, error, isLoading, mutate } = useSWR<AdminAnalyticsData>(
+    '/adminanalytics/',
+    getAdminAnalytics
+  );
+
+  return {
+    analytics: data,
     isLoading,
     isError: error,
     mutate,

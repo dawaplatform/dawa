@@ -633,7 +633,9 @@ export default function AdminItemsPage() {
             <TableRow>
               <TableHead>Item</TableHead>
               <TableHead>Price</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>Approval</TableHead>
+              <TableHead>Listing Status</TableHead>
+              <TableHead>Posted</TableHead>
               <TableHead>Promoted</TableHead>
               <TableHead>Subscription</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -642,7 +644,7 @@ export default function AdminItemsPage() {
           <TableBody>
             {filteredItems.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={8} className="text-center py-8 text-gray-500">
                   No items found that match the current filters.
                 </TableCell>
               </TableRow>
@@ -698,6 +700,12 @@ export default function AdminItemsPage() {
                   >
                     {item.approval_status || 'Pending'}
                   </Badge>
+                </TableCell>
+                <TableCell>
+                  <Badge variant="outline">{item.item_status || 'Available'}</Badge>
+                </TableCell>
+                <TableCell className="text-sm text-slate-600">
+                  {item.created_at ? new Date(item.created_at).toLocaleDateString() : 'N/A'}
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center space-x-2">
