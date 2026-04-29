@@ -3,9 +3,9 @@
 import { normalizeProducts } from '@/@core/utils/normalizeProductData';
 import CardLayout from '@/components/features/listings/CardLayout';
 import ProductCardSkeleton from '@/components/features/listings/loaders/ProductCardSkeleton';
-import SingleSkeletonCard from '@/components/features/listings/loaders/SingleSkeletonCard';
 import CustomizableNoData from '@/components/shared/no-data';
 import { Button } from '@/components/ui/button';
+import useInfiniteScroll from '@core/hooks/useInfiniteScroll';
 import { useTrendingProducts } from '@core/hooks/useProductData';
 import React, { useRef, useState } from 'react';
 import { FaTh, FaThList } from 'react-icons/fa';
@@ -13,14 +13,31 @@ import { SimilarItem } from '../product/types/product';
 
 const ProductPage: React.FC = () => {
   const [viewType, setViewType] = useState<'grid' | 'list'>('grid');
-  const { productsData, isLoading, isError } = useTrendingProducts();
-  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const observerTarget = useRef<HTMLDivElement>(null);
 
-  // Normalize the raw product data.
+  const {
+    productsData,
+    totalCount,
+    isLoading,
+    isError,
+    size,
+    setSize,
+    nextPageUrl,
+  } = useTrendingProducts();
+
   const normalizedProductsData = normalizeProducts(productsData);
 
-  // When loading the first page, show a full grid of skeleton cards.
-  if (isLoading) {
+  useInfiniteScroll(
+    observerTarget,
+    () => {
+      if (nextPageUrl && !isLoading) {
+        setSize(size + 1);
+      }
+    },
+    { enabled: !!nextPageUrl && !isLoading },
+  );
+
+  if (isLoading && normalizedProductsData.length === 0) {
     return (
       <div>
         <ProductCardSkeleton
@@ -35,7 +52,6 @@ const ProductPage: React.FC = () => {
     );
   }
 
-  // Error state: display a consistent error/no-data message.
   if (isError) {
     return (
       <CustomizableNoData
@@ -46,7 +62,6 @@ const ProductPage: React.FC = () => {
     );
   }
 
-  // No data state: if no products are available.
   if (!normalizedProductsData.length) {
     return (
       <CustomizableNoData
@@ -57,46 +72,44 @@ const ProductPage: React.FC = () => {
     );
   }
 
-  // Calculate filler skeleton cards for consistent grid layout.
-  const columns = 4;
-  const productCount = normalizedProductsData.length;
-  const remainder = productCount % columns;
-  const fillCount = remainder > 0 ? columns - remainder : 0;
-  // Add an extra full row of skeleton cards.
-  const additionalSkeletonCount = columns;
-  const totalSkeletonCount = fillCount + additionalSkeletonCount;
-
   return (
     <div className="space-y-3">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center flex-wrap gap-2">
         <h2 className="text-2xl font-bold text-primary_1">Trending Products</h2>
-        <div className="hidden items-center gap-2 md:flex">
-          <Button
-            variant={viewType === 'grid' ? 'default' : 'outline'}
-            size="icon"
-            onClick={() => setViewType('grid')}
-            aria-label="View as Grid"
-            className={`transition-colors ${
-              viewType === 'grid'
-                ? 'text-white bg-gray-700'
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            <FaTh className="h-4 w-4" />
-          </Button>
-          <Button
-            variant={viewType === 'list' ? 'default' : 'outline'}
-            size="icon"
-            onClick={() => setViewType('list')}
-            aria-label="View as List"
-            className={`transition-colors ${
-              viewType === 'list'
-                ? 'text-white bg-gray-700'
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            <FaThList className="h-4 w-4" />
-          </Button>
+        <div className="flex items-center gap-3">
+          {totalCount > 0 && (
+            <span className="text-sm text-gray-600">
+              Showing {normalizedProductsData.length} of {totalCount}
+            </span>
+          )}
+          <div className="hidden items-center gap-2 md:flex">
+            <Button
+              variant={viewType === 'grid' ? 'default' : 'outline'}
+              size="icon"
+              onClick={() => setViewType('grid')}
+              aria-label="View as Grid"
+              className={`transition-colors ${
+                viewType === 'grid'
+                  ? 'text-white bg-gray-700'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              <FaTh className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewType === 'list' ? 'default' : 'outline'}
+              size="icon"
+              onClick={() => setViewType('list')}
+              aria-label="View as List"
+              className={`transition-colors ${
+                viewType === 'list'
+                  ? 'text-white bg-gray-700'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              <FaThList className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
       <div
@@ -113,14 +126,40 @@ const ProductPage: React.FC = () => {
             viewType={viewType}
           />
         ))}
-        {/* Optionally add filler skeletons for grid alignment if needed */}
-        {isLoading &&
-          Array.from({ length: totalSkeletonCount }).map((_, index) => (
-            <SingleSkeletonCard key={`skeleton-${index}`} />
-          ))}
       </div>
-      {/* Sentinel element triggers loading the next page when visible (if needed) */}
-      <div ref={loadMoreRef} className="h-1" />
+
+      {isLoading && normalizedProductsData.length > 0 && (
+        <div className="flex justify-center py-8">
+          <ProductCardSkeleton
+            ITEMS_PER_PAGE={8}
+            gridClass={`grid grid-cols-2 ${
+              viewType === 'grid'
+                ? 'sm:grid-cols-3 md:grid-cols-4'
+                : 'sm:grid-cols-1'
+            } gap-3 w-full`}
+          />
+        </div>
+      )}
+
+      <div ref={observerTarget} className="h-4" />
+
+      {nextPageUrl && !isLoading && (
+        <div className="flex justify-center py-4">
+          <Button
+            onClick={() => setSize(size + 1)}
+            variant="outline"
+            className="px-8"
+          >
+            Load More Products
+          </Button>
+        </div>
+      )}
+
+      {!nextPageUrl && normalizedProductsData.length > 0 && (
+        <div className="text-center py-4 text-gray-500 text-sm">
+          You&apos;ve reached the end of trending products
+        </div>
+      )}
     </div>
   );
 };

@@ -181,12 +181,14 @@ export const getPremiumSectionItems = async (): Promise<any> => {
 };
 
 /**
- * Fetch trending products
- * @returns {Promise<any>}
+ * Fetch a page of trending products. First page: GET `/trendingitems/`.
+ * Subsequent pages use the `next` URL from the previous response (limit/offset pagination).
  */
-export const getTrendingProducts = async (): Promise<any> => {
+export const getTrendingProductsPage = async (
+  url: string,
+): Promise<TrendingProductsResponse> => {
   try {
-    const response = await openApiClient.get('/trendingitems/');
+    const response = await openApiClient.get(url);
     return response.data;
   } catch (error) {
     console.error('Error fetching trending products:', error);

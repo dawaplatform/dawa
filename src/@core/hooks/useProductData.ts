@@ -31,7 +31,7 @@ import {
   getProductListing,
   getProductsList,
   getPromotedProductsList,
-  getTrendingProducts,
+  getTrendingProductsPage,
   reportAbuse,
   sendReview,
   updateProduct,
@@ -564,21 +564,52 @@ export function usePremiumSectionItems() {
 }
 
 /**
- * Custom hook to fetch trending products.
- * @returns Object with trending products data, loading state, error info, and mutate function.
+ * Paginated trending products (matches backend `/trendingitems/` + `next` URLs).
  */
 export function useTrendingProducts() {
-  const { data, error, isLoading, mutate } = useSWR(
-    'trendingProducts',
-    getTrendingProducts,
-    swrOptions,
+  const getKey = useCallback(
+    (
+      pageIndex: number,
+      previousPageData: TrendingProductsResponse | null,
+    ): string | null => {
+      if (previousPageData && !previousPageData.next) return null;
+      if (pageIndex === 0) return '/trendingitems/';
+      return previousPageData!.next;
+    },
+    [],
   );
 
+  const { data, error, size, setSize, mutate } =
+    useSWRInfinite<TrendingProductsResponse>(
+      getKey,
+      (url: string) => getTrendingProductsPage(url),
+      {
+        revalidateAll: false,
+        revalidateOnFocus: false,
+        ...swrOptions,
+      },
+    );
+
+  const rawProductsData = data
+    ? data.flatMap((page) => page.results?.data ?? [])
+    : [];
+  const productsData = deduplicateProducts(rawProductsData);
+  const totalCount = data?.[0]?.count ?? 0;
+  const nextPageUrl = data?.[data.length - 1]?.next ?? null;
+  const isLoadingInitialData = !data && !error;
+  const isLoadingMore =
+    isLoadingInitialData ||
+    (size > 0 && data && typeof data[size - 1] === 'undefined');
+
   return {
-    productsData: extractProducts(data),
-    isLoading,
+    productsData,
+    totalCount,
+    nextPageUrl,
+    isLoading: isLoadingMore,
     isError: error,
     mutate,
+    size,
+    setSize,
   };
 }
 
