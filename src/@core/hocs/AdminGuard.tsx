@@ -24,10 +24,6 @@ const AdminGuard: React.FC<AdminGuardProps> = ({ children }) => {
   }, [userProfile, isLoading, router]);
 
   if (isLoading) {
-    // Option 1: Use a themed loader component if you have one
-    // return <ThemedLoader />;
-
-    // Option 2: Apply some basic themed styling (example)
     return (
       <div
         style={{
@@ -39,6 +35,10 @@ const AdminGuard: React.FC<AdminGuardProps> = ({ children }) => {
         Loading admin area...
       </div>
     );
+  }
+
+  if (!userProfile || userProfile.role !== 'Admin') {
+    return null;
   }
 
   return <>{children}</>;

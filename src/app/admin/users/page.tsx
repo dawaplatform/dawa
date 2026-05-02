@@ -1,6 +1,8 @@
 'use client';
 
 import { useAdminUsers, useChangeUserRole, useDeleteUser } from '@/app/server/admin/api';
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
+import { AdminTableSurface } from '@/components/admin/AdminTableSurface';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -132,9 +134,9 @@ const AdminUsersPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
-        <span className="ml-2">Loading users...</span>
+      <div className="flex justify-center items-center h-64 gap-3">
+        <Loader2 className="h-8 w-8 animate-spin text-primary_1" />
+        <span className="text-gray-600">Loading users…</span>
       </div>
     );
   }
@@ -148,18 +150,21 @@ const AdminUsersPage = () => {
   }
 
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <h1 className="text-2xl font-semibold text-slate-800">User Management</h1>
-        {(roleFilter || searchQuery) && (
-          <div className="text-sm text-gray-500">
-            Showing {filteredUsers.length} of {users.length} users
-            {roleFilter && ` (${roleFilter})`}
-          </div>
-        )}
-      </div>
-      
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+    <div className="w-full">
+      <AdminPageHeader
+        title="User management"
+        description="View accounts, change roles, and remove users."
+        meta={
+          (roleFilter || searchQuery) ? (
+            <span className="text-gray-500">
+              Showing {filteredUsers.length} of {users.length} users
+              {roleFilter ? ` (${roleFilter})` : ''}
+            </span>
+          ) : undefined
+        }
+      />
+
+      <AdminTableSurface>
         <Table>
           <TableHeader>
             <TableRow>
@@ -237,8 +242,8 @@ const AdminUsersPage = () => {
             )}
           </TableBody>
         </Table>
-      </div>
-      
+      </AdminTableSurface>
+
       {/* Change Role Dialog */}
       <Dialog open={isRoleDialogOpen} onOpenChange={setIsRoleDialogOpen}>
         <DialogContent>

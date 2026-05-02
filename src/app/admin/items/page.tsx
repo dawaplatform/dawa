@@ -22,6 +22,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
+import { AdminTableSurface } from '@/components/admin/AdminTableSurface';
 import { toast } from '@/hooks/use-toast';
 import { CheckCircle, Eye, Loader2, Star, XCircle } from 'lucide-react';
 import Image from 'next/image';
@@ -501,8 +503,8 @@ export default function AdminItemsPage() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-[#ffa200]" />
-        <span className="ml-2 text-[#ffa200]">Loading items...</span>
+        <Loader2 className="h-8 w-8 animate-spin text-primary_1" />
+        <span className="ml-2 text-gray-600">Loading items…</span>
       </div>
     );
   }
@@ -525,30 +527,33 @@ export default function AdminItemsPage() {
 
   // --- Render ---
   return (
-    <div className="w-full px-2 sm:px-4 md:px-8">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Item Management</h1>
-        {(statusFilter || searchQuery) && (
-          <div className="text-sm text-gray-500">
-            Showing {filteredItems.length} of {items.length} items
-            {statusFilter && ` (${statusFilter})`}
-          </div>
-        )}
-      </div>
+    <div className="w-full">
+      <AdminPageHeader
+        title="Item management"
+        description="Approve listings, manage promotions, and subscription packages."
+        meta={
+          (statusFilter || searchQuery) ? (
+            <span className="text-gray-500">
+              Showing {filteredItems.length} of {items.length} items
+              {statusFilter ? ` (${statusFilter})` : ''}
+            </span>
+          ) : undefined
+        }
+      />
 
       {/* Subscription Stats */}
       <div className="mb-6">
         <h2 className="text-lg font-semibold mb-2">Subscription Stats</h2>
         {statsLoading ? (
           <div className="flex items-center">
-            <Loader2 className="h-5 w-5 animate-spin mr-2 text-[#ffa200]" />
-            <span className="text-[#ffa200]">Loading stats...</span>
+            <Loader2 className="h-5 w-5 animate-spin mr-2 text-primary_1" />
+            <span className="text-gray-600">Loading stats…</span>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {validPackages.concat('No Package').map((pkg) => (
               <div key={pkg} className="bg-white rounded-xl shadow p-4 flex flex-col items-center border border-slate-100">
-                <span className="font-semibold text-[#ffa200] text-center">{pkg}</span>
+                <span className="font-semibold text-primary_1 text-center">{pkg}</span>
                 <span className="text-2xl font-bold">
                   {subscriptionStats?.subscription_counts?.[pkg] ?? 0}
                 </span>
@@ -627,7 +632,7 @@ export default function AdminItemsPage() {
       </form>
 
       {/* Items Table */}
-      <div className="bg-white rounded-xl shadow border border-slate-100 overflow-x-auto">
+      <AdminTableSurface>
         <Table>
           <TableHeader className="sticky top-0 bg-white z-10">
             <TableRow>
@@ -711,7 +716,7 @@ export default function AdminItemsPage() {
                   <div className="flex items-center space-x-2">
                     {promotingItems[item.id] ? (
                       <div className="h-4 w-4 mr-2">
-                        <Loader2 className="h-4 w-4 animate-spin text-[#ffa200]" />
+                        <Loader2 className="h-4 w-4 animate-spin text-primary_1" />
                       </div>
                     ) : (
                       <Switch
@@ -799,114 +804,9 @@ export default function AdminItemsPage() {
             )}
           </TableBody>
         </Table>
-      </div>
+      </AdminTableSurface>
 
-      {/* Item Details Dialog */}
-      {selectedItem && (
-        <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
-          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-bold">Item Details</DialogTitle>
-            </DialogHeader>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-              {/* Images Section */}
-              <div className="space-y-4">
-                <h3 className="font-semibold text-lg">Images</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  {selectedItem.images && selectedItem.images.length > 0 ? (
-                    selectedItem.images.map((img, index) => (
-                      <div key={img.id} className="aspect-square relative rounded-lg overflow-hidden bg-slate-100">
-                        <Image
-                          src={img.image.replace('.heic', '.jpg')}
-                          alt={`${selectedItem.item_name} - Image ${index + 1}`}
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 768px) 50vw, 33vw"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
-                            const parent = target.parentElement;
-                            if (parent) {
-                              parent.classList.add('bg-slate-100');
-                              parent.innerHTML = '<span class="text-slate-400 text-xs">No img</span>';
-                            }
-                          }}
-                        />
-                      </div>
-                    ))
-                  ) : (
-                    <div className="col-span-2 aspect-square rounded-lg bg-slate-100 flex items-center justify-center">
-                      <span className="text-slate-400">No images available</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Details Section */}
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-semibold text-lg mb-2">Basic Information</h3>
-                  <div className="space-y-2">
-                    <p><span className="font-medium">Name:</span> {selectedItem.item_name}</p>
-                    <p><span className="font-medium">Price:</span> {Number(selectedItem.item_price).toFixed(2)} SHS</p>
-                    <p><span className="font-medium">Location:</span> {selectedItem.item_location}</p>
-                    <p><span className="font-medium">Negotiable:</span> {selectedItem.item_negotiable ? 'Yes' : 'No'}</p>
-                    <p><span className="font-medium">Status:</span> {selectedItem.item_status}</p>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="font-semibold text-lg mb-2">Categories</h3>
-                  <div className="space-y-2">
-                    <p><span className="font-medium">Category:</span> {selectedItem.category}</p>
-                    <p><span className="font-medium">Subcategory:</span> {selectedItem.subcategory}</p>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="font-semibold text-lg mb-2">Approval Status</h3>
-                  <div className="space-y-2">
-                    <p>
-                      <span className="font-medium">Status:</span>{' '}
-                      <Badge
-                        variant={
-                          selectedItem.approval_status === 'Approved'
-                            ? 'default'
-                            : selectedItem.approval_status === 'Rejected'
-                            ? 'destructive'
-                            : 'outline'
-                        }
-                      >
-                        {selectedItem.approval_status || 'Pending'}
-                      </Badge>
-                    </p>
-                    {selectedItem.approval_status === 'Rejected' && selectedItem.rejection_reason && (
-                      <p><span className="font-medium">Rejection Reason:</span> {selectedItem.rejection_reason}</p>
-                    )}
-                    {selectedItem.approved_by && (
-                      <p><span className="font-medium">Approved By:</span> {selectedItem.approved_by}</p>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="font-semibold text-lg mb-2">Description</h3>
-                  <p className="text-slate-600 whitespace-pre-wrap">{selectedItem.item_description}</p>
-                </div>
-
-                <div>
-                  <h3 className="font-semibold text-lg mb-2">Timestamps</h3>
-                  <div className="space-y-2">
-                    <p><span className="font-medium">Created:</span> {new Date(selectedItem.created_at).toLocaleString()}</p>
-                    <p><span className="font-medium">Updated:</span> {new Date(selectedItem.updated_at).toLocaleString()}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
+      <ItemDetailsDialog />
 
       {/* Approval Dialog */}
       {selectedItem && (

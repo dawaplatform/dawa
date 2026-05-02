@@ -34,7 +34,7 @@ const AdminMobileNav: React.FC = () => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg md:hidden">
+    <nav className="w-full bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] md:hidden">
       <div className="flex justify-around items-center px-1 py-2 safe-area-bottom">
         {navLinks.map(({ href, label, icon: Icon, exact }) => {
           const isActive = isLinkActive(href, exact || false);

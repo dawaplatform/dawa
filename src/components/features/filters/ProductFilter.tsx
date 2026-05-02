@@ -43,8 +43,6 @@ interface ProductFilterProps {
 const MIN_PRICE = 0;
 const MAX_PRICE = 1_000_000_000;
 const STEP = 100_000;
-const DEFAULT_MIN = 20_000_000;
-const DEFAULT_MAX = 80_000_000;
 const CURRENCY = 'UGX';
 
 const allColors = [
@@ -141,9 +139,10 @@ const FilterContent: React.FC<FilterContentProps> = (props) => {
   };
 
   const handleReset = () => {
-    setPriceRangeValue([DEFAULT_MIN, DEFAULT_MAX]);
-    setMinInput(formatCurrency(DEFAULT_MIN));
-    setMaxInput(formatCurrency(DEFAULT_MAX));
+    // Align with SearchPage reset ([MIN_PRICE, MAX_PRICE]) — not the slider defaults
+    setPriceRangeValue([MIN_PRICE, MAX_PRICE]);
+    setMinInput(formatCurrency(MIN_PRICE));
+    setMaxInput(formatCurrency(MAX_PRICE));
     setTempLocation('');
     setTempSelectedColors([]);
     onResetFilters();

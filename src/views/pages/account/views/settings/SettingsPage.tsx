@@ -165,12 +165,16 @@ export default function SettingsPage() {
     keysToUpdate.forEach((key) => {
       const currentValue = formData[key as keyof typeof formData];
       const originalValue = originalData[key as keyof typeof originalData];
-      if (
-        currentValue !== null &&
-        currentValue !== '' &&
-        currentValue !== originalValue
-      ) {
-        changedData[fieldMapping[key]] = currentValue;
+      const cur =
+        currentValue === null || currentValue === undefined
+          ? ''
+          : String(currentValue);
+      const orig =
+        originalValue === null || originalValue === undefined
+          ? ''
+          : String(originalValue);
+      if (cur !== orig) {
+        changedData[fieldMapping[key]] = cur;
       }
     });
 

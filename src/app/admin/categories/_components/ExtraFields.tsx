@@ -44,7 +44,7 @@ export const ExtraFields = ({
                 type="checkbox"
                 checked={field.required}
                 onChange={e => onFieldRequiredChange(idx, e.target.checked)}
-                className="accent-primary-600"
+                className="accent-primary_1"
               />
               Required
             </label>

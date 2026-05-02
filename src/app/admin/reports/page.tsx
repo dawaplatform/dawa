@@ -1,6 +1,7 @@
 'use client';
 
 import { useAdminDashboardStats, useAdminItems, useAdminUsers, useAdminCategories } from '@/app/server/admin/api';
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, AlertTriangle, TrendingUp, Users, ShoppingBag, BarChart3 } from 'lucide-react';
 import {
@@ -88,13 +89,10 @@ export default function AdminReportsPage() {
 
   return (
     <div className="space-y-5">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Reports & Analytics</h1>
-          <p className="text-sm text-gray-500">Comprehensive insights and analytics for your platform</p>
-        </div>
-      </div>
+      <AdminPageHeader
+        title="Reports & analytics"
+        description="Deeper cuts across users, listings, categories, and engagement."
+      />
 
       {/* Key Metrics Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

@@ -63,7 +63,7 @@ const DesktopNav: React.FC<DesktopNavProps> = ({
   };
 
   return (
-    <div className="bg-white hidden sm:block">
+    <div className="bg-white hidden md:block">
       <div
         className={`${MainConfigs.maxWidthClass} flex items-center justify-between ${
           isSticky ? 'py-2' : 'py-4'

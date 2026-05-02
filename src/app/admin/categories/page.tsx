@@ -18,6 +18,7 @@ import { toast } from '@/hooks/use-toast';
 import { Plus } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import {
   CategoryDialog,
   CategoryTable,
@@ -420,8 +421,11 @@ const AdminCategoriesPage = () => {
   };
 
   return (
-    <div className='pb-12'>
-      <h1 className="text-2xl font-semibold text-slate-800 mb-6">Category Management</h1>
+    <div className="w-full pb-12">
+      <AdminPageHeader
+        title="Category management"
+        description="Manage categories, subcategories, and listing metadata fields."
+      />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="mb-4">

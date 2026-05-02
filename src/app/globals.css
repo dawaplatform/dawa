@@ -23,6 +23,8 @@ body {
 
 @layer base {
   :root {
+    /* Dawa brand accent — keep in sync with tailwind `primary_1` (#FFA200) */
+    --dawa-brand: 38 100% 50%;
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
@@ -83,6 +85,12 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 }
 

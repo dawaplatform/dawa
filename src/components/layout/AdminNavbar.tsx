@@ -42,8 +42,9 @@ const AdminNavbar = ({ onMobileMenuOpen }: AdminNavbarProps) => {
   };
 
   return (
-    <nav className="bg-white shadow-lg border-b-2 border-gray-300 sticky top-0 z-40">
+    <nav className="sticky top-0 z-40 border-b border-gray-200/90 bg-white/95 shadow-sm backdrop-blur-md supports-[backdrop-filter]:bg-white/90">
       <div className="w-full px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-0">
         <div className="flex items-center justify-between h-16">
           {/* Left: Mobile menu button and Search bar */}
           <div className="flex items-center gap-4 flex-1">
@@ -135,6 +136,10 @@ const AdminNavbar = ({ onMobileMenuOpen }: AdminNavbarProps) => {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+        </div>
+        <div className="md:hidden pb-3 w-full -mt-1">
+          <AdminSearch />
+        </div>
         </div>
       </div>
     </nav>
