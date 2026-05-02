@@ -14,7 +14,7 @@ interface ApiUserData {
 }
 
 interface LoginResponse {
-  status: number;
+  status?: number;
   message?: string;
   user_data?: {
     token?: string;
@@ -88,25 +88,24 @@ export const authOptions: NextAuthOptions = {
               password: credentials.password,
             },
             {
-              validateStatus: (status) => status === 200 || status === 202,
+              validateStatus: (status) => status >= 200 && status < 300,
             },
           );
 
-          const { status, user_data, message } = response.data;
+          const { user_data, message } = response.data;
 
-          if (status !== 202 || !user_data?.user_data) {
-            console.error('Invalid login response:', response.data);
+          if (!user_data?.user_data) {
             throw new Error(message || 'Invalid login response');
           }
 
           const userInfo = user_data.user_data;
 
           if (!userInfo.id || !userInfo.email) {
-            console.error(
-              'Incomplete user data returned from login API:',
-              userInfo,
-            );
             throw new Error('Incomplete user data returned from login API');
+          }
+
+          if (!user_data.token) {
+            throw new Error('Login succeeded but no access token was returned.');
           }
 
           // Ensure role and token are always defined (fallbacks provided)
@@ -116,10 +115,9 @@ export const authOptions: NextAuthOptions = {
             email: userInfo.email,
             image: userInfo.user_profile_picture ?? null,
             role: userInfo.user_role ?? 'Client',
-            token: user_data.token ?? '',
+            token: user_data.token,
           };
         } catch (error) {
-          console.error('Login error:', error);
           throw error;
         }
       },
@@ -135,7 +133,7 @@ export const authOptions: NextAuthOptions = {
               `${process.env.NEXT_PUBLIC_API_URL}/googlelogin/`,
               {
                 google_token: account.id_token,
-                user_role: 'Client',
+                role: 'Client',
               },
             );
 
@@ -156,7 +154,6 @@ export const authOptions: NextAuthOptions = {
             token.role = userInfo.user_role ?? 'Client';
             token.accessToken = user_data?.token ?? '';
           } catch (error) {
-            console.error('Error during Google login:', error);
             throw error;
           }
         } else if (account.provider === 'credentials') {

@@ -49,6 +49,20 @@ const ChangePasswordForm: React.FC = () => {
   // Retrieve the email from sessionStorage
   const [email, setEmail] = useState<string | null>(null);
 
+  const getErrorMessage = (error: unknown) => {
+    const err = error as {
+      response?: { data?: { message?: string; detail?: string; error?: string } };
+      message?: string;
+    };
+    return (
+      err?.response?.data?.message ||
+      err?.response?.data?.detail ||
+      err?.response?.data?.error ||
+      err?.message ||
+      'Something went wrong. Please try again.'
+    );
+  };
+
   useEffect(() => {
     const storedEmail = sessionStorage.getItem('resetEmail');
     if (storedEmail) {
@@ -76,8 +90,8 @@ const ChangePasswordForm: React.FC = () => {
       sessionStorage.removeItem('resetEmail');
       toast.success('Password reset successfully!');
       router.push('/login');
-    } catch (error: any) {
-      toast.error(error.message || 'Something went wrong. Please try again.');
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error));
     }
   };
 

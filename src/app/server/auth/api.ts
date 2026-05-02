@@ -40,7 +40,10 @@ export const activateAccount = async (
 export const resendActivationEmail = async (data: {
   email: string;
 }): Promise<any> => {
-  const response = await openApiClient.post('/resendactivationemail/', data);
+  const response = await openApiClient.post('/resendotp/', {
+    email: data.email,
+    purpose: 'activate',
+  });
   return response.data;
 };
 

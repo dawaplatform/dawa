@@ -111,7 +111,6 @@ const RegistrationForm: React.FC = () => {
     try {
       // Assume registerUser returns a parsed JSON object.
       const result = await registerUser(formattedData);
-      console.info(result);
 
       if (result.status === 201 || result.status === 200) {
         sessionStorage.setItem('registeredEmail', formattedData.email);

@@ -33,16 +33,28 @@ const ForgotPasswordForm: React.FC = () => {
   const router = useRouter();
   const [apiError, setApiError] = useState<string | null>(null);
 
+  const getErrorMessage = (error: unknown) => {
+    const err = error as {
+      response?: { data?: { message?: string; detail?: string; error?: string } };
+      message?: string;
+    };
+    return (
+      err?.response?.data?.message ||
+      err?.response?.data?.detail ||
+      err?.response?.data?.error ||
+      err?.message ||
+      'Something went wrong. Please try again.'
+    );
+  };
+
   const onSubmit: SubmitHandler<ForgotPasswordFormInputs> = async (data) => {
     setApiError(null);
     try {
       await forgotPassword({ email: data.email });
       sessionStorage.setItem('resetEmail', data.email);
       router.push('/change-password');
-    } catch (error: any) {
-      setApiError(
-        error.response.data.detail || 'Something went wrong. Please try again.',
-      );
+    } catch (error: unknown) {
+      setApiError(getErrorMessage(error));
     }
   };
 
