@@ -8,9 +8,10 @@ interface ApiUserData {
   email: string;
   first_name?: string;
   last_name?: string;
-  user_profile_picture?: string;
-  // user_role must always be "Client" or "Vendor"
-  user_role?: 'Client' | 'Vendor';
+  /** Backend sends `profile_picture` (not user_profile_picture) */
+  profile_picture?: string;
+  /** Backend sends `role` (not user_role) */
+  role?: 'Client' | 'Vendor' | 'Admin';
 }
 
 interface LoginResponse {
@@ -113,8 +114,8 @@ export const authOptions: NextAuthOptions = {
             id: userInfo.id.toString(),
             name: `${userInfo.first_name || ''} ${userInfo.last_name || ''}`.trim(),
             email: userInfo.email,
-            image: userInfo.user_profile_picture ?? null,
-            role: userInfo.user_role ?? 'Client',
+            image: userInfo.profile_picture ?? null,
+            role: (userInfo.role as 'Client' | 'Vendor') ?? 'Client',
             token: user_data.token,
           };
         } catch (error) {
@@ -129,12 +130,19 @@ export const authOptions: NextAuthOptions = {
       if (account && user) {
         if (account.provider === 'google') {
           try {
+            if (!account.id_token) {
+              throw new Error(
+                'Google did not return an id_token. Ensure "openid" scope is included.',
+              );
+            }
+
             const response = await axios.post<LoginResponse>(
               `${process.env.NEXT_PUBLIC_API_URL}/googlelogin/`,
               {
                 google_token: account.id_token,
                 role: 'Client',
               },
+              { timeout: 12_000 },
             );
 
             const { user_data } = response.data;
@@ -150,11 +158,23 @@ export const authOptions: NextAuthOptions = {
             token.name =
               `${userInfo.first_name || ''} ${userInfo.last_name || ''}`.trim();
             token.email = userInfo.email;
-            token.picture = userInfo.user_profile_picture ?? null;
-            token.role = userInfo.user_role ?? 'Client';
+            token.picture = userInfo.profile_picture ?? null;
+            token.role = (userInfo.role as 'Client' | 'Vendor') ?? 'Client';
             token.accessToken = user_data?.token ?? '';
-          } catch (error) {
-            throw error;
+          } catch (err: unknown) {
+            const e = err as NodeJS.ErrnoException & { response?: { status?: number; data?: unknown } };
+            const code = e.code ?? 'UNKNOWN';
+            const status = e.response?.status;
+            const hint =
+              code === 'ECONNREFUSED'
+                ? 'Django backend is not running — start it with: python manage.py runserver'
+                : code === 'ETIMEDOUT'
+                ? 'Connection to Django backend timed out — ensure NEXT_PUBLIC_API_URL is reachable and the server is running'
+                : status
+                ? `Django returned HTTP ${status}`
+                : e.message;
+            console.error('[Google OAuth] Backend call failed:', hint, e.response?.data ?? '');
+            throw new Error(`Google sign-in failed: ${hint}`);
           }
         } else if (account.provider === 'credentials') {
           token.id = user.id;
@@ -181,6 +201,7 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: '/login',
+    error: '/login',
   },
   session: {
     strategy: 'jwt',

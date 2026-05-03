@@ -8,10 +8,9 @@ import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import InputField from '@/components/shared/InputField';
 import Link from 'next/link';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { authSchema } from '@core/validations/authValidation';
-import { useSession } from 'next-auth/react';
 import GoogleIcon from '@public/assets/svgs/google.svg';
 
 interface ILoginInputs {
@@ -26,13 +25,8 @@ const LoginForm: React.FC = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Using NextAuth’s useSession hook provides a status.
-  const { data: session, status } = useSession();
-
-  // If you want to auto-redirect only when the session is authenticated,
-  // you can condition on the session status.
-  // To prevent auto-redirection altogether, simply remove or comment out this effect.
-
+  // Redirect already-authenticated users away from /login
+  const { status } = useSession();
   useEffect(() => {
     if (status === 'authenticated') {
       router.push('/home');
@@ -54,15 +48,10 @@ const LoginForm: React.FC = () => {
     },
   });
 
-  const handleGoogleSignIn = async () => {
-    setIsLoading(true);
-    const result = await signIn('google', { redirect: false });
-    if (result?.error) {
-      setErrorMessage(result.error);
-    } else if (result?.ok) {
-      router.push('/');
-    }
-    setIsLoading(false);
+  // Google sign-in: let NextAuth own the OAuth redirect flow.
+  // callbackUrl tells NextAuth where to send the user after Google authenticates.
+  const handleGoogleSignIn = () => {
+    signIn('google', { callbackUrl: '/home' });
   };
 
   const onSubmit: SubmitHandler<ILoginInputs> = async (data) => {
@@ -75,12 +64,12 @@ const LoginForm: React.FC = () => {
         password: data.password,
       });
       if (res?.error) {
+        // NextAuth wraps the thrown Error message in res.error
         setErrorMessage(res.error);
       } else if (res?.ok) {
-        router.push('/');
+        router.push('/home');
       }
-    } catch (error) {
-      console.error('Login error:', error);
+    } catch {
       setErrorMessage('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
@@ -89,10 +78,8 @@ const LoginForm: React.FC = () => {
 
   // Auto-hide error message after 5 seconds
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (errorMessage) {
-      timer = setTimeout(() => setErrorMessage(null), 5000);
-    }
+    if (!errorMessage) return;
+    const timer = setTimeout(() => setErrorMessage(null), 5000);
     return () => clearTimeout(timer);
   }, [errorMessage]);
 
@@ -104,7 +91,7 @@ const LoginForm: React.FC = () => {
       </p>
 
       {errorMessage && (
-        <p className="text-red-500 text-sm text-center">{errorMessage}</p>
+        <p className="text-red-500 text-sm text-center mb-4">{errorMessage}</p>
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -204,13 +191,14 @@ const LoginForm: React.FC = () => {
           type="button"
           icon={GoogleIcon}
           onClick={handleGoogleSignIn}
+          disabled={isLoading}
           className="w-full mt-4 h-12 bg-gray-200 text-gray-700 rounded-md font-semibold hover:bg-gray-300 transition-colors flex items-center justify-center"
         >
           Sign in with Google
         </Button>
 
         <p className="mt-8 text-sm text-center text-gray-600">
-          Don’t have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link href="/register" className="text-primary_1 hover:underline">
             Register now
           </Link>

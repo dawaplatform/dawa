@@ -1,5 +1,11 @@
 'use client';
 import { useAuth } from '@/@core/hooks/use-auth';
+import { useTrendingProducts } from '@/@core/hooks/useProductData';
+import {
+  buildCategoryImageMap,
+  getCategoryImageUrl,
+} from '@/@core/utils/categoryImage';
+import { normalizeProducts } from '@/@core/utils/normalizeProductData';
 import { slugify } from '@/@core/utils/slugify';
 import { useDispatch, useSelector } from '@/redux-store/hooks';
 import { openAuthDialog } from '@/redux-store/slices/authDialog/authDialogSlice';
@@ -8,7 +14,7 @@ import { Plus } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Category } from '../types/category';
 import { categoryIconMap, UniversalFallbackIcon } from './icon-maps';
 
@@ -20,6 +26,17 @@ const MobileCategoryGrid: React.FC = React.memo(() => {
   const categories = useSelector((state: { categories: CategoriesState }) => state.categories.categories) as Category[];
   const status = useSelector((state: { categories: CategoriesState }) => state.categories.status);
 
+  // Pull the currently loaded trending products so we can fall back to an
+  // item's image when a category has no explicit image_url (mobile parity).
+  const { productsData } = useTrendingProducts();
+  const normalizedProducts = useMemo(
+    () => normalizeProducts(productsData),
+    [productsData],
+  );
+  const categoryImageMap = useMemo(
+    () => buildCategoryImageMap(categories, normalizedProducts),
+    [categories, normalizedProducts],
+  );
 
   const handleSellClick = () => {
     if (!user) {
@@ -32,12 +49,10 @@ const MobileCategoryGrid: React.FC = React.memo(() => {
   if (status === 'loading') {
     return (
       <div className="grid grid-cols-4 gap-2">
-        {/* Skeleton for Post Ad Button */}
         <div className="animate-pulse flex flex-col items-center justify-center p-4 bg-gray-300 text-white aspect-square rounded-lg">
           <div className="h-6 w-6 mb-2 bg-gray-400 rounded" />
           <span className="text-xs text-center bg-gray-400 h-3 w-full rounded" />
         </div>
-        {/* Skeletons for Category Items */}
         {Array.from({ length: 7 }).map((_, i) => (
           <div
             key={i}
@@ -63,21 +78,21 @@ const MobileCategoryGrid: React.FC = React.memo(() => {
       </button>
 
       {/* Category List */}
-      {categories.map(({ category_name, image_url }: any) => {
-        // Add console.log for image_url
-        console.log('Category:', category_name, 'Image URL:', image_url);
+      {categories.map((category) => {
+        const { category_name } = category;
         const Icon = categoryIconMap[category_name] || UniversalFallbackIcon;
         const categorySlug = slugify(category_name);
+        const imageUrl = getCategoryImageUrl(category, categoryImageMap);
         return (
           <Link key={category_name} href={`/subs/${categorySlug}`}>
-            <div className="flex flex-col items-center justify-center bg-gray-100 border aspect-square rounded-lg p-0.5">
-              {image_url ? (
+            <div className="flex flex-col items-center justify-center bg-gray-100 border aspect-square rounded-lg overflow-hidden">
+              {imageUrl ? (
                 <Image
-                  src={image_url}
+                  src={imageUrl}
                   alt={category_name}
-                  width={80}
-                  height={80}
-                  className="object-fill w-16 h-16"
+                  width={160}
+                  height={160}
+                  className="object-cover w-full h-full"
                 />
               ) : (
                 <Icon className="w-16 h-16 text-primary" />

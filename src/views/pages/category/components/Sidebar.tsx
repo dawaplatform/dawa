@@ -1,5 +1,11 @@
 'use client';
 
+import { useTrendingProducts } from '@/@core/hooks/useProductData';
+import {
+  buildCategoryImageMap,
+  getCategoryImageUrl,
+} from '@/@core/utils/categoryImage';
+import { normalizeProducts } from '@/@core/utils/normalizeProductData';
 import { slugify } from '@/@core/utils/slugify';
 import { getProductCategories } from '@/app/server/categories/api';
 import CustomizableNoData from '@/components/shared/no-data';
@@ -17,6 +23,7 @@ import React, {
   MouseEvent as ReactMouseEvent,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -117,6 +124,18 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelect }) => {
   // const categories: Category[] = apiCategories || fallbackCategories || [];
   const isLoading = isLoadingApi || (shouldFetchFallback && isLoadingFallback);
 
+  // Build a categoryId -> first item image map so the sidebar can show an
+  // item photo as the icon when no explicit image_url exists (mobile parity).
+  const { productsData } = useTrendingProducts();
+  const normalizedProducts = useMemo(
+    () => normalizeProducts(productsData),
+    [productsData],
+  );
+  const categoryImageMap = useMemo(
+    () => buildCategoryImageMap(categories, normalizedProducts),
+    [categories, normalizedProducts],
+  );
+
   // Track the currently hovered category.
   const [hoveredCategory, setHoveredCategory] = useState<Category | null>(null);
 
@@ -194,6 +213,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelect }) => {
         categoryIconMap[category.category_name] || UniversalFallbackIcon;
       const isActive = hoveredCategory?.id === category.id;
       const hasSubcats = hasSubcategories(category);
+      const iconImageUrl = getCategoryImageUrl(category, categoryImageMap);
 
       return (
         <div
@@ -213,9 +233,9 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelect }) => {
                 }`}
             >
               <div className="flex items-center gap-2 truncate">
-                <div className="bg-primary_2 p-1 rounded">
-                  {category.image_url ? (
-                    <img src={category.image_url} alt={category.category_name} className="h-5 w-5 object-contain" />
+                <div className="bg-primary_2 p-1 rounded overflow-hidden h-7 w-7 flex items-center justify-center">
+                  {iconImageUrl ? (
+                    <img src={iconImageUrl} alt={category.category_name} className="h-full w-full object-cover rounded" />
                   ) : (
                     <Icon className="h-5 w-5" />
                   )}
@@ -244,6 +264,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelect }) => {
       handleMouseEnterCategory,
       handleItemClick,
       hasSubcategories,
+      categoryImageMap,
     ],
   );
 
