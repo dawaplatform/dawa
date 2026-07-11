@@ -13,6 +13,7 @@ import { SellerType } from '@/views/pages/product/types/product';
 import { toast } from 'sonner';
 
 import { useSendMessage } from '@/@core/hooks/useProductData';
+import { getMessageSendError } from '@/@core/utils/apiClient';
 import { useProfile } from '@/contexts/profile-context';
 import { useAuth } from '@/@core/hooks/use-auth';
 import { openAuthDialog } from '@/redux-store/slices/authDialog/authDialogSlice';
@@ -132,7 +133,8 @@ Thanks`;
       toast.success('Your request for a callback has been sent successfully!');
     } catch (err) {
       console.error('Error requesting callback:', err);
-      toast.error('Failed to request callback. Please try again.');
+      const apiError = getMessageSendError(err);
+      toast.error(apiError.title, { description: apiError.message });
     } finally {
       setOpenCallbackDialog(false);
     }

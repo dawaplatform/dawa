@@ -25,6 +25,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useSendMessage } from '@core/hooks/useProductData';
+import { getMessageSendError } from '@/@core/utils/apiClient';
 import { toast } from 'sonner';
 import useIsMobile from '@/@core/hooks/useIsMobile';
 
@@ -84,11 +85,10 @@ const SendMessageDialog: React.FC<SendMessageDialogProps> = ({
       reset();
       onOpenChange(false);
       toast.success('Message sent successfully!');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error submitting message:', err);
-      toast.error(
-        err.message || 'Failed to send the message. Please try again.',
-      );
+      const apiError = getMessageSendError(err);
+      toast.error(apiError.title, { description: apiError.message });
     }
   };
 

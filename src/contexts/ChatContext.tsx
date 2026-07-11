@@ -19,6 +19,8 @@ import type {
 } from '@/views/pages/messages/types/message';
 import { useMessages, useSendMessage } from '@core/hooks/useProductData';
 import { useAuth } from '@core/hooks/use-auth';
+import { getMessageSendError } from '@/@core/utils/apiClient';
+import { toast } from 'sonner';
 
 // Create a context to hold all chat-related state and logic.
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -151,6 +153,8 @@ const ChatProviderWithUser: React.FC<{ children: ReactNode }> = ({
           ),
         );
         console.error('Failed to send message:', error);
+        const apiError = getMessageSendError(error);
+        toast.error(apiError.title, { description: apiError.message });
       }
     },
     [

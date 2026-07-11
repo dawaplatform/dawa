@@ -26,6 +26,7 @@ import { AlertCircle } from 'lucide-react';
 
 import { useSendMessage } from '@core/hooks/useProductData';
 import { formatCurrency } from '@/@core/utils/CurrencyFormatter';
+import { getMessageSendError } from '@/@core/utils/apiClient';
 import { toast } from 'sonner';
 import useIsMobile from '@/@core/hooks/useIsMobile';
 
@@ -113,9 +114,10 @@ Thank you`;
       reset();
       onOpenChange(false);
       toast.success('Your offer has been sent successfully!');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error sending offer:', err);
-      toast.error('Failed to send your offer. Please try again.');
+      const apiError = getMessageSendError(err);
+      toast.error(apiError.title, { description: apiError.message });
     }
   };
 
