@@ -1,16 +1,16 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { format, isValid } from 'date-fns';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Search, X, AlertCircle } from 'lucide-react';
-import type {
-  MessageGroup,
-  User,
-  Message,
-} from '@/views/pages/messages/types/message';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import CustomizableNoData from '@/components/shared/no-data';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import type {
+    Message,
+    MessageGroup,
+    User,
+} from '@/views/pages/messages/types/message';
+import { format, isValid } from 'date-fns';
+import { AlertCircle, Search, X } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
 
 interface ContactListProps {
   messageGroups: MessageGroup[];
@@ -31,16 +31,16 @@ const ContactItem: React.FC<{
   );
   if (!receiver) return null;
 
-  const lastMessage: Message = group.messages[group.messages.length - 1];
+  const lastMessage: Message | undefined =
+    group.messages[group.messages.length - 1];
   const unreadCount = group.messages.filter(
     (msg) => Number(msg.receiverId) === Number(currentUser.id) && !msg.read,
   ).length;
 
   const subjectText = group.subject.item_name;
-  const messageDate = new Date(lastMessage.createdAt);
-  const formattedTime = isValid(messageDate)
-    ? format(messageDate, 'HH:mm')
-    : '—';
+  const messageDate = lastMessage ? new Date(lastMessage.createdAt) : null;
+  const formattedTime =
+    messageDate && isValid(messageDate) ? format(messageDate, 'HH:mm') : '—';
 
   return (
     <button
@@ -72,7 +72,7 @@ const ContactItem: React.FC<{
         </div>
         <p className="text-sm text-gray-600 truncate mt-0.5">{subjectText}</p>
         <p className="text-sm text-gray-500 truncate mt-0.5">
-          {lastMessage.message}
+          {lastMessage?.message ?? ''}
         </p>
       </div>
       {/* {unreadCount > 0 && (

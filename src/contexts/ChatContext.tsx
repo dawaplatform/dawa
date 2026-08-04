@@ -1,26 +1,26 @@
 'use client';
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useMemo,
-  type ReactNode,
-} from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import type {
-  MessageGroup,
-  User,
-  SendMessagePayload,
-  OptimisticMessage,
-  ChatContextType,
-  Message,
-} from '@/views/pages/messages/types/message';
-import { useMessages, useSendMessage } from '@core/hooks/useProductData';
-import { useAuth } from '@core/hooks/use-auth';
 import { getMessageSendError } from '@/@core/utils/apiClient';
+import type {
+    ChatContextType,
+    Message,
+    MessageGroup,
+    OptimisticMessage,
+    SendMessagePayload,
+    User,
+} from '@/views/pages/messages/types/message';
+import { useAuth } from '@core/hooks/use-auth';
+import { useMessages, useSendMessage } from '@core/hooks/useProductData';
+import React, {
+    createContext,
+    useCallback,
+    useContext,
+    useMemo,
+    useState,
+    type ReactNode,
+} from 'react';
 import { toast } from 'sonner';
+import { v4 as uuidv4 } from 'uuid';
 
 // Create a context to hold all chat-related state and logic.
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -194,12 +194,10 @@ const ChatProviderWithUser: React.FC<{ children: ReactNode }> = ({
   // Sort groups so that the conversation with the most recent message is first.
   const sortedMessageGroups = useMemo(() => {
     return combinedMessageGroups.slice().sort((a, b) => {
-      const aLast = new Date(
-        a.messages[a.messages.length - 1].createdAt,
-      ).getTime();
-      const bLast = new Date(
-        b.messages[b.messages.length - 1].createdAt,
-      ).getTime();
+      const aLastMsg = a.messages[a.messages.length - 1];
+      const bLastMsg = b.messages[b.messages.length - 1];
+      const aLast = aLastMsg ? new Date(aLastMsg.createdAt).getTime() : 0;
+      const bLast = bLastMsg ? new Date(bLastMsg.createdAt).getTime() : 0;
       return bLast - aLast;
     });
   }, [combinedMessageGroups]);
