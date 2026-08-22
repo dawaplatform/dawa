@@ -25,6 +25,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { AdminTableSurface } from '@/components/admin/AdminTableSurface';
 import { toast } from '@/hooks/use-toast';
+import { sanitizeReasonForDisplay, summarizeModeration } from '@/lib/moderation';
 import { CheckCircle, Eye, Loader2, Star, XCircle } from 'lucide-react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
@@ -471,13 +472,49 @@ export default function AdminItemsPage() {
                       {selectedItem.approval_status || 'Pending'}
                     </Badge>
                   </p>
-                  {selectedItem.approval_status === 'Rejected' && selectedItem.rejection_reason && (
-                    <p><span className="font-medium">Rejection Reason:</span> {selectedItem.rejection_reason}</p>
-                  )}
                   {selectedItem.approved_by && (
                     <p><span className="font-medium">Approved By:</span> {selectedItem.approved_by}</p>
                   )}
                 </div>
+
+                {(() => {
+                  const note = summarizeModeration(selectedItem);
+                  if (!note) return null;
+                  const tone =
+                    note.state === 'rejected'
+                      ? 'bg-red-50 border-red-200 text-red-800'
+                      : note.state === 'needs_review'
+                      ? 'bg-amber-50 border-amber-200 text-amber-800'
+                      : note.state === 'failed'
+                      ? 'bg-orange-50 border-orange-200 text-orange-800'
+                      : note.state === 'approved'
+                      ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                      : 'bg-slate-50 border-slate-200 text-slate-800';
+                  const cleanReason = sanitizeReasonForDisplay(note.rawReason);
+                  return (
+                    <div className={`mt-3 border rounded-md p-3 ${tone}`}>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold">{note.headline}</span>
+                        {note.autoModerated && (
+                          <Badge variant="outline" className="text-[10px] uppercase tracking-wide">
+                            Auto
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm mt-1">{note.message}</p>
+                      <div className="text-xs mt-2 space-y-0.5 opacity-90">
+                        <p>
+                          <span className="font-medium">Stage flagged:</span> {note.stageLabel}
+                        </p>
+                        {cleanReason && (
+                          <p>
+                            <span className="font-medium">Reviewer note:</span> {cleanReason}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
 
               <div>
@@ -694,17 +731,37 @@ export default function AdminItemsPage() {
                   <span className="text-xs text-slate-400">SHS</span>
                 </TableCell>
                 <TableCell>
-                  <Badge
-                    variant={
-                      item.approval_status === 'Approved'
-                        ? 'default'
-                        : item.approval_status === 'Rejected'
-                        ? 'destructive'
-                        : 'outline'
-                    }
-                  >
-                    {item.approval_status || 'Pending'}
-                  </Badge>
+                  <div className="flex items-center gap-1.5">
+                    <Badge
+                      variant={
+                        item.approval_status === 'Approved'
+                          ? 'default'
+                          : item.approval_status === 'Rejected'
+                          ? 'destructive'
+                          : 'outline'
+                      }
+                    >
+                      {item.approval_status || 'Pending'}
+                    </Badge>
+                    {(() => {
+                      const md = (item.metadata || {}) as Record<string, unknown>;
+                      if (md.needs_review === true || md.moderation_state === 'needs_review') {
+                        return (
+                          <Badge variant="outline" className="text-[10px] bg-amber-50 border-amber-200 text-amber-700">
+                            Needs review
+                          </Badge>
+                        );
+                      }
+                      if (md.moderation_state && item.approval_status !== 'Approved') {
+                        return (
+                          <Badge variant="outline" className="text-[10px] bg-slate-50 border-slate-200 text-slate-600">
+                            Auto
+                          </Badge>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
                 </TableCell>
                 <TableCell>
                   <Badge variant="outline">{item.item_status || 'Available'}</Badge>

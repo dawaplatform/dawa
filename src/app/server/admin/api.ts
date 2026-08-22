@@ -40,6 +40,7 @@ export interface ItemAdminSerializer {
   created_at: string;
   updated_at: string;
   subscription_package?: string | null;
+  metadata?: Record<string, unknown> | null;
 }
 
 export interface AdminDashboardStatsData {
