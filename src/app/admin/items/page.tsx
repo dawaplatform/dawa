@@ -24,6 +24,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { AdminTableSurface } from '@/components/admin/AdminTableSurface';
+import { AdminToolbar } from '@/components/admin/AdminToolbar';
 import { toast } from '@/hooks/use-toast';
 import { sanitizeReasonForDisplay, summarizeModeration } from '@/lib/moderation';
 import { CheckCircle, Eye, Loader2, Star, XCircle } from 'lucide-react';
@@ -568,14 +569,18 @@ export default function AdminItemsPage() {
       <AdminPageHeader
         title="Item management"
         description="Approve listings, manage promotions, and subscription packages."
-        meta={
-          (statusFilter || searchQuery) ? (
-            <span className="text-gray-500">
-              Showing {filteredItems.length} of {items.length} items
-              {statusFilter ? ` (${statusFilter})` : ''}
-            </span>
-          ) : undefined
-        }
+      />
+
+      <AdminToolbar
+        placeholder="Search by item, seller or category"
+        filter={{
+          param: 'status',
+          options: [
+            { value: 'approved', label: 'Approved' },
+            { value: 'pending', label: 'Pending' },
+          ],
+        }}
+        count={{ shown: filteredItems.length, total: items.length, noun: 'items' }}
       />
 
       {/* Subscription Stats */}

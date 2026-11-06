@@ -1,43 +1,18 @@
 'use client';
 
-import {
-  BarChart3,
-  Folder,
-  LayoutDashboard,
-  ShoppingBag,
-  Users,
-} from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React from 'react';
-
-const navLinks = [
-  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-  { href: '/admin/users', label: 'Users', icon: Users, exact: false },
-  { href: '/admin/items', label: 'Items', icon: ShoppingBag, exact: false },
-  { href: '/admin/categories', label: 'Categories', icon: Folder, exact: false },
-  { href: '/admin/reports', label: 'Reports', icon: BarChart3, exact: false },
-];
+import { adminNavLinks, isAdminLinkActive } from './adminNav';
 
 const AdminMobileNav: React.FC = () => {
   const pathname = usePathname();
 
-  // Helper function to determine if a link is active
-  const isLinkActive = (href: string, exact: boolean) => {
-    if (exact) {
-      // For dashboard (/admin), only match exactly
-      return pathname === href;
-    } else {
-      // For other routes, match exactly or if pathname starts with route + '/'
-      return pathname === href || pathname?.startsWith(href + '/');
-    }
-  };
-
   return (
     <nav className="w-full bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] md:hidden">
       <div className="flex justify-around items-center px-1 py-2 safe-area-bottom">
-        {navLinks.map(({ href, label, icon: Icon, exact }) => {
-          const isActive = isLinkActive(href, exact || false);
+        {adminNavLinks.map(({ href, label, icon: Icon, exact }) => {
+          const isActive = isAdminLinkActive(pathname, href, exact);
 
           return (
             <Link

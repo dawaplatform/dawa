@@ -13,7 +13,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     <AdminGuard>
       <div className="flex min-h-screen bg-gray-50">
         {/* Sidebar - shown on medium and up, optimized width */}
-        <aside className="hidden md:block md:w-60 lg:w-64 bg-white shadow-lg border-r border-gray-200">
+        <aside className="hidden md:block md:w-64 bg-white shadow-lg border-r border-gray-200">
           <AdminSidebar />
         </aside>
 

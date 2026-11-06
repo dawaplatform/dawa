@@ -13,6 +13,7 @@ import AutoplayPlugin from 'embla-carousel-autoplay';
 import useEmblaCarousel from 'embla-carousel-react';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
+import { DEFAULT_IMAGE } from '@/@core/utils/images';
 
 // Create a custom hook to check if product data exists
 export function useHasPremiumItems() {
@@ -146,7 +147,7 @@ export function ProductCarousel() {
                   </div>
                   <div className="w-full md:w-1/2 relative bg-gray-100">
                   <CustomImage
-                      src={item.images[0]?.image_url || '/placeholder.png'}
+                      src={item.images[0]?.image_url || DEFAULT_IMAGE}
                       alt={item.item_name}
                       className="h-full w-full object-cover"
                       loading="lazy"

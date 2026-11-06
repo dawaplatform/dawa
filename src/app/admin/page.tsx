@@ -168,6 +168,7 @@ export default function AdminDashboardPage() {
       {/* Engagement Stats Cards - Optimized */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatCard
+          href="/admin/reports"
           icon={<Heart className="w-5 h-5" />}
           label="Total Likes"
           value={stats?.total_likes || 0}
@@ -177,6 +178,7 @@ export default function AdminDashboardPage() {
           valueColor="text-pink-600"
         />
         <StatCard
+          href="/admin/reports"
           icon={<Eye className="w-5 h-5" />}
           label="Total Views"
           value={stats?.total_views || 0}
@@ -186,6 +188,7 @@ export default function AdminDashboardPage() {
           valueColor="text-blue-600"
         />
         <StatCard
+          href="/admin/reports"
           icon={<Share2 className="w-5 h-5" />}
           label="Total Shares"
           value={stats?.total_shares || 0}
@@ -195,6 +198,7 @@ export default function AdminDashboardPage() {
           valueColor="text-indigo-600"
         />
         <StatCard
+          href="/admin/reports"
           icon={<BarChart3 className="w-5 h-5" />}
           label="Wishlist Actions"
           value={stats?.total_wishlist_actions || 0}
@@ -228,6 +232,7 @@ export default function AdminDashboardPage() {
           valueColor="text-green-600"
         />
         <StatCard
+          href="/admin/reports"
           icon={<MessageSquare className="w-5 h-5" />}
           label="Chats"
           value={analytics?.summary.total_chats || 0}
@@ -237,6 +242,7 @@ export default function AdminDashboardPage() {
           valueColor="text-blue-600"
         />
         <StatCard
+          href="/admin/reports"
           icon={<Mail className="w-5 h-5" />}
           label="Messages"
           value={analytics?.summary.total_messages || 0}
@@ -403,14 +409,17 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             {[
-              { label: 'Pending products', value: analytics?.summary.pending_items || 0, tone: 'text-amber-600' },
-              { label: 'Open reports', value: analytics?.summary.reports_pending || 0, tone: 'text-red-600' },
+              { label: 'Pending products', value: analytics?.summary.pending_items || 0, tone: 'text-amber-600', href: '/admin/items?status=pending' },
+              { label: 'Open reports', value: analytics?.summary.reports_pending || 0, tone: 'text-red-600', href: '/admin/reports' },
               { label: 'Unread messages', value: analytics?.summary.unread_messages || 0, tone: 'text-blue-600' },
             ].map((item) => (
-              <div key={item.label} className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
-                <span className="text-sm font-medium text-gray-700">{item.label}</span>
-                <span className={cn('text-lg font-semibold', item.tone)}>{item.value}</span>
-              </div>
+              <ListRow
+                key={item.label}
+                href={item.href}
+                label={item.label}
+                value={item.value}
+                valueClassName={cn('text-lg font-semibold', item.tone)}
+              />
             ))}
           </CardContent>
         </Card>
@@ -421,10 +430,13 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             {(analytics?.top_chatted_products || []).slice(0, 5).map((item) => (
-              <div key={item.id} className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
-                <span className="truncate text-sm font-medium text-gray-700">{item.item_name}</span>
-                <span className="text-sm text-gray-500">{item.message_count} messages</span>
-              </div>
+              <ListRow
+                key={item.id}
+                href={`/admin/items?search=${encodeURIComponent(item.item_name)}`}
+                label={item.item_name}
+                value={`${item.message_count} messages`}
+                valueClassName="text-sm text-gray-500"
+              />
             ))}
             {(analytics?.top_chatted_products || []).length === 0 && (
               <p className="text-sm text-gray-500">No product chat activity yet.</p>
@@ -486,11 +498,46 @@ function StatCard({
 
   if (href) {
     return (
-      <Link href={href} className="block">
+      <Link href={href} className={linkClassName}>
         {cardContent}
       </Link>
     );
   }
 
   return cardContent;
+}
+
+const linkClassName =
+  'block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary_1 focus-visible:ring-offset-2';
+
+function ListRow({
+  href,
+  label,
+  value,
+  valueClassName,
+}: {
+  href?: string;
+  label: string;
+  value: React.ReactNode;
+  valueClassName: string;
+}) {
+  const row = (
+    <div
+      className={cn(
+        'flex items-center justify-between gap-3 rounded-lg bg-gray-50 p-3',
+        href && 'transition-colors hover:bg-primary_2',
+      )}
+    >
+      <span className="truncate text-sm font-medium text-gray-700">{label}</span>
+      <span className={valueClassName}>{value}</span>
+    </div>
+  );
+
+  return href ? (
+    <Link href={href} className={linkClassName}>
+      {row}
+    </Link>
+  ) : (
+    row
+  );
 }

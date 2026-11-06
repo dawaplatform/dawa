@@ -13,13 +13,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import AdminSearch from '@/components/admin/AdminSearch';
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
 } from '@/components/ui/sheet';
 import AdminSidebar from './AdminSidebar';
+import { adminNavLinks, isAdminLinkActive } from './adminNav';
 
 interface AdminNavbarProps {
   onMobileMenuOpen?: (open: boolean) => void;
@@ -64,10 +64,9 @@ const AdminNavbar = ({ onMobileMenuOpen }: AdminNavbarProps) => {
               </SheetContent>
             </Sheet>
 
-            {/* Search bar - More prominent */}
-            <div className="hidden md:flex flex-1 max-w-2xl">
-              <AdminSearch />
-            </div>
+            <h2 className="truncate text-base font-semibold text-gray-900">
+              {adminNavLinks.find((link) => isAdminLinkActive(pathname, link.href, link.exact))?.label ?? 'Admin'}
+            </h2>
           </div>
 
           {/* Right: User menu and actions */}
@@ -136,9 +135,6 @@ const AdminNavbar = ({ onMobileMenuOpen }: AdminNavbarProps) => {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-        </div>
-        <div className="md:hidden pb-3 w-full -mt-1">
-          <AdminSearch />
         </div>
         </div>
       </div>

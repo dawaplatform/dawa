@@ -139,7 +139,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
               {imageUrls.map((url, index) => (
                 <div key={index} className="relative group aspect-square">
                   <Image
-                    src={url || '/placeholder.svg'}
+                    src={url}
                     alt={`Uploaded ${index + 1}`}
                     fill
                     className="object-cover rounded-lg"
@@ -162,7 +162,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
               {uploadingImages.map((image) => (
                 <div key={image.id} className="relative aspect-square">
                   <Image
-                    src={image.preview || '/placeholder.svg'}
+                    src={image.preview}
                     alt="Uploading"
                     fill
                     className="object-cover rounded-lg filter blur-[2px]"

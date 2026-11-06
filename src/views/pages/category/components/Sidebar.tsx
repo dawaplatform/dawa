@@ -1,13 +1,7 @@
 'use client';
 
-import { useTrendingProducts } from '@/@core/hooks/useProductData';
-import {
-  buildCategoryImageMap,
-  getCategoryImageUrl,
-} from '@/@core/utils/categoryImage';
-import { normalizeProducts } from '@/@core/utils/normalizeProductData';
+import { getCategoryImageUrls } from '@/@core/utils/categoryImage';
 import { slugify } from '@/@core/utils/slugify';
-import { getProductCategories } from '@/app/server/categories/api';
 import CustomizableNoData from '@/components/shared/no-data';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -19,6 +13,7 @@ import type {
 } from '@/views/pages/category/types/category';
 import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import RotatingCategoryImage from './RotatingCategoryImage';
 import React, {
   MouseEvent as ReactMouseEvent,
   useCallback,
@@ -29,7 +24,6 @@ import React, {
 } from 'react';
 import { usePopper } from 'react-popper';
 import { useDispatch, useSelector } from 'react-redux';
-import useSWR from 'swr';
 import SidebarSkeleton from './SidebarSkeleton';
 import {
   categoryIconMap,
@@ -50,7 +44,9 @@ function transformCategory(rawCat: any): Category {
     id: rawCat.id,
     category_name: rawCat.category_name,
     category_item_count: rawCat.category_item_count,
-    image_url: rawCat.image_url, // Add this line
+    image_url: rawCat.image_url,
+    cover_image_url: rawCat.cover_image_url,
+    cover_image_urls: rawCat.cover_image_urls,
     subcategories: rawCat.subcategories
       ? rawCat.subcategories.map(
         (sub: any): Subcategory => ({
@@ -68,73 +64,22 @@ function transformCategory(rawCat: any): Category {
   };
 }
 
-// SWR fetchers.
-const apiCategoriesFetcher = async () => {
-  try {
-    const data = await getProductCategories();
-    return data && data.length > 0 ? data.map(transformCategory) : null;
-  } catch (error) {
-    console.error('Error fetching categories from API:', error);
-    throw error;
-  }
-};
-
-const fallbackCategoriesFetcher = async () => {
-  try {
-    const res = await fetch('/categories.json');
-    const data = await res.json();
-    return data && data.length > 0 ? data.map(transformCategory) : [];
-  } catch (error) {
-    console.error('Error fetching fallback categories:', error);
-    throw error;
-  }
-};
-
-const API_CATEGORIES_KEY = 'api-categories';
-const FALLBACK_CATEGORIES_KEY = 'fallback-categories';
+// Icons use the backend's cover photos; no per-item fallback lookup is needed.
+const NO_ITEM_IMAGES: Record<string, string | null> = {};
 
 const Sidebar: React.FC<SidebarProps> = ({ onSelect }) => {
-  // Use SWR to fetch categories from API with caching.
-  const {
-    data: apiCategories,
-    error: apiError,
-    isLoading: isLoadingApi,
-  } = useSWR(API_CATEGORIES_KEY, apiCategoriesFetcher, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    dedupingInterval: 300000, // 5 minutes
-  });
-
-  // Only fetch fallback categories if API categories failed or returned empty.
-  const shouldFetchFallback =
-    apiError || (apiCategories === null && !isLoadingApi);
-
-  const { data: fallbackCategories, isLoading: isLoadingFallback } = useSWR(
-    shouldFetchFallback ? FALLBACK_CATEGORIES_KEY : null,
-    fallbackCategoriesFetcher,
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      dedupingInterval: 300000, // 5 minutes
-    },
+  const rawCategories = useSelector(
+    (state: RootState) => state.categories.categories,
   );
-
-  // Combine the categories from API and fallback.
-  const categories = useSelector((state: RootState) => state.categories.categories).map((cat: any) => transformCategory(cat));
-  // const categories: Category[] = apiCategories || fallbackCategories || [];
-  const isLoading = isLoadingApi || (shouldFetchFallback && isLoadingFallback);
-
-  // Build a categoryId -> first item image map so the sidebar can show an
-  // item photo as the icon when no explicit image_url exists (mobile parity).
-  const { productsData } = useTrendingProducts();
-  const normalizedProducts = useMemo(
-    () => normalizeProducts(productsData),
-    [productsData],
+  const status = useSelector((state: RootState) => state.categories.status);
+  const categories = useMemo(
+    () => rawCategories.map((cat: any) => transformCategory(cat)),
+    [rawCategories],
   );
-  const categoryImageMap = useMemo(
-    () => buildCategoryImageMap(categories, normalizedProducts),
-    [categories, normalizedProducts],
-  );
+  // Show the skeleton until the first fetch settles, not just while it is in flight.
+  const isLoading =
+    categories.length === 0 && (status === 'idle' || status === 'loading');
+  const categoryImageMap = NO_ITEM_IMAGES;
 
   // Track the currently hovered category.
   const [hoveredCategory, setHoveredCategory] = useState<Category | null>(null);
@@ -213,7 +158,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelect }) => {
         categoryIconMap[category.category_name] || UniversalFallbackIcon;
       const isActive = hoveredCategory?.id === category.id;
       const hasSubcats = hasSubcategories(category);
-      const iconImageUrl = getCategoryImageUrl(category, categoryImageMap);
+      const iconImageUrls = getCategoryImageUrls(category, categoryImageMap);
 
       return (
         <div
@@ -234,8 +179,14 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelect }) => {
             >
               <div className="flex items-center gap-2 truncate">
                 <div className="bg-primary_2 p-1 rounded overflow-hidden h-7 w-7 flex items-center justify-center">
-                  {iconImageUrl ? (
-                    <img src={iconImageUrl} alt={category.category_name} className="h-full w-full object-cover rounded" />
+                  {iconImageUrls.length ? (
+                    <RotatingCategoryImage
+                      urls={iconImageUrls}
+                      alt={category.category_name}
+                      size={28}
+                      seed={category.id}
+                      className="h-full w-full object-cover rounded"
+                    />
                   ) : (
                     <Icon className="h-5 w-5" />
                   )}

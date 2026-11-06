@@ -4,6 +4,7 @@ import type React from 'react';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import NextImage, { type ImageProps as NextImageProps } from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cloudinaryLoader, DEFAULT_IMAGE, isCloudinaryUrl } from '@/@core/utils/images';
 import { cn } from '@/lib/utils';
 
 interface CustomImageProps extends Omit<NextImageProps, 'src'> {
@@ -13,11 +14,9 @@ interface CustomImageProps extends Omit<NextImageProps, 'src'> {
   containerClassName?: string;
 }
 
-const DEFAULT_FALLBACK_IMAGE = '/assets/images/default_image.webp';
-
 const CustomImage: React.FC<CustomImageProps> = ({
   src,
-  fallbackSrc = DEFAULT_FALLBACK_IMAGE,
+  fallbackSrc = DEFAULT_IMAGE,
   alt = '',
   quality = 85,
   className,
@@ -86,6 +85,7 @@ const CustomImage: React.FC<CustomImageProps> = ({
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           quality={quality}
+          loader={isCloudinaryUrl(imgSrc) ? cloudinaryLoader : undefined}
           className={cn(
             'object-cover object-center w-full h-full transition-opacity duration-300 rounded-lg',
             isLoading ? 'opacity-0' : 'opacity-100',

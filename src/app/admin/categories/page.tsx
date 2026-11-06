@@ -19,6 +19,7 @@ import { Plus } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
+import { AdminToolbar } from '@/components/admin/AdminToolbar';
 import {
   CategoryDialog,
   CategoryTable,
@@ -427,6 +428,15 @@ const AdminCategoriesPage = () => {
         description="Manage categories, subcategories, and listing metadata fields."
       />
 
+      <AdminToolbar
+        placeholder={activeTab === 'categories' ? 'Search categories' : 'Search subcategories or parent category'}
+        count={
+          activeTab === 'categories'
+            ? { shown: filteredCategories.length, total: categories.length, noun: 'categories' }
+            : { shown: filteredSubcategories.length, total: subcategories.length, noun: 'subcategories' }
+        }
+      />
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="categories">Categories</TabsTrigger>
@@ -449,11 +459,6 @@ const AdminCategoriesPage = () => {
             isUpdating={isUpdatingCategory}
             isDeleting={isDeletingCategory}
           />
-          {searchQuery && (
-            <div className="mt-4 text-sm text-gray-500 text-center">
-              Showing {filteredCategories.length} of {categories.length} categories
-            </div>
-          )}
         </TabsContent>
 
         <TabsContent value="subcategories">
@@ -475,11 +480,6 @@ const AdminCategoriesPage = () => {
             isUpdating={isUpdatingSubcategory}
             isDeleting={isDeletingSubcategory}
           />
-          {searchQuery && (
-            <div className="mt-4 text-sm text-gray-500 text-center">
-              Showing {filteredSubcategories.length} of {subcategories.length} subcategories
-            </div>
-          )}
         </TabsContent>
       </Tabs>
 

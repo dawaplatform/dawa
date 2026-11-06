@@ -6,7 +6,7 @@ import ProductCardSkeleton from '@/components/features/listings/loaders/ProductC
 import CustomizableNoData from '@/components/shared/no-data';
 import { Button } from '@/components/ui/button';
 import useInfiniteScroll from '@core/hooks/useInfiniteScroll';
-import { useTrendingProducts } from '@core/hooks/useProductData';
+import { useHomeFeed } from '@core/hooks/useProductData';
 import React, { useRef, useState } from 'react';
 import { FaTh, FaThList } from 'react-icons/fa';
 import { SimilarItem } from '../product/types/product';
@@ -23,7 +23,7 @@ const ProductPage: React.FC = () => {
     size,
     setSize,
     nextPageUrl,
-  } = useTrendingProducts();
+  } = useHomeFeed();
 
   const normalizedProductsData = normalizeProducts(productsData);
 
@@ -65,7 +65,7 @@ const ProductPage: React.FC = () => {
   if (!normalizedProductsData.length) {
     return (
       <CustomizableNoData
-        title="No Trending Products"
+        title="No Listings Yet"
         description="Check back later!"
         containerClassName="flex flex-col items-center justify-center p-8 text-center w-full"
       />
@@ -75,7 +75,7 @@ const ProductPage: React.FC = () => {
   return (
     <div className="space-y-3">
       <div className="flex justify-between items-center flex-wrap gap-2">
-        <h2 className="text-2xl font-bold text-primary_1">Trending Products</h2>
+        <h2 className="text-2xl font-bold text-primary_1">Recommended For You</h2>
         <div className="flex items-center gap-3">
           {totalCount > 0 && (
             <span className="text-sm text-gray-600">

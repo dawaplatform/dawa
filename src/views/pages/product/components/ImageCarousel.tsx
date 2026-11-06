@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useState, memo } from 'react';
+import { DEFAULT_IMAGE } from '@/@core/utils/images';
 import Image from 'next/image';
 import {
   ChevronLeft,
@@ -112,7 +113,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
             }`}
           >
             <Image
-              src={currentImage.image_url || '/placeholder.svg'}
+              src={currentImage.image_url || DEFAULT_IMAGE}
               alt={`Product image ${currentIndex + 1}`}
               fill
               priority
@@ -185,7 +186,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
               aria-label={`View image ${index + 1}`}
             >
               <Image
-                src={image.image_url || '/placeholder.svg'}
+                src={image.image_url || DEFAULT_IMAGE}
                 alt={`Thumbnail ${index + 1}`}
                 fill
                 className={`
@@ -205,7 +206,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
           <DialogTitle className="sr-only">Fullscreen Image View</DialogTitle>
           <div className="relative w-full h-full">
             <Image
-              src={currentImage.image_url || '/placeholder.svg'}
+              src={currentImage.image_url || DEFAULT_IMAGE}
               alt={`Product image ${currentIndex + 1} fullscreen`}
               fill
               className="object-contain"

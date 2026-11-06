@@ -4,6 +4,7 @@ import type { SimilarItem } from '@/views/pages/product/types/product';
 import { ArrowUpRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
+import { DEFAULT_IMAGE } from '@/@core/utils/images';
 import EmptyState from '../components/EmptyState';
 
 interface SimilarProductsProps {
@@ -20,7 +21,7 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({ similarItems }) => {
         product={{
           ...item,
           item_price: item.item_price ?? item.price ?? 0,
-          images: [{ image_id: '1', image_url: item.image || '/placeholder.jpg' }],
+          images: [{ image_id: '1', image_url: item.image || DEFAULT_IMAGE }],
         }}
         viewType="grid"
       />

@@ -8,6 +8,7 @@ import CustomizableNoData from '@/components/shared/no-data';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { SimilarItem } from '@/views/pages/product/types/product';
 import React, { useState } from 'react';
+import { DEFAULT_IMAGE } from '@/@core/utils/images';
 import type { FilterOption, ShopData } from '../types/types';
 
 interface ShopContentProps {
@@ -40,7 +41,7 @@ const transformItemToSimilarItem = (item: any): SimilarItem => {
     item_location: item.location || item.item_location || 'No Location',
     item_status: item.status || item.item_status || 'No Status',
     item_description: item.description || item.item_description || 'No Description',
-    images: item.images || [{ image_url: '/placeholder.jpg' }],
+    images: item.images || [{ image_url: DEFAULT_IMAGE }],
     seller: item.seller || {},
     reviews: item.reviews ?? 0,
     similar_items: item.similar_items || [],

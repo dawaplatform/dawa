@@ -5,6 +5,9 @@ import axios from 'axios';
 export interface Category {
   id: string;
   category_name: string;
+  image_url?: string | null;
+  cover_image_url?: string | null;
+  cover_image_urls?: string[] | null;
   subcategories?: {
     id: string;
     subcategory_name: string;
@@ -16,29 +19,59 @@ export interface CategoriesState {
   categories: Category[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
+  fetchedAt: number | null;
 }
 
 const initialState: CategoriesState = {
   categories: [],
   status: 'idle',
   error: null,
+  fetchedAt: null,
 };
 
-// Async thunk to fetch categories
+const FRESH_MS = 5 * 60 * 1000;
+const REQUEST_TIMEOUT_MS = 15000;
+
+// Fetch once per few minutes; the sidebar and grid can both ask without duplicating the request.
 export const fetchCategories = createAsyncThunk<
   Category[],
   void,
-  { rejectValue: string }
->('categories/fetchCategories', async (_, { rejectWithValue }) => {
-  try {
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/getcategories/`,
-    );
-    return response.data.data;
-  } catch (error: any) {
-    return rejectWithValue(error.message || 'Failed to fetch categories');
-  }
-});
+  { rejectValue: string; state: { categories: CategoriesState } }
+>(
+  'categories/fetchCategories',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/getcategories/`,
+        { timeout: REQUEST_TIMEOUT_MS },
+      );
+      const data: Category[] = response.data?.data ?? [];
+      if (data.length) return data;
+      throw new Error('Empty categories response');
+    } catch (error: any) {
+      // Bundled copy keeps the menu usable when the API is slow or down.
+      try {
+        const res = await fetch('/categories.json');
+        const fallback: Category[] = await res.json();
+        if (Array.isArray(fallback) && fallback.length) return fallback;
+      } catch {
+        // fall through to reject
+      }
+      return rejectWithValue(error.message || 'Failed to fetch categories');
+    }
+  },
+  {
+    condition: (_, { getState }) => {
+      const { status, categories, fetchedAt } = getState().categories;
+      if (status === 'loading') return false;
+      return !(
+        categories.length &&
+        fetchedAt &&
+        Date.now() - fetchedAt < FRESH_MS
+      );
+    },
+  },
+);
 
 const categoriesSlice = createSlice({
   name: 'categories',
@@ -48,6 +81,7 @@ const categoriesSlice = createSlice({
       state.categories = action.payload;
       state.status = 'succeeded';
       state.error = null;
+      state.fetchedAt = Date.now();
     },
   },
   extraReducers: (builder) => {
@@ -59,6 +93,7 @@ const categoriesSlice = createSlice({
       .addCase(fetchCategories.fulfilled, (state, action) => {
         state.categories = action.payload;
         state.status = 'succeeded';
+        state.fetchedAt = Date.now();
       })
       .addCase(fetchCategories.rejected, (state, action) => {
         state.status = 'failed';

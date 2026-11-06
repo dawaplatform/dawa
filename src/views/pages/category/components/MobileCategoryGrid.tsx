@@ -1,22 +1,20 @@
 'use client';
 import { useAuth } from '@/@core/hooks/use-auth';
-import { useTrendingProducts } from '@/@core/hooks/useProductData';
-import {
-  buildCategoryImageMap,
-  getCategoryImageUrl,
-} from '@/@core/utils/categoryImage';
-import { normalizeProducts } from '@/@core/utils/normalizeProductData';
+import { getCategoryImageUrls } from '@/@core/utils/categoryImage';
 import { slugify } from '@/@core/utils/slugify';
 import { useDispatch, useSelector } from '@/redux-store/hooks';
 import { openAuthDialog } from '@/redux-store/slices/authDialog/authDialogSlice';
-import { CategoriesState } from '@/redux-store/slices/categories/categories';
+import {
+  CategoriesState,
+  fetchCategories,
+} from '@/redux-store/slices/categories/categories';
 import { Plus } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React, { useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { Category } from '../types/category';
 import { categoryIconMap, UniversalFallbackIcon } from './icon-maps';
+import RotatingCategoryImage from './RotatingCategoryImage';
 
 const MobileCategoryGrid: React.FC = React.memo(() => {
   const router = useRouter();
@@ -26,17 +24,12 @@ const MobileCategoryGrid: React.FC = React.memo(() => {
   const categories = useSelector((state: { categories: CategoriesState }) => state.categories.categories) as Category[];
   const status = useSelector((state: { categories: CategoriesState }) => state.categories.status);
 
-  // Pull the currently loaded trending products so we can fall back to an
-  // item's image when a category has no explicit image_url (mobile parity).
-  const { productsData } = useTrendingProducts();
-  const normalizedProducts = useMemo(
-    () => normalizeProducts(productsData),
-    [productsData],
-  );
-  const categoryImageMap = useMemo(
-    () => buildCategoryImageMap(categories, normalizedProducts),
-    [categories, normalizedProducts],
-  );
+  // Icons use the backend's cover photos; no per-item fallback lookup is needed.
+  const categoryImageMap: Record<string, string | null> = {};
+
+  useEffect(() => {
+    dispatch(fetchCategories() as any);
+  }, [dispatch]);
 
   const handleSellClick = () => {
     if (!user) {
@@ -46,7 +39,7 @@ const MobileCategoryGrid: React.FC = React.memo(() => {
     }
   };
 
-  if (status === 'loading') {
+  if (status === 'loading' || (status === 'idle' && categories.length === 0)) {
     return (
       <div className="grid grid-cols-4 gap-2">
         <div className="animate-pulse flex flex-col items-center justify-center p-4 bg-gray-300 text-white aspect-square rounded-lg">
@@ -82,16 +75,16 @@ const MobileCategoryGrid: React.FC = React.memo(() => {
         const { category_name } = category;
         const Icon = categoryIconMap[category_name] || UniversalFallbackIcon;
         const categorySlug = slugify(category_name);
-        const imageUrl = getCategoryImageUrl(category, categoryImageMap);
+        const imageUrls = getCategoryImageUrls(category, categoryImageMap);
         return (
           <Link key={category_name} href={`/subs/${categorySlug}`}>
             <div className="flex flex-col items-center justify-center bg-gray-100 border aspect-square rounded-lg overflow-hidden">
-              {imageUrl ? (
-                <Image
-                  src={imageUrl}
+              {imageUrls.length ? (
+                <RotatingCategoryImage
+                  urls={imageUrls}
                   alt={category_name}
-                  width={160}
-                  height={160}
+                  size={80}
+                  seed={category.id}
                   className="object-cover w-full h-full"
                 />
               ) : (

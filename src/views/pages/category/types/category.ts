@@ -19,6 +19,8 @@ export interface Category {
   href?: string;
   subcategories?: Subcategory[];
   image_url: string;
+  cover_image_url?: string | null;
+  cover_image_urls?: string[] | null;
 }
 
 export interface ProductCarouselItem {

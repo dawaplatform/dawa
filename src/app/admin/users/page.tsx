@@ -3,6 +3,7 @@
 import { useAdminUsers, useChangeUserRole, useDeleteUser } from '@/app/server/admin/api';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { AdminTableSurface } from '@/components/admin/AdminTableSurface';
+import { AdminToolbar } from '@/components/admin/AdminToolbar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -154,14 +155,15 @@ const AdminUsersPage = () => {
       <AdminPageHeader
         title="User management"
         description="View accounts, change roles, and remove users."
-        meta={
-          (roleFilter || searchQuery) ? (
-            <span className="text-gray-500">
-              Showing {filteredUsers.length} of {users.length} users
-              {roleFilter ? ` (${roleFilter})` : ''}
-            </span>
-          ) : undefined
-        }
+      />
+
+      <AdminToolbar
+        placeholder="Search by name, username or email"
+        filter={{
+          param: 'role',
+          options: ['Admin', 'Vendor', 'Client'].map((role) => ({ value: role, label: role })),
+        }}
+        count={{ shown: filteredUsers.length, total: users.length, noun: 'users' }}
       />
 
       <AdminTableSurface>

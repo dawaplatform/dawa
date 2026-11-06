@@ -13,6 +13,7 @@ import AutoplayPlugin from 'embla-carousel-autoplay';
 import useEmblaCarousel from 'embla-carousel-react';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
+import { DEFAULT_IMAGE } from '@/@core/utils/images';
 
 export function MobileProductCarousel() {
   const dispatch = useDispatch();
@@ -85,7 +86,7 @@ export function MobileProductCarousel() {
                   {/* Image Section - Reduced height to give more space for content */}
                   <div className="h-2/5 relative bg-gray-100">
                     <CustomImage
-                      src={item.images[0]?.image_url || '/placeholder.png'}
+                      src={item.images[0]?.image_url || DEFAULT_IMAGE}
                       alt={item.item_name}
                       className="h-full w-full object-cover"
                       loading="lazy"

@@ -18,6 +18,7 @@ import { setSelectedProduct } from '@redux-store/slices/products/productSlice';
 import { Edit, MapPin } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+import { DEFAULT_IMAGE } from '@/@core/utils/images';
 import { AiOutlineCheck } from 'react-icons/ai';
 
 interface ListLayoutProps {
@@ -33,7 +34,7 @@ const ListLayout: React.FC<ListLayoutProps> = ({
 }) => {
   const dispatch = useDispatch();
   const router = useRouter();
-  const image = product.images[0]?.image_url || '/placeholder.jpg';
+  const image = product.images[0]?.image_url || DEFAULT_IMAGE;
 
   // Only display location if it contains alphabetic characters.
   const locationDisplay =

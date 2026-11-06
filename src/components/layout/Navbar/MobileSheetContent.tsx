@@ -18,7 +18,6 @@ import Logo from '@public/assets/svgs/DAWA_VARIATION_04.svg';
 import {
   FileText,
   Heart,
-  // Users,
   // MessageSquare,
   HelpCircle,
   LogOut,
@@ -38,7 +37,6 @@ interface MobileSheetContentProps {
 
 const menuItems = [
   { href: '/account/adverts', icon: FileText, label: 'My Adverts' },
-  // { href: '/account/followers', icon: Users, label: 'Followers' },
   // { href: '/account/feedback', icon: MessageSquare, label: 'Feedback' },
   // { href: '/account/performance', icon: BarChart2, label: 'Performance' },
   { href: '/account/settings', icon: Settings, label: 'Settings' },

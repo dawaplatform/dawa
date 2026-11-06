@@ -42,6 +42,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ImageIcon, Loader2, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react';
+import { DEFAULT_IMAGE } from '@/@core/utils/images';
 import { useSelector } from 'react-redux';
 import { toast } from 'sonner';
 import { ImageSkeleton } from './ImageSkeleton';
@@ -517,7 +518,7 @@ function ImageSection({
               className="relative group aspect-square"
             >
               <Image
-                src={image.image_url || '/placeholder.svg'}
+                src={image.image_url || DEFAULT_IMAGE}
                 alt={formData.item_name}
                 fill
                 className="object-cover rounded-lg"
@@ -543,7 +544,7 @@ function ImageSection({
               className="relative group aspect-square"
             >
               <Image
-                src={URL.createObjectURL(file) || '/placeholder.svg'}
+                src={URL.createObjectURL(file)}
                 alt={`New upload ${index + 1}`}
                 fill
                 className="object-cover rounded-lg"

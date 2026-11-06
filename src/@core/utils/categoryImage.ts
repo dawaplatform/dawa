@@ -8,6 +8,8 @@ interface CategoryLike {
   id: string | number;
   category_name: string;
   image_url?: string | null;
+  cover_image_url?: string | null;
+  cover_image_urls?: string[] | null;
 }
 
 /**
@@ -42,15 +44,42 @@ export function buildCategoryImageMap(
 }
 
 /**
- * Resolve the best image for a category: explicit `image_url` from the backend
- * first, otherwise fall back to a product's image (via `buildCategoryImageMap`).
- * Returns `null` when no image is available — callers should render a
- * Lucide/FC icon in that case.
+ * Resolve the best single image for a category: explicit `image_url`, then the
+ * backend's `cover_image_url` (newest listing photo), then a loaded product's
+ * image. Returns `null` when nothing is available — callers render an icon.
  */
 export function getCategoryImageUrl(
   category: CategoryLike,
   categoryImageFromItems: Record<string, string | null>,
 ): string | null {
-  if (category.image_url) return category.image_url;
-  return categoryImageFromItems[String(category.id)] ?? null;
+  return (
+    category.image_url ||
+    category.cover_image_url ||
+    categoryImageFromItems[String(category.id)] ||
+    null
+  );
+}
+
+/**
+ * Images a category icon should cycle through. An admin-set `image_url` is a
+ * deliberate choice and stays fixed; otherwise use the backend's list of recent
+ * listing photos (spread across subcategories), then fall back to a loaded item.
+ */
+export function getCategoryImageUrls(
+  category: CategoryLike,
+  categoryImageFromItems: Record<string, string | null>,
+): string[] {
+  if (category.image_url) return [category.image_url];
+  const covers = (category.cover_image_urls ?? []).filter(Boolean);
+  if (covers.length) return Array.from(new Set(covers));
+  const single = category.cover_image_url || categoryImageFromItems[String(category.id)];
+  return single ? [single] : [];
+}
+
+/** Ask Cloudinary for a small square crop so icons don't download full photos. */
+export function thumbnailUrl(url: string, size: number): string {
+  const marker = '/image/upload/';
+  if (!url.includes('res.cloudinary.com') || !url.includes(marker)) return url;
+  const px = Math.round(size * 2);
+  return url.replace(marker, `${marker}c_fill,w_${px},h_${px},q_auto,f_auto/`);
 }

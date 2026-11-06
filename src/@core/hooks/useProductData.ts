@@ -614,6 +614,55 @@ export function useTrendingProducts() {
 }
 
 /**
+ * Ranked home feed (`/feed/home/` + `next` URLs, which carry the session token).
+ */
+export function useHomeFeed() {
+  const getKey = useCallback(
+    (
+      pageIndex: number,
+      previousPageData: TrendingProductsResponse | null,
+    ): string | null => {
+      if (previousPageData && !previousPageData.next) return null;
+      if (pageIndex === 0) return '/feed/home/';
+      return previousPageData!.next;
+    },
+    [],
+  );
+
+  const { data, error, size, setSize, mutate } =
+    useSWRInfinite<TrendingProductsResponse>(
+      getKey,
+      (url: string) => getTrendingProductsPage(url),
+      {
+        revalidateAll: false,
+        revalidateFirstPage: false,
+        revalidateOnFocus: false,
+        ...swrOptions,
+      },
+    );
+
+  const productsData = deduplicateProducts(
+    data ? data.flatMap((page) => page.results?.data ?? []) : [],
+  );
+  const nextPageUrl = data?.[data.length - 1]?.next ?? null;
+  const isLoadingInitialData = !data && !error;
+  const isLoadingMore =
+    isLoadingInitialData ||
+    (size > 0 && data && typeof data[size - 1] === 'undefined');
+
+  return {
+    productsData,
+    totalCount: data?.[0]?.count ?? 0,
+    nextPageUrl,
+    isLoading: isLoadingMore,
+    isError: error,
+    mutate,
+    size,
+    setSize,
+  };
+}
+
+/**
  * Custom hook to fetch product listing.
  * @returns Object with product listing data, loading state, error info, and mutate function.
  */

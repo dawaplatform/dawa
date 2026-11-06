@@ -1,4 +1,5 @@
 import type React from 'react';
+import { DEFAULT_IMAGE } from '@/@core/utils/images';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -21,7 +22,7 @@ export const AdvertCard: React.FC<AdvertCardProps> = ({ item, onEdit, onDelete }
       <CardContent className="p-0">
         <div className="relative h-48 w-full">
           <Image
-            src={item.images[0]?.image_url || '/placeholder.svg'}
+            src={item.images[0]?.image_url || DEFAULT_IMAGE}
             alt={item.name}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
