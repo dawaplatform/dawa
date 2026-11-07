@@ -8,13 +8,21 @@ import CustomImage from '@/components/shared/CustomImage';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDispatch } from '@/redux-store/hooks';
 import { setSelectedProduct } from '@redux-store/slices/products/productSlice';
-import { motion, useAnimationFrame, useMotionValue, useReducedMotion } from 'framer-motion';
-import { Flame, MapPin } from 'lucide-react';
+import { animate, motion, useAnimationFrame, useMotionValue, useReducedMotion } from 'framer-motion';
+import { ChevronLeft, ChevronRight, Flame, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef, type ReactNode } from 'react';
 
 const STRIP_SIZE = 12;
+// One set must be wider than the viewport or the loop shows a gap; fewer cards fall back to a plain scrollable row.
+const MIN_MARQUEE_ITEMS = 8;
 const SPEED_PX_PER_SECOND = 40;
+const STEP_PX = 360;
+const DRAG_THRESHOLD_PX = 6;
+const RESUME_DELAY_MS = 2500;
+
+const ARROW_CLASS =
+  'absolute top-[35%] z-10 hidden h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 opacity-0 shadow-md transition-opacity hover:text-primary_1 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary_1 group-hover:opacity-100 md:flex';
 
 function StripCard({ product, duplicate = false }: { product: NormalizedProduct; duplicate?: boolean }) {
   const dispatch = useDispatch();
@@ -57,7 +65,11 @@ function Marquee({ children }: { children: (duplicate: boolean) => ReactNode }) 
   const x = useMotionValue(0);
   const trackRef = useRef<HTMLDivElement>(null);
   const period = useRef(0);
-  const paused = useRef(false);
+  const hovering = useRef(false);
+  const focused = useRef(false);
+  const animating = useRef(false);
+  const dragged = useRef(false);
+  const resumeAt = useRef(0);
 
   // The track holds two identical sets, so one set's width is the loop distance.
   useEffect(() => {
@@ -72,33 +84,85 @@ function Marquee({ children }: { children: (duplicate: boolean) => ReactNode }) 
     return () => observer.disconnect();
   }, []);
 
+  // Keeps x within one set; the second set is identical, so the jump is invisible.
+  const wrap = (value: number) => {
+    if (!period.current) return value;
+    const remainder = value % period.current;
+    return remainder > 0 ? remainder - period.current : remainder;
+  };
+  const holdOff = () => {
+    resumeAt.current = performance.now() + RESUME_DELAY_MS;
+  };
+  const moveBy = (dx: number) => x.set(wrap(x.get() + dx));
+
   useAnimationFrame((_, delta) => {
-    if (paused.current || !period.current) return;
-    const next = x.get() - (SPEED_PX_PER_SECOND * delta) / 1000;
-    x.set(next <= -period.current ? next + period.current : next);
+    const idle = hovering.current || focused.current || animating.current || performance.now() < resumeAt.current;
+    if (idle || !period.current) return;
+    x.set(wrap(x.get() - (SPEED_PX_PER_SECOND * delta) / 1000));
   });
 
-  const pause = () => {
-    paused.current = true;
-  };
-  const resume = () => {
-    paused.current = false;
+  const nudge = (direction: 1 | -1) => {
+    holdOff();
+    // Stepping back from the start would reveal empty space, so start on the second set.
+    if (direction === 1 && x.get() > -STEP_PX) x.set(x.get() - period.current);
+    animating.current = true;
+    animate(x, x.get() + direction * STEP_PX, {
+      duration: 0.4,
+      ease: 'easeOut',
+      onComplete: () => {
+        x.set(wrap(x.get()));
+        animating.current = false;
+      },
+    });
   };
 
   return (
     <div
-      className="overflow-hidden"
-      onPointerEnter={pause}
-      onPointerLeave={resume}
-      onFocusCapture={pause}
-      onBlurCapture={resume}
+      className="group relative"
+      onPointerEnter={() => (hovering.current = true)}
+      onPointerLeave={() => (hovering.current = false)}
+      onFocusCapture={() => (focused.current = true)}
+      onBlurCapture={() => (focused.current = false)}
+      onClickCapture={(event) => {
+        // A drag that ends over a card must not open it.
+        if (!dragged.current) return;
+        event.preventDefault();
+        event.stopPropagation();
+        dragged.current = false;
+      }}
+      onWheel={(event) => {
+        if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
+        moveBy(-event.deltaX);
+        holdOff();
+      }}
     >
-      <motion.div ref={trackRef} style={{ x }} className="flex w-max">
-        <div className="flex shrink-0 gap-3 pr-3">{children(false)}</div>
-        <div className="flex shrink-0 gap-3 pr-3" aria-hidden="true">
-          {children(true)}
-        </div>
-      </motion.div>
+      <div className="overflow-hidden overscroll-x-contain">
+        <motion.div
+          ref={trackRef}
+          style={{ x, touchAction: 'pan-y' }}
+          className="flex w-max cursor-grab active:cursor-grabbing"
+          onPanStart={() => {
+            dragged.current = false;
+          }}
+          onPan={(_, info) => {
+            if (Math.abs(info.offset.x) > DRAG_THRESHOLD_PX) dragged.current = true;
+            moveBy(info.delta.x);
+          }}
+          onPanEnd={holdOff}
+        >
+          <div className="flex shrink-0 gap-3 pr-3">{children(false)}</div>
+          <div className="flex shrink-0 gap-3 pr-3" aria-hidden="true">
+            {children(true)}
+          </div>
+        </motion.div>
+      </div>
+
+      <button type="button" aria-label="Show earlier trending items" onClick={() => nudge(1)} className={`${ARROW_CLASS} left-2`}>
+        <ChevronLeft className="h-5 w-5" />
+      </button>
+      <button type="button" aria-label="Show more trending items" onClick={() => nudge(-1)} className={`${ARROW_CLASS} right-2`}>
+        <ChevronRight className="h-5 w-5" />
+      </button>
     </div>
   );
 }
@@ -130,7 +194,7 @@ export default function TrendingStrip() {
             <Skeleton key={i} className="h-56 w-40 shrink-0 sm:w-44" />
           ))}
         </div>
-      ) : reduceMotion ? (
+      ) : reduceMotion || products.length < MIN_MARQUEE_ITEMS ? (
         <div className="flex snap-x gap-3 overflow-x-auto pb-2">
           {products.map((product) => (
             <div key={product.id} className="snap-start">
