@@ -15,8 +15,6 @@ import { useEffect, useRef, type ReactNode } from 'react';
 
 const STRIP_SIZE = 12;
 const SPEED_PX_PER_SECOND = 40;
-const EDGE_FADE =
-  '[mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]';
 
 function StripCard({ product, duplicate = false }: { product: NormalizedProduct; duplicate?: boolean }) {
   const dispatch = useDispatch();
@@ -89,7 +87,7 @@ function Marquee({ children }: { children: (duplicate: boolean) => ReactNode }) 
 
   return (
     <div
-      className={`overflow-hidden ${EDGE_FADE}`}
+      className="overflow-hidden"
       onPointerEnter={pause}
       onPointerLeave={resume}
       onFocusCapture={pause}
@@ -113,7 +111,7 @@ export default function TrendingStrip() {
   if (isError || (!isLoading && products.length === 0)) return null;
 
   return (
-    <section aria-labelledby="trending-strip-title" className="space-y-3">
+    <section aria-labelledby="trending-strip-title" className="space-y-2">
       <div className="flex items-center gap-2">
         <span className="rounded-lg bg-primary_2 p-2 text-primary_1">
           <Flame className="h-5 w-5" />

@@ -75,7 +75,7 @@ const ProductPage: React.FC = () => {
   return (
     <div className="space-y-3">
       <div className="flex justify-between items-center flex-wrap gap-2">
-        <h2 className="text-2xl font-bold text-primary_1">Recommended For You</h2>
+        <h2 className="text-2xl font-bold text-primary_1">For You</h2>
         <div className="flex items-center gap-3">
           {totalCount > 0 && (
             <span className="text-sm text-gray-600">
