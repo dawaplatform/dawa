@@ -82,7 +82,7 @@ export default function AdminReportsPage() {
     return (
       <div className="flex flex-col justify-center items-center h-64 gap-4">
         <Loader2 className="h-8 w-8 animate-spin text-primary_1" />
-        <span className="text-gray-600">Loading reports data...</span>
+        <span className="text-muted-foreground">Loading reports data...</span>
       </div>
     );
   }
@@ -249,21 +249,21 @@ export default function AdminReportsPage() {
           <CardContent>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Newsletter Subscribers</span>
+                <span className="text-sm text-muted-foreground">Newsletter Subscribers</span>
                 <span className="text-lg font-semibold">{stats?.total_subscribers || 0}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Total Categories</span>
+                <span className="text-sm text-muted-foreground">Total Categories</span>
                 <span className="text-lg font-semibold">{categories?.length || 0}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Pending Items</span>
+                <span className="text-sm text-muted-foreground">Pending Items</span>
                 <span className="text-lg font-semibold">
                   {(stats?.total_items || 0) - (stats?.total_approved_items || 0)}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Approval Rate</span>
+                <span className="text-sm text-muted-foreground">Approval Rate</span>
                 <span className="text-lg font-semibold">
                   {stats?.total_items
                     ? (((stats?.total_approved_items || 0) / stats.total_items) * 100).toFixed(1)
@@ -280,23 +280,23 @@ export default function AdminReportsPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <p className="text-sm text-gray-600 mb-4">
+              <p className="text-sm text-muted-foreground mb-4">
                 Common administrative tasks and insights
               </p>
               <div className="space-y-2">
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                   <span className="text-sm font-medium">Items Requiring Review</span>
                   <span className="text-sm font-semibold text-amber-600">
                     {(stats?.total_items || 0) - (stats?.total_approved_items || 0)}
                   </span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                   <span className="text-sm font-medium">User Reports</span>
                   <span className="text-sm font-semibold text-red-600">
                     {stats?.total_reports || 0}
                   </span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                   <span className="text-sm font-medium">Active Vendors</span>
                   <span className="text-sm font-semibold text-green-600">
                     {stats?.total_vendors || 0}

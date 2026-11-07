@@ -28,7 +28,7 @@ export const ExtraFields = ({
         </Button>
       </div>
       {extraFields.length === 0 && (
-        <div className="text-sm text-slate-400">No extra fields. Click "Add Field" to add.</div>
+        <div className="text-sm text-muted-foreground">No extra fields. Click "Add Field" to add.</div>
       )}
       <div className="space-y-3">
         {extraFields.map((field, idx) => (

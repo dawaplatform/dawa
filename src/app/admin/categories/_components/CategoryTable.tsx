@@ -21,7 +21,7 @@ export const CategoryTable = ({
   isDeleting,
 }: CategoryTableProps) => {
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
+    <div className="bg-background border border-border rounded-lg shadow overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow>
@@ -36,7 +36,7 @@ export const CategoryTable = ({
         <TableBody>
           {categories.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} className="text-center py-8 text-slate-500">
+              <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                 No categories found. Add your first category to get started.
               </TableCell>
             </TableRow>

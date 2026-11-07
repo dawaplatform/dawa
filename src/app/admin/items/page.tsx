@@ -408,7 +408,7 @@ export default function AdminItemsPage() {
               <div className="grid grid-cols-2 gap-4">
                 {selectedItem.images && selectedItem.images.length > 0 ? (
                   selectedItem.images.map((img, index) => (
-                    <div key={img.id} className="aspect-square relative rounded-lg overflow-hidden bg-slate-100">
+                    <div key={img.id} className="aspect-square relative rounded-lg overflow-hidden bg-muted">
                       <Image
                         src={img.image.replace('.heic', '.jpg')}
                         alt={`${selectedItem.item_name} - Image ${index + 1}`}
@@ -420,16 +420,15 @@ export default function AdminItemsPage() {
                           target.style.display = 'none';
                           const parent = target.parentElement;
                           if (parent) {
-                            parent.classList.add('bg-slate-100');
-                            parent.innerHTML = '<span class="text-slate-400 text-xs">No img</span>';
+                            parent.innerHTML = '<span class="text-muted-foreground text-xs">No img</span>';
                           }
                         }}
                       />
                     </div>
                   ))
                 ) : (
-                  <div className="col-span-2 aspect-square rounded-lg bg-slate-100 flex items-center justify-center">
-                    <span className="text-slate-400">No images available</span>
+                  <div className="col-span-2 aspect-square rounded-lg bg-muted flex items-center justify-center">
+                    <span className="text-muted-foreground">No images available</span>
                   </div>
                 )}
               </div>
@@ -483,14 +482,14 @@ export default function AdminItemsPage() {
                   if (!note) return null;
                   const tone =
                     note.state === 'rejected'
-                      ? 'bg-red-50 border-red-200 text-red-800'
+                      ? 'bg-red-50 border-red-200 text-red-800 dark:bg-red-950/40 dark:border-red-900 dark:text-red-200'
                       : note.state === 'needs_review'
-                      ? 'bg-amber-50 border-amber-200 text-amber-800'
+                      ? 'bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-950/40 dark:border-amber-900 dark:text-amber-200'
                       : note.state === 'failed'
-                      ? 'bg-orange-50 border-orange-200 text-orange-800'
+                      ? 'bg-orange-50 border-orange-200 text-orange-800 dark:bg-orange-950/40 dark:border-orange-900 dark:text-orange-200'
                       : note.state === 'approved'
-                      ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                      : 'bg-slate-50 border-slate-200 text-slate-800';
+                      ? 'bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950/40 dark:border-emerald-900 dark:text-emerald-200'
+                      : 'bg-muted border-border text-foreground';
                   const cleanReason = sanitizeReasonForDisplay(note.rawReason);
                   return (
                     <div className={`mt-3 border rounded-md p-3 ${tone}`}>
@@ -520,7 +519,7 @@ export default function AdminItemsPage() {
 
               <div>
                 <h3 className="font-semibold text-lg mb-2">Description</h3>
-                <p className="text-slate-600 whitespace-pre-wrap">{selectedItem.item_description}</p>
+                <p className="text-muted-foreground whitespace-pre-wrap">{selectedItem.item_description}</p>
               </div>
 
               <div>
@@ -542,14 +541,14 @@ export default function AdminItemsPage() {
     return (
       <div className="flex justify-center items-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-primary_1" />
-        <span className="ml-2 text-gray-600">Loading items…</span>
+        <span className="ml-2 text-muted-foreground">Loading items…</span>
       </div>
     );
   }
 
   if (isError) {
     return (
-      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md shadow">
+      <div className="bg-red-50 border border-red-200 text-red-700 dark:bg-red-950/40 dark:border-red-900 dark:text-red-300 px-4 py-3 rounded-md shadow">
         <p>Error loading items. Please try again later.</p>
       </div>
     );
@@ -558,7 +557,7 @@ export default function AdminItemsPage() {
   if (!items || items.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-slate-500">No items found.</p>
+        <p className="text-muted-foreground">No items found.</p>
       </div>
     );
   }
@@ -589,12 +588,12 @@ export default function AdminItemsPage() {
         {statsLoading ? (
           <div className="flex items-center">
             <Loader2 className="h-5 w-5 animate-spin mr-2 text-primary_1" />
-            <span className="text-gray-600">Loading stats…</span>
+            <span className="text-muted-foreground">Loading stats…</span>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {validPackages.concat('No Package').map((pkg) => (
-              <div key={pkg} className="bg-white rounded-xl shadow p-4 flex flex-col items-center border border-slate-100">
+              <div key={pkg} className="bg-background rounded-xl shadow p-4 flex flex-col items-center border border-border">
                 <span className="font-semibold text-primary_1 text-center">{pkg}</span>
                 <span className="text-2xl font-bold">
                   {subscriptionStats?.subscription_counts?.[pkg] ?? 0}
@@ -608,7 +607,7 @@ export default function AdminItemsPage() {
       {/* Bulk Update Form */}
       <form
         onSubmit={handleBulkUpdate}
-        className="bg-white rounded-xl shadow p-4 mb-6 flex flex-col md:flex-row gap-4 items-end border border-slate-100"
+        className="bg-background rounded-xl shadow p-4 mb-6 flex flex-col md:flex-row gap-4 items-end border border-border"
       >
         <div className="flex flex-col w-full md:w-1/5">
           <label className="text-sm font-medium mb-1">Package *</label>
@@ -676,7 +675,7 @@ export default function AdminItemsPage() {
       {/* Items Table */}
       <AdminTableSurface>
         <Table>
-          <TableHeader className="sticky top-0 bg-white z-10">
+          <TableHeader className="sticky top-0 bg-background z-10">
             <TableRow>
               <TableHead>Item</TableHead>
               <TableHead>Price</TableHead>
@@ -691,17 +690,17 @@ export default function AdminItemsPage() {
           <TableBody>
             {filteredItems.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                   No items found that match the current filters.
                 </TableCell>
               </TableRow>
             ) : (
               filteredItems.map((item) => (
-              <TableRow key={item.id} className="hover:bg-slate-50 transition-colors">
+              <TableRow key={item.id} className="hover:bg-muted transition-colors">
                 <TableCell className="font-medium">
                   <div className="flex items-center space-x-3">
                     {item.images && item.images.length > 0 ? (
-                      <div className="h-10 w-10 rounded-md overflow-hidden bg-slate-100 relative">
+                      <div className="h-10 w-10 rounded-md overflow-hidden bg-muted relative">
                         <Image
                           src={item.images[0].image.replace('.heic', '.jpg')}
                           alt={item.item_name || 'Item image'}
@@ -713,15 +712,14 @@ export default function AdminItemsPage() {
                             target.style.display = 'none';
                             const parent = target.parentElement;
                             if (parent) {
-                              parent.classList.add('bg-slate-100');
-                              parent.innerHTML = '<span class="text-slate-400 text-xs">No img</span>';
+                              parent.innerHTML = '<span class="text-muted-foreground text-xs">No img</span>';
                             }
                           }}
                         />
                       </div>
                     ) : (
-                      <div className="h-10 w-10 rounded-md bg-slate-100 flex items-center justify-center">
-                        <span className="text-slate-400 text-xs">No img</span>
+                      <div className="h-10 w-10 rounded-md bg-muted flex items-center justify-center">
+                        <span className="text-muted-foreground text-xs">No img</span>
                       </div>
                     )}
                     <div>
@@ -733,7 +731,7 @@ export default function AdminItemsPage() {
                 </TableCell>
                 <TableCell>
                   {item.item_price ? Number(item.item_price).toFixed(2) : '0.00'}{' '}
-                  <span className="text-xs text-slate-400">SHS</span>
+                  <span className="text-xs text-muted-foreground">SHS</span>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1.5">
@@ -759,7 +757,7 @@ export default function AdminItemsPage() {
                       }
                       if (md.moderation_state && item.approval_status !== 'Approved') {
                         return (
-                          <Badge variant="outline" className="text-[10px] bg-slate-50 border-slate-200 text-slate-600">
+                          <Badge variant="outline" className="text-[10px] bg-muted border-border text-muted-foreground">
                             Auto
                           </Badge>
                         );
@@ -771,7 +769,7 @@ export default function AdminItemsPage() {
                 <TableCell>
                   <Badge variant="outline">{item.item_status || 'Available'}</Badge>
                 </TableCell>
-                <TableCell className="text-sm text-slate-600">
+                <TableCell className="text-sm text-muted-foreground">
                   {item.created_at ? new Date(item.created_at).toLocaleDateString() : 'N/A'}
                 </TableCell>
                 <TableCell>
@@ -849,7 +847,7 @@ export default function AdminItemsPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border-red-200 w-full md:w-auto"
+                      className="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-950 dark:border-red-900 w-full md:w-auto"
                       onClick={() => {
                         setSelectedItem(item);
                         setIsRejectionDialogOpen(true);

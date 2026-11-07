@@ -21,7 +21,7 @@ export const SubcategoryTable = ({
   isDeleting,
 }: SubcategoryTableProps) => {
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
+    <div className="bg-background border border-border rounded-lg shadow overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow>
@@ -36,7 +36,7 @@ export const SubcategoryTable = ({
         <TableBody>
           {subcategories.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} className="text-center py-8 text-slate-500">
+              <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                 No subcategories found. Add your first subcategory to get started.
               </TableCell>
             </TableRow>

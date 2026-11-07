@@ -137,14 +137,14 @@ const AdminUsersPage = () => {
     return (
       <div className="flex justify-center items-center h-64 gap-3">
         <Loader2 className="h-8 w-8 animate-spin text-primary_1" />
-        <span className="text-gray-600">Loading users…</span>
+        <span className="text-muted-foreground">Loading users…</span>
       </div>
     );
   }
 
   if (isError) {
     return (
-      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+      <div className="bg-red-50 border border-red-200 text-red-700 dark:bg-red-950/40 dark:border-red-900 dark:text-red-300 px-4 py-3 rounded-md">
         <p>Error loading users. Please try again later.</p>
       </div>
     );
@@ -180,7 +180,7 @@ const AdminUsersPage = () => {
           <TableBody>
             {filteredUsers.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                   No users found that match the current filters.
                 </TableCell>
               </TableRow>
@@ -195,7 +195,7 @@ const AdminUsersPage = () => {
                     </Avatar>
                     <div>
                       <p>{user.username}</p>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-muted-foreground">
                         {user.first_name} {user.last_name}
                       </p>
                     </div>
@@ -206,10 +206,10 @@ const AdminUsersPage = () => {
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-medium ${
                       user.role === 'Admin'
-                        ? 'bg-blue-100 text-blue-800'
+                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-200'
                         : user.role === 'Vendor'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-slate-100 text-slate-800'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-200'
+                        : 'bg-muted text-foreground'
                     }`}
                   >
                     {user.role || 'Client'}

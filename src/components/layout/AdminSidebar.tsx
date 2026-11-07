@@ -12,11 +12,11 @@ const AdminSidebar: React.FC = () => {
   const pathname = usePathname();
 
   return (
-    <aside className="sticky top-0 h-screen bg-white border-r border-gray-200 flex flex-col shadow-sm">
+    <aside className="sticky top-0 h-screen bg-background border-r border-border flex flex-col">
       {/* Logo/Brand */}
-      <div className="px-4 py-5 border-b border-gray-200 flex-shrink-0 bg-gradient-to-r from-gray-50 to-white">
+      <div className="px-4 py-5 border-b border-border flex-shrink-0">
         <Link href="/admin" className="flex items-center justify-center hover:opacity-90 transition-opacity">
-          <Logo3 className="h-14 w-auto" />
+          <Logo3 className="h-14 w-auto fill-foreground" />
         </Link>
       </div>
 
@@ -35,14 +35,14 @@ const AdminSidebar: React.FC = () => {
                   'flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
                   isActive
                     ? 'bg-primary_1 text-white shadow-sm'
-                    : 'text-gray-700 hover:bg-gray-100 hover:text-primary_1'
+                    : 'text-foreground/80 hover:bg-muted hover:text-primary_1'
                 )}
               >
                 <Icon className={cn(
                   'w-5 h-5 flex-shrink-0 transition-colors',
                   isActive 
                     ? 'text-white' 
-                    : 'text-gray-500 group-hover:text-primary_1'
+                    : 'text-muted-foreground group-hover:text-primary_1'
                 )} />
                 <span className="truncate">{link.label}</span>
               </Link>
@@ -52,8 +52,8 @@ const AdminSidebar: React.FC = () => {
       </ScrollArea>
 
       {/* Footer */}
-      <div className="px-4 py-3 border-t border-gray-200 flex-shrink-0">
-        <div className="text-xs text-gray-500 text-center">
+      <div className="px-4 py-3 border-t border-border flex-shrink-0">
+        <div className="text-xs text-muted-foreground text-center">
           <div className="text-[10px]">v1.0.0</div>
         </div>
       </div>

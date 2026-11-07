@@ -42,7 +42,7 @@ const AdminNavbar = ({ onMobileMenuOpen }: AdminNavbarProps) => {
   };
 
   return (
-    <nav className="sticky top-0 z-40 border-b border-gray-200/90 bg-white/95 shadow-sm backdrop-blur-md supports-[backdrop-filter]:bg-white/90">
+    <nav className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/90">
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-0">
         <div className="flex items-center justify-between h-16">
@@ -54,7 +54,7 @@ const AdminNavbar = ({ onMobileMenuOpen }: AdminNavbarProps) => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="md:hidden hover:bg-gray-100"
+                  className="md:hidden hover:bg-muted"
                 >
                   <Menu className="h-5 w-5" />
                 </Button>
@@ -64,7 +64,7 @@ const AdminNavbar = ({ onMobileMenuOpen }: AdminNavbarProps) => {
               </SheetContent>
             </Sheet>
 
-            <h2 className="truncate text-base font-semibold text-gray-900">
+            <h2 className="truncate text-base font-semibold text-foreground">
               {adminNavLinks.find((link) => isAdminLinkActive(pathname, link.href, link.exact))?.label ?? 'Admin'}
             </h2>
           </div>
@@ -74,7 +74,7 @@ const AdminNavbar = ({ onMobileMenuOpen }: AdminNavbarProps) => {
             {/* Home link */}
             <Link
               href="/home"
-              className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-primary_1 transition-colors"
+              className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-foreground/80 hover:bg-muted hover:text-primary_1 transition-colors"
             >
               <Home className="h-4 w-4" />
               <span>View Site</span>
@@ -85,25 +85,25 @@ const AdminNavbar = ({ onMobileMenuOpen }: AdminNavbarProps) => {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100"
+                  className="flex items-center gap-2 px-3 py-2 hover:bg-muted"
                 >
                   <div className="h-8 w-8 rounded-full bg-primary_1 flex items-center justify-center text-white font-semibold">
                     {user?.name?.charAt(0)?.toUpperCase() || 'A'}
                   </div>
                   <div className="hidden md:block text-left">
-                    <div className="text-sm font-medium text-gray-900">
+                    <div className="text-sm font-medium text-foreground">
                       {user?.name || 'Admin'}
                     </div>
-                    <div className="text-xs text-gray-500">Administrator</div>
+                    <div className="text-xs text-muted-foreground">Administrator</div>
                   </div>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <div className="px-2 py-1.5 md:hidden">
-                  <div className="text-sm font-medium text-gray-900">
+                  <div className="text-sm font-medium text-foreground">
                     {user?.name || 'Admin'}
                   </div>
-                  <div className="text-xs text-gray-500">{user?.email}</div>
+                  <div className="text-xs text-muted-foreground">{user?.email}</div>
                 </div>
                 <DropdownMenuSeparator className="md:hidden" />
                 <DropdownMenuItem asChild>

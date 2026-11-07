@@ -62,18 +62,18 @@ export default function AdminDashboardPage() {
     return (
       <div className="flex flex-col justify-center items-center h-64 gap-4">
         <Loader2 className="h-8 w-8 animate-spin text-primary_1" />
-        <span className="text-gray-600">Loading dashboard data...</span>
+        <span className="text-muted-foreground">Loading dashboard data...</span>
       </div>
     );
   }
 
   if (isError) {
     return (
-      <Card className="border-red-200 bg-red-50">
+      <Card className="border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/40">
         <CardContent className="p-6">
           <div className="flex items-center gap-3">
             <AlertTriangle className="h-5 w-5 text-red-600" />
-            <p className="text-red-700">Error loading dashboard data. Please try again later.</p>
+            <p className="text-red-700 dark:text-red-300">Error loading dashboard data. Please try again later.</p>
           </div>
         </CardContent>
       </Card>
@@ -435,11 +435,11 @@ export default function AdminDashboardPage() {
                 href={`/admin/items?search=${encodeURIComponent(item.item_name)}`}
                 label={item.item_name}
                 value={`${item.message_count} messages`}
-                valueClassName="text-sm text-gray-500"
+                valueClassName="text-sm text-muted-foreground"
               />
             ))}
             {(analytics?.top_chatted_products || []).length === 0 && (
-              <p className="text-sm text-gray-500">No product chat activity yet.</p>
+              <p className="text-sm text-muted-foreground">No product chat activity yet.</p>
             )}
           </CardContent>
         </Card>
@@ -470,13 +470,13 @@ function StatCard({
 }) {
   const cardContent = (
     <Card className={cn(
-      "transition-all duration-200 border-gray-200",
+      "transition-all duration-200 border-border",
       href && "hover:shadow-lg hover:scale-[1.02] cursor-pointer"
     )}>
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1.5 truncate">{label}</p>
+            <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-1.5 truncate">{label}</p>
             <p className={`text-2xl sm:text-3xl font-bold ${valueColor} mb-0`}>
               {value.toLocaleString()}
             </p>
@@ -484,7 +484,7 @@ function StatCard({
               <div className="flex items-center gap-1 text-xs mt-1.5">
                 <TrendingUp className="w-3 h-3 text-green-500" />
                 <span className="text-green-600 font-medium">+{trend}%</span>
-                <span className="text-gray-500">from last month</span>
+                <span className="text-muted-foreground">from last month</span>
               </div>
             )}
           </div>
@@ -524,11 +524,11 @@ function ListRow({
   const row = (
     <div
       className={cn(
-        'flex items-center justify-between gap-3 rounded-lg bg-gray-50 p-3',
+        'flex items-center justify-between gap-3 rounded-lg bg-muted p-3',
         href && 'transition-colors hover:bg-primary_2',
       )}
     >
-      <span className="truncate text-sm font-medium text-gray-700">{label}</span>
+      <span className="truncate text-sm font-medium text-foreground/80">{label}</span>
       <span className={valueClassName}>{value}</span>
     </div>
   );

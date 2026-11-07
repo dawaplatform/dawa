@@ -123,12 +123,12 @@ export const SubcategoryDialog = ({
             </Button>
 
             {isCategoryDropdownOpen && (
-              <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+              <div className="absolute z-50 w-full mt-1 bg-popover text-popover-foreground border border-border rounded-md shadow-lg">
                 <div className="max-h-60 overflow-auto scrollbar-hide">
                   {categories.map((category) => (
                     <button
                       key={category.id}
-                      className="w-full p-2 text-left hover:bg-gray-100 text-sm"
+                      className="w-full p-2 text-left hover:bg-muted text-sm"
                       onClick={() => handleCategorySelect(category.id)}
                     >
                       {category.category_name}

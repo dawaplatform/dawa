@@ -2,6 +2,7 @@ import mainConfig from '@/@core/configs/mainConfigs';
 import { Button } from '@/components/ui/button';
 import { CategoriesMenu } from '@/views/pages/category/components/categories-menu';
 import ProductPage from '@/views/pages/home/TrendingProducts';
+import TrendingStrip from '@/views/pages/home/TrendingStrip';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 const Sidebar = dynamic(
@@ -14,6 +15,7 @@ export default function HomePage() {
       <section>
         <CategoriesMenu />
       </section>
+      <TrendingStrip />
       <section className="flex justify-end">
         <Button asChild className="bg-primary_1 text-white rounded-lg px-6 py-2 font-semibold shadow hover:bg-primary_1/90 transition-colors">
           <Link href="/productlisting">View All Products</Link>

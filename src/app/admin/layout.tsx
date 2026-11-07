@@ -1,4 +1,5 @@
 import AdminGuard from '@/@core/hocs/AdminGuard';
+import AdminThemeSync from '@/components/admin/AdminThemeSync';
 import AdminMobileNav from '@/components/layout/AdminMobileNav';
 import AdminNavbar from '@/components/layout/AdminNavbar';
 import AdminSidebar from '@/components/layout/AdminSidebar';
@@ -11,9 +12,10 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <AdminGuard>
-      <div className="flex min-h-screen bg-gray-50">
+      <AdminThemeSync />
+      <div className="flex min-h-screen bg-background text-foreground">
         {/* Sidebar - shown on medium and up, optimized width */}
-        <aside className="hidden md:block md:w-64 bg-white shadow-lg border-r border-gray-200">
+        <aside className="hidden md:block md:w-64 bg-background border-r border-border">
           <AdminSidebar />
         </aside>
 
@@ -21,7 +23,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <AdminNavbar />
 
-          <div className="flex-1 overflow-y-auto bg-gradient-to-b from-primary_2/40 via-gray-50 to-gray-50">
+          <div className="flex-1 overflow-y-auto bg-background">
             <div className="mx-auto w-full max-w-[1600px] px-3 py-4 sm:px-4 sm:py-5 lg:px-6 lg:py-6 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] md:pb-6">
               {children}
             </div>

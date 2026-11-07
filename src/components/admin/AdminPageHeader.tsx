@@ -28,11 +28,11 @@ export function AdminPageHeader({
       )}
     >
       <div className="min-w-0 flex-1">
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900 md:text-3xl">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
           {title}
         </h1>
         {description ? (
-          <p className="mt-1 text-sm text-gray-500 md:text-base">{description}</p>
+          <p className="mt-1 text-sm text-muted-foreground md:text-base">{description}</p>
         ) : null}
       </div>
       {meta ? (

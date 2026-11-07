@@ -16,7 +16,7 @@ export function AdminTableSurface({
   return (
     <div
       className={cn(
-        'rounded-xl border border-gray-200/80 bg-white shadow-sm overflow-hidden',
+        'rounded-xl border border-border bg-background shadow-sm overflow-hidden',
         className,
       )}
     >

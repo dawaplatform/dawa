@@ -37,7 +37,7 @@ function FilterChips({ param, options }: AdminFilter) {
             'rounded-full px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary_1',
             active === chip.value
               ? 'bg-primary_1 text-white shadow-sm'
-              : 'bg-gray-100 text-gray-700 hover:bg-primary_2',
+              : 'bg-muted text-foreground/80 hover:bg-primary_2 hover:text-gray-900',
           )}
         >
           {chip.label}
@@ -68,12 +68,12 @@ export function AdminToolbar({ placeholder, filter, count, actions, className }:
     <div
       role="search"
       className={cn(
-        'mb-4 flex flex-col gap-3 rounded-xl border border-gray-200/80 bg-white p-3 shadow-sm md:flex-row md:items-center',
+        'mb-4 flex flex-col gap-3 rounded-xl border border-border bg-background p-3 shadow-sm md:flex-row md:items-center',
         className,
       )}
     >
       <div className="relative min-w-0 flex-1">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           ref={inputRef}
           type="search"
@@ -82,19 +82,19 @@ export function AdminToolbar({ placeholder, filter, count, actions, className }:
           placeholder={placeholder}
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          className="h-10 border-gray-200 bg-gray-50 pl-9 pr-10 focus-visible:border-primary_1 [&::-webkit-search-cancel-button]:hidden"
+          className="h-10 border-border bg-muted pl-9 pr-10 focus-visible:border-primary_1 [&::-webkit-search-cancel-button]:hidden"
         />
         {query ? (
           <button
             type="button"
             aria-label="Clear search"
             onClick={() => setQuery('')}
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 hover:bg-primary_2 hover:text-primary_1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary_1"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:bg-primary_2 hover:text-primary_1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary_1"
           >
             <X className="h-4 w-4" />
           </button>
         ) : (
-          <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded border border-gray-200 bg-white px-1.5 text-xs text-gray-400 md:block">
+          <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded border border-border bg-background px-1.5 text-xs text-muted-foreground md:block">
             /
           </kbd>
         )}
@@ -102,7 +102,7 @@ export function AdminToolbar({ placeholder, filter, count, actions, className }:
       {filter && <FilterChips {...filter} />}
       {actions}
       {count && (
-        <span className="whitespace-nowrap text-sm text-gray-500 md:ml-auto" aria-live="polite">
+        <span className="whitespace-nowrap text-sm text-muted-foreground md:ml-auto" aria-live="polite">
           Showing {count.shown} of {count.total} {count.noun}
         </span>
       )}
