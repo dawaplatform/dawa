@@ -159,7 +159,7 @@ const AdminCategoriesPage = () => {
       await updateCategory({
         category_id: selectedCategory.id,
         category_name: editCategoryName.trim(),
-        image_url: editCategoryImageUrl || selectedCategory.image_url || undefined,
+        image_url: editCategoryImageUrl,
       });
 
       toast({
@@ -296,7 +296,7 @@ const AdminCategoriesPage = () => {
         subcategory_name: editSubcategoryName.trim(),
         category_id: editSubcategoryCategoryId || undefined,
         metadata: editExtraFields,
-        image_url: editSubcategoryImageUrl || selectedSubcategory.image_url || undefined,
+        image_url: editSubcategoryImageUrl,
       });
 
       toast({
