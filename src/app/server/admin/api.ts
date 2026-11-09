@@ -969,3 +969,42 @@ export const useUpdateItemSubscription = () => {
 export const useSubscriptionStats = () => {
   return useSWR('/subscriptionstats/', getSubscriptionStats);
 };
+
+// --- BOOST PAYMENTS (Pesapal) ---
+
+export interface BoostPackage {
+  package: string;
+  amount: string;
+  currency: string;
+  days: number;
+}
+
+export type BoostPaymentStatus = 'PENDING' | 'COMPLETED' | 'FAILED' | 'INVALID' | 'REVERSED';
+
+export interface BoostPayment {
+  merchant_reference: string;
+  order_tracking_id: string | null;
+  item_id: number;
+  package: string;
+  amount: string;
+  currency: string;
+  status: BoostPaymentStatus;
+  payment_method: string;
+  redirect_url: string;
+  boost_expires_at: string | null;
+  created_at: string;
+}
+
+export const useBoostPackages = () => {
+  return useSWR<BoostPackage[]>('/payments/boost/packages/', async (url: string) => (await secureApiClient.get(url)).data);
+};
+
+export const createBoostPayment = async (item_id: number, pkg: string): Promise<BoostPayment> => {
+  const response = await secureApiClient.post('/payments/boost/', { item_id, package: pkg });
+  return response.data;
+};
+
+export const getBoostPayment = async (merchantReference: string): Promise<BoostPayment> => {
+  const response = await secureApiClient.get(`/payments/boost/${encodeURIComponent(merchantReference)}/`);
+  return response.data;
+};

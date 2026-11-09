@@ -25,9 +25,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { AdminTableSurface } from '@/components/admin/AdminTableSurface';
 import { AdminToolbar } from '@/components/admin/AdminToolbar';
+import { BoostPaymentDialog } from '@/components/admin/BoostPaymentDialog';
 import { toast } from '@/hooks/use-toast';
 import { sanitizeReasonForDisplay, summarizeModeration } from '@/lib/moderation';
-import { CheckCircle, Eye, Loader2, Star, XCircle } from 'lucide-react';
+import { CheckCircle, Eye, Loader2, Rocket, Star, XCircle } from 'lucide-react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -88,6 +89,10 @@ export default function AdminItemsPage() {
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [promotingItems, setPromotingItems] = useState<Record<number, boolean>>({});
   const [promotionStatus, updatePromotionStatus] = usePromotionStatus(items);
+  const [boostItem, setBoostItem] = useState<ItemAdminSerializer | null>(null);
+  const handleBoosted = useCallback(() => {
+    mutate();
+  }, [mutate]);
 
   // Get filter params from URL
   const statusFilter = searchParams.get('status') || '';
@@ -834,6 +839,15 @@ export default function AdminItemsPage() {
                     <Button
                       variant="outline"
                       size="sm"
+                      className="bg-amber-50 text-amber-700 hover:bg-amber-100 hover:text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-950 dark:border-amber-900 w-full md:w-auto"
+                      onClick={() => setBoostItem(item)}
+                    >
+                      <Rocket className="h-4 w-4 mr-1" />
+                      Boost
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       className="bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700 border-green-200 w-full md:w-auto"
                       onClick={() => {
                         setSelectedItem(item);
@@ -867,6 +881,12 @@ export default function AdminItemsPage() {
       </AdminTableSurface>
 
       <ItemDetailsDialog />
+      <BoostPaymentDialog
+        item={boostItem}
+        open={boostItem !== null}
+        onOpenChange={(open) => !open && setBoostItem(null)}
+        onBoosted={handleBoosted}
+      />
 
       {/* Approval Dialog */}
       {selectedItem && (
